@@ -1,0 +1,17 @@
+wooden and iron supports
+air vent rewrite
+"unbreakable" solution for entrance
+overall rewrite
+mod settings
+uranium ore only in subsurfaces
+mobile borer more expensive
+graphics by yuoki
+digging robots
+enemies
+digging drops many stones
+placement of elevators: only if free space; request generation and surface clearing
+informatron
+position marker
+vent and elevator placement requires boring
+electricity for fluid and item elevators
+fluid elevator: also check for fluid type; do some flow logic, not just averaging
