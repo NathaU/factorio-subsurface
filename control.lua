@@ -236,11 +236,12 @@ end)
 function build_safe(event, func)
 	
 	-- first, check if the given area is uncovered (caveground tiles) and has no entities in it
-	local subsurface = get_subsurface(event.created_entity.surface)
-	local area = event.created_entity.bounding_box
+	local entity = event.created_entity
+	local subsurface = get_subsurface(entity.surface)
+	local area = entity.bounding_box
 	local safe_position = true
 	if not is_subsurface(subsurface) then safe_position = false end
-	if not subsurface.is_chunk_generated{event.created_entity.position.x / 32, event.created_entity.position.y / 32} then safe_position = false end
+	if not subsurface.is_chunk_generated{entity.position.x / 32, entity.position.y / 32} then safe_position = false end
 	for _,t in ipairs(subsurface.find_tiles_filtered{area=area}) do
 		if t.name ~= "caveground" then safe_position = false end
 	end
@@ -249,10 +250,20 @@ function build_safe(event, func)
 	if safe_position then func()
 	elseif event["player_index"] then
 		local p = game.get_player(event.player_index)
-		p.create_local_flying_text{text={"subsurface.cannot-place-here"}, position=event.created_entity.position}
-		p.mine_entity(event.created_entity, true)
-	else
-		-- robot built it
+		p.create_local_flying_text{text={"subsurface.cannot-place-here"}, position=entity.position}
+		p.mine_entity(entity, true)
+	else -- robot built it
+		local it = entity.surface.create_entity{
+			name = "item-on-ground",
+			position = entity.position,
+			force = entity.force,
+			stack = {name=entity.name, count=1}
+		}
+		if it ~= nil then it.order_deconstruction(entity.force) end -- if it is nil, then the item is now on a belt
+		for _,p in ipairs(entity.surface.find_entities_filtered{type="character", position=entity.position, radius=50}) do
+			if p.player then p.player.create_local_flying_text{text={"subsurface.cannot-place-here"}, position=entity.position} end
+		end
+		entity.destroy()
 	end
 	
 end
