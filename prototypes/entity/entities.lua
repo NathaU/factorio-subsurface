@@ -370,7 +370,7 @@ data:extend(
     flags = {"placeable-neutral", "not-on-map"},
     collision_box = {{-0.29, -0.29}, {0.29, 0.29}},
     selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
-    minable = {mining_time = 1, result="stone",count=2},
+    minable = {mining_time = 1, result="stone",count=20},
     max_health = 350,
     repair_speed_modifier = 2,
     corpse = "wall-remnants",

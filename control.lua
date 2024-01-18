@@ -70,19 +70,20 @@ function get_subsurface(surface)
 		if oname == nil then name = surface.name .. "_subsurface_1"
 		else name = oname .. "_subsurface_" .. (tonumber(number)+1) end
 		
-		if not game.surfaces[name] then
-			game.create_surface(name, subsurface_map_settings)
-			game.surfaces[name].generate_with_lab_tiles = true
-			game.surfaces[name].daytime = 0.5
-			game.surfaces[name].freeze_daytime = true
+		local subsurface = game.get_surface(name)
+		if not subsurface then
+			subsurface = game.create_surface(name, subsurface_map_settings)
+			subsurface.generate_with_lab_tiles = true
+			subsurface.daytime = 0.5
+			subsurface.freeze_daytime = true
 		end
-		global.subsurfaces[surface.name] = game.surfaces[name]
-		return game.surfaces[name]
+		global.subsurfaces[surface.name] = subsurface
+		return subsurface
 	end
 end
 function get_oversurface(subsurface)
 	for n,s in pairs(global.subsurfaces) do
-		if s == subsurface and game.surfaces[n] then return game.surfaces[n] end
+		if s == subsurface and game.get_surface(n) then return game.get_surface(n) end
 	end
 	return nil
 end
@@ -165,16 +166,19 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 end
 
 script.on_event(defines.events.on_tick, function(event)
+	
+	-- handle all working drillers
 	if global.subsurface_surface_drillers ~= nil then
 		for u,d in pairs(global.subsurface_surface_drillers) do
-			if d.products_finished == 1 then
-				-- oversurface
+			if d.products_finished == 1 then -- time for one driller finish digging
+				
+				-- oversurface entity placing
 				local p = d.position
 				local entrance_car = d.surface.create_entity{name="tunnel-entrance", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
 				local entrance_pole = d.surface.create_entity{name="tunnel-entrance-cable", position=p, force=d.force}
 				table.remove(global.subsurface_surface_drillers, i)
 				
-				-- subsurface
+				-- subsurface entity placing
 				local subsurface = get_subsurface(d.surface)
 				clear_subsurface(subsurface, d.position, 4, 1.5)
 				local exit_car = subsurface.create_entity{name="tunnel-exit", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
@@ -195,7 +199,7 @@ script.on_event(defines.events.on_tick, function(event)
 			end
 		end
 	end
-	if global.subsurface_item_elevators ~= nil then
+	if global.subsurface_item_elevators ~= nil then -- move items from input to output
 		for i,elevators in ipairs(global.subsurface_item_elevators) do
 			if not(elevators[1].valid and elevators[2].valid) then
 				if not elevators[1].valid then elevators[1].destroy() end
@@ -209,7 +213,7 @@ script.on_event(defines.events.on_tick, function(event)
 			end
 		end
 	end
-	if global.subsurface_fluid_elevators ~= nil then
+	if global.subsurface_fluid_elevators ~= nil then -- average fluid between input and output
 		for i,elevators in ipairs(global.subsurface_fluid_elevators) do
 			if not(elevators[1].valid and elevators[2].valid) then
 				if not elevators[1].valid then elevators[1].destroy() end
@@ -228,42 +232,78 @@ script.on_event(defines.events.on_tick, function(event)
 	end
 end)
 
+-- build entity only if it is safe in subsurface
+function build_safe(event, func)
+	
+	-- first, check if the given area is uncovered (caveground tiles) and has no entities in it
+	local subsurface = get_subsurface(event.created_entity.surface)
+	local area = event.created_entity.bounding_box
+	local safe_position = true
+	if not is_subsurface(subsurface) then safe_position = false end
+	if not subsurface.is_chunk_generated{event.created_entity.position.x / 32, event.created_entity.position.y / 32} then safe_position = false end
+	for _,t in ipairs(subsurface.find_tiles_filtered{area=area}) do
+		if t.name ~= "caveground" then safe_position = false end
+	end
+	if subsurface.count_entities_filtered{area=area} > 0 then safe_position = false end
+	
+	if safe_position then func()
+	elseif event["player_index"] then
+		local p = game.get_player(event.player_index)
+		p.create_local_flying_text{text={"subsurface.cannot-place-here"}, position=event.created_entity.position}
+		p.mine_entity(event.created_entity, true)
+	else
+		-- robot built it
+	end
+	
+end
 script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity}, function(event)
-	if event.created_entity.name == "surface-driller" then
+	local entity = event.created_entity
+	if entity.name == "surface-driller" then
 		
-		get_subsurface(event.created_entity.surface).request_to_generate_chunks(event.created_entity.position, 3)
+		get_subsurface(entity.surface).request_to_generate_chunks(entity.position, 3)
 		if global.subsurface_surface_drillers == nil then global.subsurface_surface_drillers = {} end
-		table.insert(global.subsurface_surface_drillers, event.created_entity)
+		table.insert(global.subsurface_surface_drillers, entity)
 	
-	elseif event.created_entity.name == "item-elevator-input" then
+	elseif entity.name == "item-elevator-input" then
 		
-		if global.subsurface_item_elevators == nil then global.subsurface_item_elevators = {} end
-		local complementary = get_subsurface(event.created_entity.surface).create_entity{name="item-elevator-input", position=event.created_entity.position, force=event.created_entity.force}
-		-- clear subsurface when placing
-		--request_area_gen
-		table.insert(global.subsurface_item_elevators, {event.created_entity, complementary}) -- input, output
+		build_safe(event, function()
+			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-input", position=entity.position, force=entity.force, direction=entity.direction}
+			if complementary then
+				if global.subsurface_item_elevators == nil then global.subsurface_item_elevators = {} end
+				table.insert(global.subsurface_item_elevators, {entity, complementary}) -- {input, output}
+			end
+		end)
+		
 	
-	elseif event.created_entity.name == "item-elevator-output" then
+	elseif entity.name == "item-elevator-output" then
 		
-		if global.subsurface_item_elevators == nil then global.subsurface_item_elevators = {} end
-		local complementary = get_subsurface(event.created_entity.surface).create_entity{name="item-elevator-output", position=event.created_entity.position, force=event.created_entity.force}
-		-- clear subsurface when placing
-		--request_area_gen
-		table.insert(global.subsurface_item_elevators, {complementary, event.created_entity}) -- input, output
+		build_safe(event, function()
+			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-output", position=entity.position, force=entity.force, direction=entity.direction}
+			if complementary then
+				if global.subsurface_item_elevators == nil then global.subsurface_item_elevators = {} end
+				table.insert(global.subsurface_item_elevators, {complementary, entity}) -- {input, output}
+			end
+		end)
 	
-	elseif event.created_entity.name == "fluid-elevator-input" then
+	elseif entity.name == "fluid-elevator-input" then
 		
-		--request_area_gen(entity_area, complementary_surface)
-		local complementary = get_subsurface(event.created_entity.surface).create_entity{name = "fluid-elevator-output", position = event.created_entity.position, force=event.created_entity.force}
-		if global.subsurface_fluid_elevators == nil then global.subsurface_fluid_elevators = {} end
-		table.insert(global.subsurface_fluid_elevators, {event.created_entity, complementary}) -- input, output
+		build_safe(event, function()
+			local complementary = get_subsurface(entity.surface).create_entity{name = "fluid-elevator-output", position = entity.position, force=entity.force, direction=entity.direction}
+			if complementary then
+				if global.subsurface_fluid_elevators == nil then global.subsurface_fluid_elevators = {} end
+				table.insert(global.subsurface_fluid_elevators, {entity, complementary}) -- {input, output}
+			end
+		end)
 	
-	elseif event.created_entity.name == "fluid-elevator-output" then
+	elseif entity.name == "fluid-elevator-output" then
 		
-		--request_area_gen(entity_area, complementary_surface)
-		local complementary = get_subsurface(event.created_entity.surface).create_entity{name = "fluid-elevator-input", position = event.created_entity.position, force=event.created_entity.force}
-		if global.subsurface_fluid_elevators == nil then global.subsurface_fluid_elevators = {} end
-		table.insert(global.subsurface_fluid_elevators, {complementary, event.created_entity}) -- input, output
+		build_safe(event, function()
+			local complementary = get_subsurface(entity.surface).create_entity{name = "fluid-elevator-input", position = entity.position, force=entity.force, direction=entity.direction}
+			if complementary then
+				if global.subsurface_fluid_elevators == nil then global.subsurface_fluid_elevators = {} end
+				table.insert(global.subsurface_fluid_elevators, {complementary, entity}) -- {input, output}
+			end
+		end)
 	end
 end)
 
@@ -271,7 +311,7 @@ end)
 script.on_event(defines.events.on_player_driving_changed_state, function(event)
 	if event.entity and (event.entity.name == "tunnel-entrance" or event.entity.name == "tunnel-exit") and global.subsurface_car_links and global.subsurface_car_links[event.entity.unit_number] then
 		local opposite_car = global.subsurface_car_links[event.entity.unit_number]
-		game.players[event.player_index].teleport(game.players[event.player_index].position, opposite_car.surface)
+		game.get_player(event.player_index).teleport(game.get_player(event.player_index).position, opposite_car.surface)
 	end
 end)
 
@@ -315,15 +355,15 @@ end)
 script.on_event(defines.events.on_pre_surface_deleted, function(event)
 	if global.subsurfaces then
 		-- delete all its subsurfaces and remove from list
-		local name = game.surfaces[event.surface_index].name
+		local name = game.get_surface(event.surface_index).name
 		while(global.subsurfaces[name]) do
 			local s = global.subsurfaces[name]
 			global.subsurfaces[name] = nil
 			name = s.name
 			game.delete_surface(s)
 		end
-		if is_subsurface(game.surfaces[event.surface_index]) then
-			global.subsurfaces[get_oversurface(game.surfaces[event.surface_index]).name] = nil
+		if is_subsurface(get_surface(event.surface_index)) then
+			global.subsurfaces[get_oversurface(game.get_surface(event.surface_index)).name] = nil
 		end
 	end
 end)
