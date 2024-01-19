@@ -50,7 +50,7 @@ data:extend(
     place_result = "fluid-elevator-output",
     stack_size = 10
   },
-  --[[{
+  {
     type = "item",
     name = "air-vent",
     icon = "__Subsurface__/graphics/icons/air_vent_11_icon.png",
@@ -70,7 +70,7 @@ data:extend(
     place_result = "active-air-vent",
     stack_size = 50
   },
-  {
+  --[[{
     type = "item",
     name = "mobile-borer",
     icon = "__base__/graphics/icons/car.png",

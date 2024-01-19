@@ -1,43 +1,8 @@
 require "util"
 require "lib"
 
-local subsurface_map_settings = {
-	pollution=
-	{
-      enabled = true,
-      diffusion_ratio = 0,
-      min_to_diffuse = 15,
-      ageing = 0.1,
-      expected_max_per_chunk = 7000,
-      min_to_show_per_chunk = 700,
-      min_pollution_to_damage_trees = 30,
-      pollution_with_max_forest_damage = 75,
-      pollution_per_tree_damage = 25,
-      pollution_restored_per_tree_damage = 5,
-      max_pollution_to_restore_trees = 0
-	},
-	steering=
-    {
-      default=
-      {
-        -- not including the radius of the unit
-        radius = 1.2,
-        separation_force = 0.005,
-        separation_factor = 1.2,
-        force_unit_fuzzy_goto_behavior = false
-      },
-      moving=
-      {
-        radius = 3,
-        separation_force = 0.01,
-        separation_factor = 3,
-        -- used only for special "to look good" purposes (like in trailer)
-        force_unit_fuzzy_goto_behavior = false
-      }
-    },
-	default_enable_all_autoplace_controls = false,
-	cliff_settings = {cliff_elevation_0 = 1024},
-}
+max_pollution_move_active = 128 -- the max amount of pollution that can be moved per 64 ticks from one surface to the above
+max_pollution_move_passive = 64
 
 function dump(o)
    if type(o) == 'table' then
@@ -64,7 +29,7 @@ function get_subsurface(surface)
 		
 		local subsurface = game.get_surface(name)
 		if not subsurface then
-			subsurface = game.create_surface(name, subsurface_map_settings)
+			subsurface = game.create_surface(name)
 			subsurface.generate_with_lab_tiles = true
 			subsurface.daytime = 0.5
 			subsurface.freeze_daytime = true
@@ -162,67 +127,61 @@ end
 
 script.on_event(defines.events.on_tick, function(event)
 	-- handle all working drillers
-	if global.subsurface_surface_drillers ~= nil then
-		for i,d in ipairs(global.subsurface_surface_drillers) do
-			if not d.valid then table.remove(global.subsurface_surface_drillers, i)
-			elseif d.products_finished == 1 then -- time for one driller finish digging
-				
-				-- oversurface entity placing
-				local p = d.position
-				local entrance_car = d.surface.create_entity{name="tunnel-entrance", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
-				local entrance_pole = d.surface.create_entity{name="tunnel-entrance-cable", position=p, force=d.force}
-				table.remove(global.subsurface_surface_drillers, i)
-				
-				-- subsurface entity placing
-				local subsurface = get_subsurface(d.surface)
-				clear_subsurface(subsurface, d.position, 20, 1.5)
-				local exit_car = subsurface.create_entity{name="tunnel-exit", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
-				local exit_pole = subsurface.create_entity{name="tunnel-exit-cable", position=p, force=d.force}
-				
-				entrance_pole.connect_neighbour(exit_pole)
-				entrance_pole.connect_neighbour{wire=defines.wire_type.red, target_entity=exit_pole, source_circuit_id=1, target_circuit_id=1}
-				entrance_pole.connect_neighbour{wire=defines.wire_type.green, target_entity=exit_pole, source_circuit_id=1, target_circuit_id=1}
-				
-				if global.subsurface_pole_links == nil then global.subsurface_pole_links = {} end
-				global.subsurface_pole_links[entrance_pole.unit_number] = exit_pole
-				global.subsurface_pole_links[exit_pole.unit_number] = entrance_pole
-				if global.subsurface_car_links == nil then global.subsurface_car_links = {} end
-				global.subsurface_car_links[entrance_car.unit_number] = exit_car
-				global.subsurface_car_links[exit_car.unit_number] = entrance_car
-				
-				d.destroy()
+	for i,d in ipairs(global.subsurface_surface_drillers or {}) do
+		if not d.valid then table.remove(global.subsurface_surface_drillers, i)
+		elseif d.products_finished == 5 then -- time for one driller finish digging
+			
+			-- oversurface entity placing
+			local p = d.position
+			local entrance_car = d.surface.create_entity{name="tunnel-entrance", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
+			local entrance_pole = d.surface.create_entity{name="tunnel-entrance-cable", position=p, force=d.force}
+			table.remove(global.subsurface_surface_drillers, i)
+			
+			-- subsurface entity placing
+			local subsurface = get_subsurface(d.surface)
+			clear_subsurface(subsurface, d.position, 4, 1.5)
+			local exit_car = subsurface.create_entity{name="tunnel-exit", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
+			local exit_pole = subsurface.create_entity{name="tunnel-exit-cable", position=p, force=d.force}
+			
+			entrance_pole.connect_neighbour(exit_pole)
+			entrance_pole.connect_neighbour{wire=defines.wire_type.red, target_entity=exit_pole, source_circuit_id=1, target_circuit_id=1}
+			entrance_pole.connect_neighbour{wire=defines.wire_type.green, target_entity=exit_pole, source_circuit_id=1, target_circuit_id=1}
+			
+			if global.subsurface_pole_links == nil then global.subsurface_pole_links = {} end
+			global.subsurface_pole_links[entrance_pole.unit_number] = exit_pole
+			global.subsurface_pole_links[exit_pole.unit_number] = entrance_pole
+			if global.subsurface_car_links == nil then global.subsurface_car_links = {} end
+			global.subsurface_car_links[entrance_car.unit_number] = exit_car
+			global.subsurface_car_links[exit_car.unit_number] = entrance_car
+			
+			d.destroy()
+		end
+	end
+	for i,elevators in ipairs(global.subsurface_item_elevators or {}) do  -- move items from input to output
+		if not(elevators[1].valid and elevators[2].valid) then
+			if not elevators[1].valid then elevators[1].destroy() end
+			if not elevators[2].valid then elevators[2].destroy() end
+			table.remove(global.subsurface_item_elevators, i)
+		else
+			if elevators[1].get_item_count() > 0 and elevators[2].can_insert(elevators[1].get_inventory(defines.inventory.chest)[1]) then
+				elevators[2].insert(elevators[1].get_inventory(defines.inventory.chest)[1])
+				elevators[1].remove_item(elevators[1].get_inventory(defines.inventory.chest)[1])
 			end
 		end
 	end
-	if global.subsurface_item_elevators ~= nil then -- move items from input to output
-		for i,elevators in ipairs(global.subsurface_item_elevators) do
-			if not(elevators[1].valid and elevators[2].valid) then
-				if not elevators[1].valid then elevators[1].destroy() end
-				if not elevators[2].valid then elevators[2].destroy() end
-				table.remove(global.subsurface_item_elevators, i)
-			else
-				if elevators[1].get_item_count() > 0 and elevators[2].can_insert(elevators[1].get_inventory(defines.inventory.chest)[1]) then
-					elevators[2].insert(elevators[1].get_inventory(defines.inventory.chest)[1])
-					elevators[1].remove_item(elevators[1].get_inventory(defines.inventory.chest)[1])
-				end
-			end
-		end
-	end
-	if global.subsurface_fluid_elevators ~= nil then -- average fluid between input and output
-		for i,elevators in ipairs(global.subsurface_fluid_elevators) do
-			if not(elevators[1].valid and elevators[2].valid) then
-				if not elevators[1].valid then elevators[1].destroy() end
-				if not elevators[2].valid then elevators[2].destroy() end
-				table.remove(global.subsurface_fluid_elevators, i)
-			elseif elevators[1].fluidbox[1] then -- input has some fluid
-				local f1 = elevators[1].fluidbox[1]
-				local f2 = elevators[2].fluidbox[1] or {name=f1.name, amount=0}
-				local new_amount = (f1.amount + f2.amount) / 2
-				f1.amount = new_amount
-				f2.amount = new_amount
-				elevators[1].fluidbox[1] = f1
-				elevators[2].fluidbox[1] = f2
-			end
+	for i,elevators in ipairs(global.subsurface_fluid_elevators or {}) do  -- average fluid between input and output
+		if not(elevators[1].valid and elevators[2].valid) then
+			if not elevators[1].valid then elevators[1].destroy() end
+			if not elevators[2].valid then elevators[2].destroy() end
+			table.remove(global.subsurface_fluid_elevators, i)
+		elseif elevators[1].fluidbox[1] then -- input has some fluid
+			local f1 = elevators[1].fluidbox[1]
+			local f2 = elevators[2].fluidbox[1] or {name=f1.name, amount=0}
+			local new_amount = (f1.amount + f2.amount) / 2
+			f1.amount = new_amount
+			f2.amount = new_amount
+			elevators[1].fluidbox[1] = f1
+			elevators[2].fluidbox[1] = f2
 		end
 	end
 	
@@ -248,26 +207,58 @@ script.on_event(defines.events.on_tick, function(event)
 						subsurface.pollute({chunk.x*32, chunk.y*32}, -total)
 					end
 				end
-				
-				--game.print(chunk.x .." " .. chunk.y)
-				--if subsurface.count_tiles_filtered{area=chunk.area, name="caveground"} > 0 then
-				--if global.subsurface_exposed_chunks[subsurface.index] ~= nil and global.subsurface_exposed_chunks[subsurface.index][chunk.x] ~= nil and global.subsurface_exposed_chunks[subsurface.index][chunk.x][chunk.y] ~= nil and global.subsurface_exposed_chunks[subsurface.index][chunk.x][chunk.y] > 0 and pollution > 10 then -- partially or fully exposed
-					-- raise pollution in all chunks
-					--subsurface.pollute({((chunk.x+1)*32)+16, (chunk.y*32)+16}, pollution*0.05)
-					--subsurface.pollute({((chunk.x-1)*32)+16, (chunk.y*32)+16}, pollution*0.05)
-					--subsurface.pollute({(chunk.x*32)+16, ((chunk.y+1)*32)+16}, pollution*0.05)
-					--subsurface.pollute({(chunk.x*32)+16, ((chunk.y-1)*32)+16}, pollution*0.05)
-					--decrease in this chunk
-				--end
 			end
 			
+		end
+		
+		-- next, move pollution using air vents
+		for i,vent in ipairs(global.air_vents or {}) do
+			if vent.valid then
+				local subsurface = get_subsurface(vent.surface)
+				if vent.name == "active-air-vent" and vent.energy > 0 then
+					local current_energy = vent.energy -- 918.5285 if full
+					local max_energy = 918.5285
+					max_movable_pollution = current_energy / max_energy * max_pollution_move_active -- how much polution can be moved with the current available energy
+					
+					local pollution_to_move = math.min(max_movable_pollution, subsurface.get_pollution(vent.position))
+					
+					--entity.energy = entity.energy - ((pollution_to_move / max_pollution_move_active)*max_energy)
+					subsurface.pollute(vent.position, -pollution_to_move)
+					vent.surface.pollute(vent.position, pollution_to_move)
+					
+					if pollution_to_move > 0 then
+						vent.active = true
+						vent.surface.create_trivial_smoke{name="light-smoke", position={vent.position.x+0.25, vent.position.y}, force=game.forces.neutral}
+					else
+						entity.active = false
+					end
+				elseif vent.name == "air-vent" then
+					local pollution_surface = vent.surface.get_pollution(vent.position)
+					local pollution_subsurface = subsurface.get_pollution(vent.position)
+					local diff = pollution_surface - pollution_subsurface
+
+					if math.abs(diff) > max_pollution_move_passive then
+						diff = diff / math.abs(diff) * max_pollution_move_passive
+					end
+
+					if diff < 0 then -- pollution in subsurface is higher
+						vent.surface.create_trivial_smoke{name="light-smoke", position={vent.position.x, vent.position.y}, force=game.forces.neutral}
+					end
+
+					vent.surface.pollute(vent.position, -diff)
+					subsurface.pollute(vent.position, diff)
+				end
+			else
+				table.remove(global.air_vents, i)
+			end
 		end
 	end
 	
 end)
 
 -- build entity only if it is safe in subsurface
-function build_safe(event, func)
+function build_safe(event, func, check_for_entities)
+	if check_for_entities == nil then check_for_entities = true end
 	
 	-- first, check if the given area is uncovered (caveground tiles) and has no entities in it
 	local entity = event.created_entity
@@ -279,7 +270,7 @@ function build_safe(event, func)
 	for _,t in ipairs(subsurface.find_tiles_filtered{area=area}) do
 		if t.name ~= "caveground" then safe_position = false end
 	end
-	if subsurface.count_entities_filtered{area=area} > 0 then safe_position = false end
+	if check_for_entities and subsurface.count_entities_filtered{area=area} > 0 then safe_position = false end
 	
 	if safe_position then func()
 	elseif event["player_index"] then
@@ -304,13 +295,10 @@ end
 script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity}, function(event)
 	local entity = event.created_entity
 	if entity.name == "surface-driller" then
-		
 		if global.subsurface_surface_drillers == nil then global.subsurface_surface_drillers = {} end
 		table.insert(global.subsurface_surface_drillers, entity)
 		get_subsurface(entity.surface).request_to_generate_chunks(entity.position, 3)
-	
 	elseif entity.name == "item-elevator-input" then
-		
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-input", position=entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
@@ -318,10 +306,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 				table.insert(global.subsurface_item_elevators, {entity, complementary}) -- {input, output}
 			end
 		end)
-		
-	
 	elseif entity.name == "item-elevator-output" then
-		
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-output", position=entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
@@ -331,7 +316,6 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		end)
 	
 	elseif entity.name == "fluid-elevator-input" then
-		
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name = "fluid-elevator-output", position = entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
@@ -339,9 +323,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 				table.insert(global.subsurface_fluid_elevators, {entity, complementary}) -- {input, output}
 			end
 		end)
-	
 	elseif entity.name == "fluid-elevator-output" then
-		
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name = "fluid-elevator-input", position = entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
@@ -349,6 +331,12 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 				table.insert(global.subsurface_fluid_elevators, {complementary, entity}) -- {input, output}
 			end
 		end)
+	elseif entity.name == "air-vent" or entity.name == "active-air-vent" then
+		build_safe(event, function()
+			if global.air_vents == nil then global.air_vents = {} end
+			table.insert(global.air_vents, entity)
+			entity.operable = false
+		end, false)
 	end
 end)
 
