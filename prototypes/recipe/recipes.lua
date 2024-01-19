@@ -61,10 +61,10 @@ data:extend(
     },
     result = "item-elevator-output"
   },  
-  --[[{
+  {
     type = "recipe",
     name = "air-vent",
-    enabled = false,
+    enabled = true,
     ingredients =
     {
       {"iron-plate", 2},
@@ -74,16 +74,28 @@ data:extend(
   {
     type = "recipe",
     name = "active-air-vent",
-    enabled = false,
+    enabled = true,
     ingredients =
     {
       {"iron-plate", 2},
     },
     result = "active-air-vent"
   },
-
-  
   {
+    type = "recipe",
+    name = "venting",
+	icon = "__core__/graphics/empty.png",
+	icon_size = 1,
+    subgroup = "inter-surface-transport",
+    enabled = true,
+    hidden = true,
+    category = "venting",
+    energy_required = 1,
+    ingredients = {},    
+    results = {}
+  }, 
+  
+ --[[ {
     type = "recipe",
     name = "mobile-borer",
     enabled = false,
@@ -95,16 +107,7 @@ data:extend(
   },  
   
   
-  {
-    type = "recipe",
-    name = "dummy-air-vent-recipe",
-    enabled = true,
-    hidden = true,
-    category = "dummy-recipe-category",
-    energy_required = 1,
-    ingredients = {},    
-    results={{type="item", name="iron-plate", amount=1, probability=0},},
-  }, 
+  
   
     
 

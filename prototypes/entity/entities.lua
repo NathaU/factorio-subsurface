@@ -399,14 +399,6 @@ data:extend(
     }
   },
 	
-  --[[{
-    type = "flying-text",
-    name = "custom-flying-text",
-    flags = {"not-on-map", "placeable-off-grid"},
-    time_to_live = 1,
-    speed = 0
-  },
-
   {
     type = "assembling-machine",
     name = "active-air-vent",
@@ -415,8 +407,8 @@ data:extend(
     flags = {"placeable-player", "player-creation"},
     minable = {hardness = 0.2, mining_time = 0.5, result = "active-air-vent"},
     max_health = 200,
-    crafting_categories = {"dummy-recipe-category"},
-    fixed_recipe = "dummy-air-vent-recipe",
+    crafting_categories = {"venting"},
+    fixed_recipe = "venting",
     ingredient_count = 0,
     collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
     selection_box = {{-1, -1}, {1, 1}},
@@ -463,36 +455,8 @@ data:extend(
       }
     },
   },
-
-  ,
-
-  {
-    type = "trivial-smoke",
-    name = "smoke-custom",
-    flags = {"not-on-map", "placeable-off-grid"},
-    duration = 120,
-    fade_away_duration = 120,
-    spread_duration = 120,
-    start_scale = 0.6,
-    end_scale = 1.0,
-    cyclic = true,
-    color = {r = 1, g = 1, b = 1, a = 0.9},
-    affected_by_wind = true,
-    animation =
-    {
-      width = 152,
-      height = 120,
-      line_length = 5,
-      frame_count = 60,
-      axially_symmetrical = false,
-      direction_count = 1,
-      shift = {-0.53125, -0.4375},
-      priority = "high",
-      animation_speed = 0.25,
-      filename = "__base__/graphics/entity/smoke/smoke.png"
-    }
-  },
-  {
+  
+  --[[{
     type = "car",
     name = "mobile-borer",
     icon = "__base__/graphics/icons/car.png",
