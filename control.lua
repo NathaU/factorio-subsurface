@@ -3,27 +3,19 @@ require "lib"
 
 local subsurface_map_settings = {
 	pollution=
-    {
-      enabled=true,
-      -- these are values for 60 ticks (1 simulated second)
-      --
-      -- amount that is diffused to neighboring chunk
-      -- (possibly repeated for other directions as well)
-      diffusion_ratio=0.001,
-      -- this much PUs must be on the chunk to start diffusing
-      min_to_diffuse=15,
-      -- constant modifier a percentage of 1 - the pollution eaten by a chunks tiles
-      ageing=0,
-      -- anything bigger than this is visualised as this value
-      expected_max_per_chunk=7000,
-      -- anything lower than this (but > 0) is visualised as this value
-      min_to_show_per_chunk=700,
-      min_pollution_to_damage_trees = 3500,
-      pollution_with_max_forest_damage = 10000,
-      pollution_per_tree_damage = 2000,
-      pollution_restored_per_tree_damage = 500,
-      max_pollution_to_restore_trees = 1000
-    },
+	{
+      enabled = true,
+      diffusion_ratio = 0,
+      min_to_diffuse = 15,
+      ageing = 0.1,
+      expected_max_per_chunk = 7000,
+      min_to_show_per_chunk = 700,
+      min_pollution_to_damage_trees = 30,
+      pollution_with_max_forest_damage = 75,
+      pollution_per_tree_damage = 25,
+      pollution_restored_per_tree_damage = 5,
+      max_pollution_to_restore_trees = 0
+	},
 	steering=
     {
       default=
@@ -94,11 +86,12 @@ function is_subsurface(_surface)
 end
 
 function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius)
-	if _digging_radius < 1 then return nil end -- min _digging_radius is 1 
-	local digging_subsurface_area = get_area(_position, _digging_radius - 1)
+	if not is_subsurface(_surface) then return end
+	if _digging_radius < 1 then return nil end -- min radius is 1
+	local digging_subsurface_area = get_area(_position, _digging_radius - 1) -- caveground area
 	local new_tiles = {}
 
-	if _clearing_radius then
+	if _clearing_radius then -- destroy all entities in this radius except players
 		local clearing_subsurface_area = get_area(_position, _clearing_radius)
 		for _,entity in ipairs(_surface.find_entities(clearing_subsurface_area)) do
 			if entity.type ~="player" then
@@ -106,15 +99,16 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 			else
 				entity.teleport(get_safe_position(_position, {x=_position.x + _clearing_radius, y = _position.y}))
 			end
-		end 
+		end
 	end
-
-	if not is_subsurface(_surface) then return end
-
+	
 	local walls_destroyed = 0
 	for x, y in iarea(digging_subsurface_area) do
 		if _surface.get_tile(x, y).name ~= "caveground" then
 			table.insert(new_tiles, {name = "caveground", position = {x, y}})
+			
+			-- add caveground tiles to exposed_chunks
+			global.subsurface_exposed_chunks[_surface.index][math.floor(x/32)][math.floor(y/32)] = global.subsurface_exposed_chunks[_surface.index][math.floor(x/32)][math.floor(y/32)] + 1
 		end
 
 		--[[if global.marked_for_digging[string.format("%s&@{%d,%d}", _surface.name, math.floor(x), math.floor(y))] then -- remove the mark
@@ -137,6 +131,7 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 		else
 		end
 	end
+	
 	local to_add = {}
 	for x, y in iouter_area_border(digging_subsurface_area) do
 		if _surface.get_tile(x, y).name == "out-of-map" then
@@ -161,16 +156,16 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 		local pending_entity = data.surface.create_entity{name = "pending-digging", position = {x = data.x, y = data.y}, force=game.forces.neutral}
 		global.digging_pending[data.surface.name][string.format("{%d,%d}", math.floor(data.x), math.floor(data.y))] = pending_entity
 	end
-
+	
 	return walls_destroyed
 end
 
 script.on_event(defines.events.on_tick, function(event)
-	
 	-- handle all working drillers
 	if global.subsurface_surface_drillers ~= nil then
-		for u,d in pairs(global.subsurface_surface_drillers) do
-			if d.products_finished == 1 then -- time for one driller finish digging
+		for i,d in ipairs(global.subsurface_surface_drillers) do
+			if not d.valid then table.remove(global.subsurface_surface_drillers, i)
+			elseif d.products_finished == 1 then -- time for one driller finish digging
 				
 				-- oversurface entity placing
 				local p = d.position
@@ -180,7 +175,7 @@ script.on_event(defines.events.on_tick, function(event)
 				
 				-- subsurface entity placing
 				local subsurface = get_subsurface(d.surface)
-				clear_subsurface(subsurface, d.position, 4, 1.5)
+				clear_subsurface(subsurface, d.position, 20, 1.5)
 				local exit_car = subsurface.create_entity{name="tunnel-exit", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
 				local exit_pole = subsurface.create_entity{name="tunnel-exit-cable", position=p, force=d.force}
 				
@@ -230,6 +225,45 @@ script.on_event(defines.events.on_tick, function(event)
 			end
 		end
 	end
+	
+	-- POLLUTION (since there is no mechanic to just reflect pollution (no absorption but also no spread) we have to do it for our own. The game's mechanic can't be changed so we need to consider it)
+	if event.tick % 64 == 0 and global.subsurfaces then
+		for _,subsurface in pairs(global.subsurfaces) do
+			
+			-- first, do the spreading but just on exposed caveground
+			-- chunks that are not exposed but polluted distribute their pollution back to a chunk that is polluted (amount is proportional to adjacent chunks pollution)
+			for chunk in subsurface.get_chunks() do
+				local pollution = subsurface.get_pollution{chunk.x*32, chunk.y*32}
+				if pollution > 0 and subsurface.count_tiles_filtered{area=chunk.area, name="caveground"} == 0 then
+					local north = subsurface.get_pollution{chunk.x*32, (chunk.y-1)*32}
+					local south = subsurface.get_pollution{chunk.x*32, (chunk.y+1)*32}
+					local east = subsurface.get_pollution{(chunk.x+1)*32, chunk.y*32}
+					local west = subsurface.get_pollution{(chunk.x-1)*32, chunk.y*32}
+					local total = north + south + east + west
+					if total > 0 then
+						subsurface.pollute({chunk.x*32, (chunk.y-1)*32}, 1.5*north/total)
+						subsurface.pollute({chunk.x*32, (chunk.y+1)*32}, 1.5*south/total)
+						subsurface.pollute({(chunk.x+1)*32, chunk.y*32}, 1.5*east/total)
+						subsurface.pollute({(chunk.x-1)*32, chunk.y*32}, 1.5*west/total)
+						subsurface.pollute({chunk.x*32, chunk.y*32}, -total)
+					end
+				end
+				
+				--game.print(chunk.x .." " .. chunk.y)
+				--if subsurface.count_tiles_filtered{area=chunk.area, name="caveground"} > 0 then
+				--if global.subsurface_exposed_chunks[subsurface.index] ~= nil and global.subsurface_exposed_chunks[subsurface.index][chunk.x] ~= nil and global.subsurface_exposed_chunks[subsurface.index][chunk.x][chunk.y] ~= nil and global.subsurface_exposed_chunks[subsurface.index][chunk.x][chunk.y] > 0 and pollution > 10 then -- partially or fully exposed
+					-- raise pollution in all chunks
+					--subsurface.pollute({((chunk.x+1)*32)+16, (chunk.y*32)+16}, pollution*0.05)
+					--subsurface.pollute({((chunk.x-1)*32)+16, (chunk.y*32)+16}, pollution*0.05)
+					--subsurface.pollute({(chunk.x*32)+16, ((chunk.y+1)*32)+16}, pollution*0.05)
+					--subsurface.pollute({(chunk.x*32)+16, ((chunk.y-1)*32)+16}, pollution*0.05)
+					--decrease in this chunk
+				--end
+			end
+			
+		end
+	end
+	
 end)
 
 -- build entity only if it is safe in subsurface
@@ -271,9 +305,9 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 	local entity = event.created_entity
 	if entity.name == "surface-driller" then
 		
-		get_subsurface(entity.surface).request_to_generate_chunks(entity.position, 3)
 		if global.subsurface_surface_drillers == nil then global.subsurface_surface_drillers = {} end
 		table.insert(global.subsurface_surface_drillers, entity)
+		get_subsurface(entity.surface).request_to_generate_chunks(entity.position, 3)
 	
 	elseif entity.name == "item-elevator-input" then
 		
@@ -333,6 +367,11 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 			table.insert(newTiles, {name = "out-of-map", position = {x, y}})
 		end
 		event.surface.set_tiles(newTiles)
+		
+		if global.subsurface_exposed_chunks == nil then global.subsurface_exposed_chunks = {} end
+		if global.subsurface_exposed_chunks[event.surface.index] == nil then global.subsurface_exposed_chunks[event.surface.index] = {} end
+		if global.subsurface_exposed_chunks[event.surface.index][event.position.x] == nil then global.subsurface_exposed_chunks[event.surface.index][event.position.x] = {} end
+		global.subsurface_exposed_chunks[event.surface.index][event.position.x][event.position.y] = 0 -- number of caveground tiles
 	end
 end)
 
@@ -376,5 +415,6 @@ script.on_event(defines.events.on_pre_surface_deleted, function(event)
 		if is_subsurface(get_surface(event.surface_index)) then
 			global.subsurfaces[get_oversurface(game.get_surface(event.surface_index)).name] = nil
 		end
+		-- delete exposed_chunks too
 	end
 end)
