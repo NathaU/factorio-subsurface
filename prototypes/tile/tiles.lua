@@ -8,7 +8,7 @@ data:extend(
     collision_mask = {"ground-tile"},
     walking_speed_modifier = 1.4,
     layer = 61,
-	pollution_absorption_per_second = 0.0000058,
+	pollution_absorption_per_second = 0,
     variants =
     {
       main =
@@ -60,8 +60,7 @@ data:extend(
         volume = 0.8
       }
     },
-    map_color={r=0.5, g=0.332, b=0.144},
-    ageing=0
+    map_color={r=0.5, g=0.332, b=0.144}
   },
   {
     type = "tile",
@@ -78,7 +77,7 @@ data:extend(
       "doodad-layer"
     },
     layer = 60,
-	pollution_absorption_per_second = 1.0,
+	pollution_absorption_per_second = 0,
     variants =
     {
       main =
@@ -115,7 +114,6 @@ data:extend(
         count = 1
       }
     },
-    map_color={r=0.367, g=0.234, b=0.082},
-    ageing=0.0006
+    map_color={r=0.367, g=0.234, b=0.082}
   },
 })
