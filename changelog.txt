@@ -1,3 +1,10 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.0.2
+  Features:
+    - Added air vents and pollution handling
+  Changes:
+    - Item and fluid elevators can only built on positions where the subsurface is already exposed and not occupied by existing entities
+---------------------------------------------------------------------------------------------------
 Version: 0.0.1
   Information:
     - First release with basic features
