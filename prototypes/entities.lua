@@ -408,21 +408,6 @@ data:extend(
 	  ending_left = {layers = {blank_image}},
 	}
   },
-  {
-	type = "resource",
-	name = "subsurface-wall-resource",
-	icon = "__base__/graphics/icons/wall.png",
-	icon_size = 64, icon_mipmaps = 3,
-	flags = {"placeable-neutral", "not-on-map"},
-	order = "z",
-	map_color = {r=0.35, g=0.10, b=0.10},
-	minable = {mining_time = 1, result = "stone",count = 20},
-	--collision_mask = {"item-layer", "object-layer", "player-layer", "resource-layer"},
-	collision_box = {{-0.29, -0.29}, {0.29, 0.29}},
-	selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
-	stage_counts = {1},
-	stages = {blank_image},
-  },
 	
   {
 	type = "assembling-machine",
