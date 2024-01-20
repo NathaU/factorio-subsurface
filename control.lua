@@ -17,8 +17,20 @@ function dump(o)
    end
 end
 
+function setup()
+	global.subsurfaces = global.subsurfaces or {}
+	global.pole_links = global.pole_links or {}
+	global.car_links = global.car_links or {}
+	global.surface_drillers = global.surface_drillers or {}
+	global.item_elevators = global.item_elevators or {}
+	global.fluid_elevators = global.fluid_elevators or {}
+	global.air_vents = global.air_vents or {}
+end
+
+script.on_init(setup)
+script.on_configuration_changed(setup)
+
 function get_subsurface(surface)
-	if global.subsurfaces == nil then global.subsurfaces = {} end
 	if global.subsurfaces[surface.name] then -- if the subsurface already exist
 		return global.subsurfaces[surface.name]
 	else -- we need to create the subsurface (pattern : <surface>_subsurface_<number>
@@ -69,7 +81,7 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 	
 	local walls_destroyed = 0
 	for x, y in iarea(digging_subsurface_area) do
-		if _surface.get_tile(x, y).name ~= "caveground" then
+		if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name ~= "caveground" then
 			table.insert(new_tiles, {name = "caveground", position = {x, y}})
 		end
 
@@ -100,12 +112,12 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 	
 	-- set resources
 	for x, y in iarea_border(digging_subsurface_area) do
-		_surface.create_entity{name = "subsurface-wall-resource", position = {x, y}, force=game.forces.neutral, amount=1}
+		if _surface.count_entities_filtered{name="subsurface-wall", position={x, y}, radius=1} > 0 then _surface.create_entity{name = "subsurface-wall-resource", position = {x, y}, force=game.forces.neutral, amount=1} end
 	end
 	
 	local to_add = {}
 	for x, y in iouter_area_border(digging_subsurface_area) do
-		if _surface.get_tile(x, y).name == "out-of-map" then
+		if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name == "out-of-map" then
 			table.insert(new_tiles, {name = "cave-walls", position = {x, y}})
 			_surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
 			--_surface.create_entity{name = "subsurface-wall-resource", position = {x, y}, force=game.forces.neutral, amount=1}
@@ -154,10 +166,8 @@ script.on_event(defines.events.on_tick, function(event)
 			entrance_pole.connect_neighbour{wire=defines.wire_type.red, target_entity=exit_pole, source_circuit_id=1, target_circuit_id=1}
 			entrance_pole.connect_neighbour{wire=defines.wire_type.green, target_entity=exit_pole, source_circuit_id=1, target_circuit_id=1}
 			
-			if global.pole_links == nil then global.pole_links = {} end
 			global.pole_links[entrance_pole.unit_number] = exit_pole
 			global.pole_links[exit_pole.unit_number] = entrance_pole
-			if global.car_links == nil then global.car_links = {} end
 			global.car_links[entrance_car.unit_number] = exit_car
 			global.car_links[exit_car.unit_number] = entrance_car
 			
@@ -302,14 +312,12 @@ end
 script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity}, function(event)
 	local entity = event.created_entity
 	if entity.name == "surface-driller" then
-		if global.surface_drillers == nil then global.surface_drillers = {} end
 		table.insert(global.surface_drillers, entity)
 		get_subsurface(entity.surface).request_to_generate_chunks(entity.position, 3)
 	elseif entity.name == "item-elevator-input" then
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-input", position=entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
-				if global.item_elevators == nil then global.item_elevators = {} end
 				table.insert(global.item_elevators, {entity, complementary}) -- {input, output}
 			end
 		end)
@@ -317,7 +325,6 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-output", position=entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
-				if global.item_elevators == nil then global.item_elevators = {} end
 				table.insert(global.item_elevators, {complementary, entity}) -- {input, output}
 			end
 		end)
@@ -326,7 +333,6 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name = "fluid-elevator-output", position = entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
-				if global.fluid_elevators == nil then global.fluid_elevators = {} end
 				table.insert(global.fluid_elevators, {entity, complementary}) -- {input, output}
 			end
 		end)
@@ -334,13 +340,11 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name = "fluid-elevator-input", position = entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
-				if global.fluid_elevators == nil then global.fluid_elevators = {} end
 				table.insert(global.fluid_elevators, {complementary, entity}) -- {input, output}
 			end
 		end)
 	elseif entity.name == "air-vent" or entity.name == "active-air-vent" then
 		build_safe(event, function()
-			if global.air_vents == nil then global.air_vents = {} end
 			table.insert(global.air_vents, entity)
 			entity.operable = false
 		end, false)
@@ -391,20 +395,29 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 	end
 end)
 
+script.on_event(defines.events.on_resource_depleted, function(event)
+	--[[if event.entity.name == "subsurface-wall-resource" and is_subsurface(event.entity.surface) then
+		local surface = event.entity.surface
+		for _,miner in ipairs(surface.find_entities_filtered{name={"vehicle-miner", "vehicle-miner-mk2", "vehicle-miner-mk3", "vehicle-miner-mk4", "vehicle-miner-mk5"}, position=event.entity.position, radius=5}) do
+			game.print(dump(miner.bounding_box))
+			for x,y in iouter_area_border(miner.bounding_box) do 
+				clear_subsurface(surface, {x=x, y=y}, 1)
+			end
+		end
+	end]]
+end)
+
 
 script.on_event(defines.events.on_pre_surface_deleted, function(event)
-	if global.subsurfaces then
-		-- delete all its subsurfaces and remove from list
-		local name = game.get_surface(event.surface_index).name
-		while(global.subsurfaces[name]) do
-			local s = global.subsurfaces[name]
-			global.subsurfaces[name] = nil
-			name = s.name
-			game.delete_surface(s)
-		end
-		if is_subsurface(get_surface(event.surface_index)) then
-			global.subsurfaces[get_oversurface(game.get_surface(event.surface_index)).name] = nil
-		end
-		-- delete exposed_chunks too
+	-- delete all its subsurfaces and remove from list
+	local name = game.get_surface(event.surface_index).name
+	while(global.subsurfaces[name]) do
+		local s = global.subsurfaces[name]
+		global.subsurfaces[name] = nil
+		name = s.name
+		game.delete_surface(s)
+	end
+	if is_subsurface(get_surface(event.surface_index)) then
+		global.subsurfaces[get_oversurface(game.get_surface(event.surface_index)).name] = nil
 	end
 end)
