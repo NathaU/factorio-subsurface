@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+  Features:
+    - Support for AAI Miners to dig the underground
+    - Basic recipes and technology
+  Changes:
+    - Fluid elevators now pump fluid instead of just averaging between them
+    - Fluid elevators can't be mixed with different fluids
+    - Each side of a fluid elevators has 10k fluid capacity
+    - Entity and item descriptions
+    - Tunnel entrance and exit are undestroyable
+---------------------------------------------------------------------------------------------------
 Version: 0.0.2
   Features:
     - Added air vents and pollution handling
