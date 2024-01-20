@@ -15,6 +15,7 @@ item_elevator_output.fast_replaceable_group = nil
 local fluid_elevator_input = table.deepcopy(data.raw["storage-tank"]["storage-tank"])
 fluid_elevator_input.name = "fluid-elevator-input"
 fluid_elevator_input.minable.result = "fluid-elevator-input"
+fluid_elevator_input.fluid_box.base_area = 10
 fluid_elevator_input.fluid_box.pipe_connections[1]["type"] = "input"
 fluid_elevator_input.fluid_box.pipe_connections[2]["type"] = "input"
 fluid_elevator_input.fluid_box.pipe_connections[3]["type"] = "input"
@@ -25,6 +26,7 @@ fluid_elevator_input.two_direction_only = false
 local fluid_elevator_output = table.deepcopy(data.raw["storage-tank"]["storage-tank"])
 fluid_elevator_output.name = "fluid-elevator-output"
 fluid_elevator_output.minable.result = "fluid-elevator-output"
+fluid_elevator_output.fluid_box.base_area = 10
 fluid_elevator_output.fluid_box.pipe_connections[1]["type"] = "output"
 fluid_elevator_output.fluid_box.pipe_connections[2]["type"] = "output"
 fluid_elevator_output.fluid_box.pipe_connections[3]["type"] = "output"
@@ -388,14 +390,14 @@ data:extend(
 	},
 	pictures =
 	{
-	  single = {layers = {{filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1, shift = {0, 0}}}},
-	  straight_vertical = {{layers = {{filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1, shift = {0, 0}}}}},
-	  straight_horizontal = {{layers = {{filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1, shift = {0, 0}}}}},
-	  corner_right_down = {layers = {{filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1, shift = {0, 0}}}},
-	  corner_left_down = {layers = {{filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1, shift = {0, 0}}}},
-	  t_up = {layers = {{filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1, shift = {0, 0}}}},
-	  ending_right = {layers = {{filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1, shift = {0, 0}}}},
-	  ending_left = {layers = {{filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1, shift = {0, 0}}}},
+	  single = {layers = {blank_image}},
+	  straight_vertical = {{layers = {blank_image}}},
+	  straight_horizontal = {{layers = {blank_image}}},
+	  corner_right_down = {layers = {blank_image}},
+	  corner_left_down = {layers = {blank_image}},
+	  t_up = {layers = {blank_image}},
+	  ending_right = {layers = {blank_image}},
+	  ending_left = {layers = {blank_image}},
 	}
   },
   {
