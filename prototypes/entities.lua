@@ -125,7 +125,11 @@ data:extend(
 	},
 	resistances =
 	{
-	  {type = "fire", percent = 100}
+	  {type = "physical", percent = 100},
+	  {type = "impact", percent = 100},
+	  {type = "explosion", percent = 100},
+	  {type = "fire", percent = 100},
+	  {type = "laser", percent = 100}
 	},
 	circuit_wire_max_distance = 7.5,
 	maximum_wire_distance = 5,
@@ -264,7 +268,11 @@ data:extend(
 	},
 	resistances =
 	{
-	  {type = "fire", percent = 100}
+	  {type = "physical", percent = 100},
+	  {type = "impact", percent = 100},
+	  {type = "explosion", percent = 100},
+	  {type = "fire", percent = 100},
+	  {type = "laser", percent = 100}
 	},
 	circuit_wire_max_distance = 7.5,
 	maximum_wire_distance = 5,
