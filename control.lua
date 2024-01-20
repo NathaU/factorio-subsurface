@@ -99,29 +99,20 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 			global.digging_pending[_surface.name][string.format("{%d,%d}", math.floor(x), math.floor(y))] = nil
 		end]]
 
-		-- destroy walls and wall resources in the area
+		-- destroy walls in the area
 		local wall = _surface.find_entity("subsurface-wall", {x = x, y = y})
 		if wall then
 			wall.destroy()
 			walls_destroyed = walls_destroyed + 1
 		end
-		--[[local wall_res = _surface.find_entity("subsurface-wall-resource", {x = x, y = y})
-		if wall_res then
-			wall_res.destroy()
-		end]]
 	end
-	
-	-- set resources
-	--[[for x, y in iarea_border(digging_subsurface_area) do
-		if _surface.count_entities_filtered{name="subsurface-wall", position={x, y}, radius=1} > 0 then _surface.create_entity{name = "subsurface-wall-resource", position = {x, y}, force=game.forces.neutral, amount=1} end
-	end]]
 	
 	local to_add = {}
 	for x, y in iouter_area_border(digging_subsurface_area) do
 		if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name == "out-of-map" then
 			table.insert(new_tiles, {name = "cave-walls", position = {x, y}})
 			_surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
-			--_surface.create_entity{name = "subsurface-wall-resource", position = {x, y}, force=game.forces.neutral, amount=1}
+			
 			--[[if global.marked_for_digging[string.format("%s&@{%d,%d}", _surface.name, math.floor(x), math.floor(y))] then -- manage the marked for digging cells
 				if global.digging_pending[_surface.name] == nil then global.digging_pending[_surface.name] = {} end
 				if global.digging_pending[_surface.name][string.format("{%d,%d}", math.floor(x), math.floor(y))] == nil then 
@@ -417,19 +408,6 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 		clear_subsurface(event.entity.surface, event.entity.position, 1, nil)
 	end
 end)
-
-script.on_event(defines.events.on_resource_depleted, function(event)
-	--[[if event.entity.name == "subsurface-wall-resource" and is_subsurface(event.entity.surface) then
-		local surface = event.entity.surface
-		for _,miner in ipairs(surface.find_entities_filtered{name={"vehicle-miner", "vehicle-miner-mk2", "vehicle-miner-mk3", "vehicle-miner-mk4", "vehicle-miner-mk5"}, position=event.entity.position, radius=5}) do
-			game.print(dump(miner.bounding_box))
-			for x,y in iouter_area_border(miner.bounding_box) do 
-				clear_subsurface(surface, {x=x, y=y}, 1)
-			end
-		end
-	end]]
-end)
-
 
 script.on_event(defines.events.on_pre_surface_deleted, function(event)
 	-- delete all its subsurfaces and remove from list
