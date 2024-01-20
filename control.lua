@@ -199,13 +199,15 @@ script.on_event(defines.events.on_tick, function(event)
 			table.remove(global.fluid_elevators, i)
 		elseif elevators[1].fluidbox[1] then -- input has some fluid
 			local f1 = elevators[1].fluidbox[1]
-			local f2 = elevators[2].fluidbox[1] or {name=f1.name, amount=0}
-			local diff = math.min(f1.amount, elevators[2].fluidbox.get_capacity(1) - f2.amount, max_fluid_flow_per_tick)
-			f1.amount = f1.amount - diff
-			f2.amount = f2.amount + diff
-			if f1.amount == 0 then f1 = nil end
-			elevators[1].fluidbox[1] = f1
-			elevators[2].fluidbox[1] = f2
+			local f2 = elevators[2].fluidbox[1] or {name=f1.name, amount=0, temperature=f1.temperature}
+			if f1.name == f2.name then
+				local diff = math.min(f1.amount, elevators[2].fluidbox.get_capacity(1) - f2.amount, max_fluid_flow_per_tick)
+				f1.amount = f1.amount - diff
+				f2.amount = f2.amount + diff
+				if f1.amount == 0 then f1 = nil end
+				elevators[1].fluidbox[1] = f1
+				elevators[2].fluidbox[1] = f2
+			end
 		end
 	end
 	
