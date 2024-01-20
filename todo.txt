@@ -1,16 +1,10 @@
 wooden and iron supports
-air vent rewrite
-"unbreakable" solution for entrance
 uranium ore only in subsurfaces
 graphics by yuoki
 enemies
-informatron
 position marker
-vent and elevator placement requires boring
+vent and elevator placement requires boring; one item rotatable with arrows
 electricity for fluid and item elevators
-fluid elevator: also check for fluid type; do some flow logic, not just averaging
 loading animation when teleporting (like the original mod)
 damage when too long in subsurface with pollution
-cavewall tile is unneccesary
 chunk pollution based on caveground/out of map proportion
-all global exist
