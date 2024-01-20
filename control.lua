@@ -1,6 +1,7 @@
 require "util"
 require "lib"
 
+max_fluid_flow_per_tick = 100
 max_pollution_move_active = 128 -- the max amount of pollution that can be moved per 64 ticks from one surface to the above
 max_pollution_move_passive = 64
 
@@ -199,9 +200,10 @@ script.on_event(defines.events.on_tick, function(event)
 		elseif elevators[1].fluidbox[1] then -- input has some fluid
 			local f1 = elevators[1].fluidbox[1]
 			local f2 = elevators[2].fluidbox[1] or {name=f1.name, amount=0}
-			local new_amount = (f1.amount + f2.amount) / 2
-			f1.amount = new_amount
-			f2.amount = new_amount
+			local diff = math.min(f1.amount, elevators[2].fluidbox.get_capacity(1) - f2.amount, max_fluid_flow_per_tick)
+			f1.amount = f1.amount - diff
+			f2.amount = f2.amount + diff
+			if f1.amount == 0 then f1 = nil end
 			elevators[1].fluidbox[1] = f1
 			elevators[2].fluidbox[1] = f2
 		end
