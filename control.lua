@@ -31,8 +31,8 @@ script.on_init(setup)
 script.on_configuration_changed(setup)
 
 function get_subsurface(surface)
-	if global.subsurfaces[surface.name] then -- if the subsurface already exist
-		return global.subsurfaces[surface.name]
+	if global.subsurfaces[surface.index] then -- the subsurface already exists
+		return global.subsurfaces[surface.index]
 	else -- we need to create the subsurface (pattern : <surface>_subsurface_<number>
 		local name = ""
 		local _, _, oname, number = string.find(surface.name, "(.+)_subsurface_([0-9]+)$")
@@ -46,13 +46,13 @@ function get_subsurface(surface)
 			subsurface.daytime = 0.5
 			subsurface.freeze_daytime = true
 		end
-		global.subsurfaces[surface.name] = subsurface
+		global.subsurfaces[surface.index] = subsurface
 		return subsurface
 	end
 end
 function get_oversurface(subsurface)
-	for n,s in pairs(global.subsurfaces) do
-		if s == subsurface and game.get_surface(n) then return game.get_surface(n) end
+	for i,s in pairs(global.subsurfaces) do -- i is the index of the oversurface
+		if s == subsurface and game.get_surface(i) then return game.get_surface(i) end
 	end
 	return nil
 end
@@ -410,14 +410,14 @@ end)
 
 script.on_event(defines.events.on_pre_surface_deleted, function(event)
 	-- delete all its subsurfaces and remove from list
-	local name = game.get_surface(event.surface_index).name
-	while(global.subsurfaces[name]) do
-		local s = global.subsurfaces[name]
-		global.subsurfaces[name] = nil
-		name = s.name
-		game.delete_surface(s)
+	local i = event.surface_index
+	while(global.subsurfaces[i]) do -- if surface i has a subsurface
+		local s = global.subsurfaces[i] -- s is that subsurface
+		global.subsurfaces[i] = nil -- remove from list
+		i = s.index
+		game.delete_surface(s) -- delete s
 	end
-	if is_subsurface(get_surface(event.surface_index)) then
-		global.subsurfaces[get_oversurface(game.get_surface(event.surface_index)).name] = nil
+	if is_subsurface(get_surface(event.surface_index)) then -- remove this surface from list
+		global.subsurfaces[get_oversurface(game.get_surface(event.surface_index)).index] = nil
 	end
 end)
