@@ -145,8 +145,9 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 end
 
 script.on_event(defines.events.on_tick, function(event)
+	
 	-- handle all working drillers
-	for i,d in ipairs(global.surface_drillers or {}) do
+	for i,d in ipairs(global.surface_drillers) do
 		if not d.valid then table.remove(global.surface_drillers, i)
 		elseif d.products_finished == 5 then -- time for one driller finish digging
 			
@@ -174,10 +175,12 @@ script.on_event(defines.events.on_tick, function(event)
 			d.destroy()
 		end
 	end
-	for i,elevators in ipairs(global.item_elevators or {}) do  -- move items from input to output
+	
+	-- handle item elevators
+	for i,elevators in ipairs(global.item_elevators) do  -- move items from input to output
 		if not(elevators[1].valid and elevators[2].valid) then
-			if not elevators[1].valid then elevators[1].destroy() end
-			if not elevators[2].valid then elevators[2].destroy() end
+			elevators[1].destroy()
+			elevators[2].destroy()
 			table.remove(global.item_elevators, i)
 		else
 			if elevators[1].get_item_count() > 0 and elevators[2].can_insert(elevators[1].get_inventory(defines.inventory.chest)[1]) then
@@ -186,10 +189,12 @@ script.on_event(defines.events.on_tick, function(event)
 			end
 		end
 	end
-	for i,elevators in ipairs(global.fluid_elevators or {}) do  -- average fluid between input and output
+	
+	-- handle fluid elevators
+	for i,elevators in ipairs(global.fluid_elevators) do  -- average fluid between input and output
 		if not(elevators[1].valid and elevators[2].valid) then
-			if not elevators[1].valid then elevators[1].destroy() end
-			if not elevators[2].valid then elevators[2].destroy() end
+			elevators[1].destroy()
+			elevators[2].destroy()
 			table.remove(global.fluid_elevators, i)
 		elseif elevators[1].fluidbox[1] then -- input has some fluid
 			local f1 = elevators[1].fluidbox[1]
@@ -372,26 +377,6 @@ end)
 script.on_event(defines.events.on_player_mined_entity, function(event)
 	if event.entity.name == "subsurface-wall" then
 		clear_subsurface(event.entity.surface, event.entity.position, 1, nil)
-	elseif event.entity.name == "item-elevator-output" or event.entity.name == "item-elevator-input" then
-		for i,elevators in ipairs(global.item_elevators) do
-			if event.entity == elevators[1] then
-				elevators[2].destroy()
-				table.remove(global.item_elevators, i)
-			elseif event.entity == elevators[2] then
-				elevators[1].destroy()
-				table.remove(global.item_elevators, i)
-			end
-		end
-	elseif event.entity.name == "fluid-elevator-input" or event.entity.name == "fluid-elevator-output" then
-		for i,elevators in ipairs(global.fluid_elevators) do
-			if event.entity == elevators[1] then
-				elevators[2].destroy()
-				table.remove(global.fluid_elevators, i)
-			elseif event.entity == elevators[2] then
-				elevators[1].destroy()
-				table.remove(global.fluid_elevators, i)
-			end
-		end
 	end
 end)
 
