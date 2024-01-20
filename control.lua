@@ -105,16 +105,16 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 			wall.destroy()
 			walls_destroyed = walls_destroyed + 1
 		end
-		local wall_res = _surface.find_entity("subsurface-wall-resource", {x = x, y = y})
+		--[[local wall_res = _surface.find_entity("subsurface-wall-resource", {x = x, y = y})
 		if wall_res then
 			wall_res.destroy()
-		end
+		end]]
 	end
 	
 	-- set resources
-	for x, y in iarea_border(digging_subsurface_area) do
+	--[[for x, y in iarea_border(digging_subsurface_area) do
 		if _surface.count_entities_filtered{name="subsurface-wall", position={x, y}, radius=1} > 0 then _surface.create_entity{name = "subsurface-wall-resource", position = {x, y}, force=game.forces.neutral, amount=1} end
-	end
+	end]]
 	
 	local to_add = {}
 	for x, y in iouter_area_border(digging_subsurface_area) do
@@ -256,7 +256,7 @@ script.on_event(defines.events.on_tick, function(event)
 						vent.active = true
 						vent.surface.create_trivial_smoke{name="light-smoke", position={vent.position.x+0.25, vent.position.y}, force=game.forces.neutral}
 					else
-						entity.active = false
+						vent.active = false
 					end
 				elseif vent.name == "air-vent" then
 					local pollution_surface = vent.surface.get_pollution(vent.position)
@@ -280,6 +280,40 @@ script.on_event(defines.events.on_tick, function(event)
 		end
 	end
 	
+	-- handle miners
+	if event.tick % 10 == 0 then
+		for _,subsurface in ipairs(global.subsurfaces) do
+			for _,miner in ipairs(subsurface.find_entities_filtered{name={"vehicle-miner", "vehicle-miner-mk2", "vehicle-miner-mk3", "vehicle-miner-mk4", "vehicle-miner-mk5"}}) do
+				if miner.speed > 0 then
+					local orientation = miner.orientation
+					local miner_collision_box = miner.prototype.collision_box
+					local center_big_excavation = move_towards_continuous(miner.position, orientation, -miner_collision_box.left_top.y)
+					local center_small_excavation = move_towards_continuous(center_big_excavation, orientation, 1.7)
+					local speed_test_position = move_towards_continuous(center_small_excavation, orientation, 1.5)
+
+					local walls_dug = clear_subsurface(subsurface, center_small_excavation, 1, nil)
+					walls_dug = walls_dug + clear_subsurface(subsurface, center_big_excavation, 3, nil)
+					
+					if walls_dug > 0 then
+						local stack = {name = "stone", count = 20 * walls_dug}
+						local actually_inserted = miner.insert(stack)
+						if actually_inserted ~= stack.count then
+							stack.count = stack.count - actually_inserted
+							subsurface.spill_item_stack(miner.position, stack)
+						end
+					end
+
+					local speed_test_tile = subsurface.get_tile(speed_test_position.x, speed_test_position.y)
+					if miner.friction_modifier ~= 4 and miner.speed > 0 and (speed_test_tile.name == "out-of-map" or speed_test_tile.name == "cave-walls") then
+						miner.friction_modifier = 4
+					end
+					if miner.friction_modifier ~= 1 and not(miner.speed > 0 and (speed_test_tile.name == "out-of-map" or speed_test_tile.name == "cave-walls")) then
+						miner.friction_modifier = 1
+					end
+				end
+			end
+		end
+	end
 end)
 
 -- build entity only if it is safe in subsurface
