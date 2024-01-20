@@ -75,10 +75,8 @@ data:extend(
 	enabled = true,
 	ingredients =
 	{
-	  {"plastic-bar", 10},
+	  {"iron-plate", 10},
 	  {"steel-plate", 5},
-	  {"iron-gear-wheel", 5},
-	  {"advanced-circuit", 10},
 	},
 	result = "air-vent"
   }, 
@@ -88,8 +86,10 @@ data:extend(
 	enabled = true,
 	ingredients =
 	{
-	  {"iron-plate", 10},
+	  {"plastic-bar", 10},
 	  {"steel-plate", 5},
+	  {"iron-gear-wheel", 5},
+	  {"advanced-circuit", 10},
 	},
 	result = "active-air-vent"
   },
