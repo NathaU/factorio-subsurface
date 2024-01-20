@@ -71,9 +71,6 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 	for x, y in iarea(digging_subsurface_area) do
 		if _surface.get_tile(x, y).name ~= "caveground" then
 			table.insert(new_tiles, {name = "caveground", position = {x, y}})
-			
-			-- add caveground tiles to exposed_chunks
-			global.subsurface_exposed_chunks[_surface.index][math.floor(x/32)][math.floor(y/32)] = global.subsurface_exposed_chunks[_surface.index][math.floor(x/32)][math.floor(y/32)] + 1
 		end
 
 		--[[if global.marked_for_digging[string.format("%s&@{%d,%d}", _surface.name, math.floor(x), math.floor(y))] then -- remove the mark
@@ -137,15 +134,15 @@ end
 
 script.on_event(defines.events.on_tick, function(event)
 	-- handle all working drillers
-	for i,d in ipairs(global.subsurface_surface_drillers or {}) do
-		if not d.valid then table.remove(global.subsurface_surface_drillers, i)
+	for i,d in ipairs(global.surface_drillers or {}) do
+		if not d.valid then table.remove(global.surface_drillers, i)
 		elseif d.products_finished == 5 then -- time for one driller finish digging
 			
 			-- oversurface entity placing
 			local p = d.position
 			local entrance_car = d.surface.create_entity{name="tunnel-entrance", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
 			local entrance_pole = d.surface.create_entity{name="tunnel-entrance-cable", position=p, force=d.force}
-			table.remove(global.subsurface_surface_drillers, i)
+			table.remove(global.surface_drillers, i)
 			
 			-- subsurface entity placing
 			local subsurface = get_subsurface(d.surface)
@@ -157,21 +154,21 @@ script.on_event(defines.events.on_tick, function(event)
 			entrance_pole.connect_neighbour{wire=defines.wire_type.red, target_entity=exit_pole, source_circuit_id=1, target_circuit_id=1}
 			entrance_pole.connect_neighbour{wire=defines.wire_type.green, target_entity=exit_pole, source_circuit_id=1, target_circuit_id=1}
 			
-			if global.subsurface_pole_links == nil then global.subsurface_pole_links = {} end
-			global.subsurface_pole_links[entrance_pole.unit_number] = exit_pole
-			global.subsurface_pole_links[exit_pole.unit_number] = entrance_pole
-			if global.subsurface_car_links == nil then global.subsurface_car_links = {} end
-			global.subsurface_car_links[entrance_car.unit_number] = exit_car
-			global.subsurface_car_links[exit_car.unit_number] = entrance_car
+			if global.pole_links == nil then global.pole_links = {} end
+			global.pole_links[entrance_pole.unit_number] = exit_pole
+			global.pole_links[exit_pole.unit_number] = entrance_pole
+			if global.car_links == nil then global.car_links = {} end
+			global.car_links[entrance_car.unit_number] = exit_car
+			global.car_links[exit_car.unit_number] = entrance_car
 			
 			d.destroy()
 		end
 	end
-	for i,elevators in ipairs(global.subsurface_item_elevators or {}) do  -- move items from input to output
+	for i,elevators in ipairs(global.item_elevators or {}) do  -- move items from input to output
 		if not(elevators[1].valid and elevators[2].valid) then
 			if not elevators[1].valid then elevators[1].destroy() end
 			if not elevators[2].valid then elevators[2].destroy() end
-			table.remove(global.subsurface_item_elevators, i)
+			table.remove(global.item_elevators, i)
 		else
 			if elevators[1].get_item_count() > 0 and elevators[2].can_insert(elevators[1].get_inventory(defines.inventory.chest)[1]) then
 				elevators[2].insert(elevators[1].get_inventory(defines.inventory.chest)[1])
@@ -179,11 +176,11 @@ script.on_event(defines.events.on_tick, function(event)
 			end
 		end
 	end
-	for i,elevators in ipairs(global.subsurface_fluid_elevators or {}) do  -- average fluid between input and output
+	for i,elevators in ipairs(global.fluid_elevators or {}) do  -- average fluid between input and output
 		if not(elevators[1].valid and elevators[2].valid) then
 			if not elevators[1].valid then elevators[1].destroy() end
 			if not elevators[2].valid then elevators[2].destroy() end
-			table.remove(global.subsurface_fluid_elevators, i)
+			table.remove(global.fluid_elevators, i)
 		elseif elevators[1].fluidbox[1] then -- input has some fluid
 			local f1 = elevators[1].fluidbox[1]
 			local f2 = elevators[2].fluidbox[1] or {name=f1.name, amount=0}
@@ -305,23 +302,23 @@ end
 script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity}, function(event)
 	local entity = event.created_entity
 	if entity.name == "surface-driller" then
-		if global.subsurface_surface_drillers == nil then global.subsurface_surface_drillers = {} end
-		table.insert(global.subsurface_surface_drillers, entity)
+		if global.surface_drillers == nil then global.surface_drillers = {} end
+		table.insert(global.surface_drillers, entity)
 		get_subsurface(entity.surface).request_to_generate_chunks(entity.position, 3)
 	elseif entity.name == "item-elevator-input" then
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-input", position=entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
-				if global.subsurface_item_elevators == nil then global.subsurface_item_elevators = {} end
-				table.insert(global.subsurface_item_elevators, {entity, complementary}) -- {input, output}
+				if global.item_elevators == nil then global.item_elevators = {} end
+				table.insert(global.item_elevators, {entity, complementary}) -- {input, output}
 			end
 		end)
 	elseif entity.name == "item-elevator-output" then
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-output", position=entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
-				if global.subsurface_item_elevators == nil then global.subsurface_item_elevators = {} end
-				table.insert(global.subsurface_item_elevators, {complementary, entity}) -- {input, output}
+				if global.item_elevators == nil then global.item_elevators = {} end
+				table.insert(global.item_elevators, {complementary, entity}) -- {input, output}
 			end
 		end)
 	
@@ -329,16 +326,16 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name = "fluid-elevator-output", position = entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
-				if global.subsurface_fluid_elevators == nil then global.subsurface_fluid_elevators = {} end
-				table.insert(global.subsurface_fluid_elevators, {entity, complementary}) -- {input, output}
+				if global.fluid_elevators == nil then global.fluid_elevators = {} end
+				table.insert(global.fluid_elevators, {entity, complementary}) -- {input, output}
 			end
 		end)
 	elseif entity.name == "fluid-elevator-output" then
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name = "fluid-elevator-input", position = entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
-				if global.subsurface_fluid_elevators == nil then global.subsurface_fluid_elevators = {} end
-				table.insert(global.subsurface_fluid_elevators, {complementary, entity}) -- {input, output}
+				if global.fluid_elevators == nil then global.fluid_elevators = {} end
+				table.insert(global.fluid_elevators, {complementary, entity}) -- {input, output}
 			end
 		end)
 	elseif entity.name == "air-vent" or entity.name == "active-air-vent" then
@@ -352,8 +349,8 @@ end)
 
 -- player elevator
 script.on_event(defines.events.on_player_driving_changed_state, function(event)
-	if event.entity and (event.entity.name == "tunnel-entrance" or event.entity.name == "tunnel-exit") and global.subsurface_car_links and global.subsurface_car_links[event.entity.unit_number] then
-		local opposite_car = global.subsurface_car_links[event.entity.unit_number]
+	if event.entity and (event.entity.name == "tunnel-entrance" or event.entity.name == "tunnel-exit") and global.car_links and global.car_links[event.entity.unit_number] then
+		local opposite_car = global.car_links[event.entity.unit_number]
 		game.get_player(event.player_index).teleport(game.get_player(event.player_index).position, opposite_car.surface)
 	end
 end)
@@ -365,11 +362,6 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 			table.insert(newTiles, {name = "out-of-map", position = {x, y}})
 		end
 		event.surface.set_tiles(newTiles)
-		
-		if global.subsurface_exposed_chunks == nil then global.subsurface_exposed_chunks = {} end
-		if global.subsurface_exposed_chunks[event.surface.index] == nil then global.subsurface_exposed_chunks[event.surface.index] = {} end
-		if global.subsurface_exposed_chunks[event.surface.index][event.position.x] == nil then global.subsurface_exposed_chunks[event.surface.index][event.position.x] = {} end
-		global.subsurface_exposed_chunks[event.surface.index][event.position.x][event.position.y] = 0 -- number of caveground tiles
 	end
 end)
 
@@ -377,23 +369,23 @@ script.on_event(defines.events.on_player_mined_entity, function(event)
 	if event.entity.name == "subsurface-wall" then
 		clear_subsurface(event.entity.surface, event.entity.position, 1, nil)
 	elseif event.entity.name == "item-elevator-output" or event.entity.name == "item-elevator-input" then
-		for i,elevators in ipairs(global.subsurface_item_elevators) do
+		for i,elevators in ipairs(global.item_elevators) do
 			if event.entity == elevators[1] then
 				elevators[2].destroy()
-				table.remove(global.subsurface_item_elevators, i)
+				table.remove(global.item_elevators, i)
 			elseif event.entity == elevators[2] then
 				elevators[1].destroy()
-				table.remove(global.subsurface_item_elevators, i)
+				table.remove(global.item_elevators, i)
 			end
 		end
 	elseif event.entity.name == "fluid-elevator-input" or event.entity.name == "fluid-elevator-output" then
-		for i,elevators in ipairs(global.subsurface_fluid_elevators) do
+		for i,elevators in ipairs(global.fluid_elevators) do
 			if event.entity == elevators[1] then
 				elevators[2].destroy()
-				table.remove(global.subsurface_fluid_elevators, i)
+				table.remove(global.fluid_elevators, i)
 			elseif event.entity == elevators[2] then
 				elevators[1].destroy()
-				table.remove(global.subsurface_fluid_elevators, i)
+				table.remove(global.fluid_elevators, i)
 			end
 		end
 	end
