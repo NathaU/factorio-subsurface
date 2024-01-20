@@ -29,9 +29,9 @@ function iarea( area )
 	end
 end
 
-function iouter_area_border(area)
-	local left_top = {x = area.left_top.x - 1, y = area.left_top.y - 1}
-	local right_bottom = {x = area.right_bottom.x + 1, y = area.right_bottom.y + 1}
+function iarea_border(area)
+	local left_top = {x = area.left_top.x, y = area.left_top.y }
+	local right_bottom = {x = area.right_bottom.x, y = area.right_bottom.y}
 	local _x = left_top.x
 	local _y = left_top.y
 	local reachedEnd = false
@@ -54,6 +54,9 @@ function iouter_area_border(area)
 		end
 		return x, y
 	end
+end
+function iouter_area_border(area)
+	return iarea_border({left_top = {x=area.left_top.x-1, y=area.left_top.y-1}, right_bottom = {x=area.right_bottom.x+1, y=area.right_bottom.y+1}})
 end
 
 function get_area(position, size)

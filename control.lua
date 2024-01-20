@@ -89,19 +89,29 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 			global.digging_pending[_surface.name][string.format("{%d,%d}", math.floor(x), math.floor(y))] = nil
 		end]]
 
-		local wall = _surface.find_entity("subsurface-walls", {x = x, y = y})
-		if wall then 
+		-- destroy walls and wall resources in the area
+		local wall = _surface.find_entity("subsurface-wall", {x = x, y = y})
+		if wall then
 			wall.destroy()
 			walls_destroyed = walls_destroyed + 1
-		else
 		end
+		local wall_res = _surface.find_entity("subsurface-wall-resource", {x = x, y = y})
+		if wall_res then
+			wall_res.destroy()
+		end
+	end
+	
+	-- set resources
+	for x, y in iarea_border(digging_subsurface_area) do
+		_surface.create_entity{name = "subsurface-wall-resource", position = {x, y}, force=game.forces.neutral, amount=1}
 	end
 	
 	local to_add = {}
 	for x, y in iouter_area_border(digging_subsurface_area) do
 		if _surface.get_tile(x, y).name == "out-of-map" then
 			table.insert(new_tiles, {name = "cave-walls", position = {x, y}})
-			_surface.create_entity{name = "subsurface-walls", position = {x, y}, force=game.forces.neutral}
+			_surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
+			--_surface.create_entity{name = "subsurface-wall-resource", position = {x, y}, force=game.forces.neutral, amount=1}
 			--[[if global.marked_for_digging[string.format("%s&@{%d,%d}", _surface.name, math.floor(x), math.floor(y))] then -- manage the marked for digging cells
 				if global.digging_pending[_surface.name] == nil then global.digging_pending[_surface.name] = {} end
 				if global.digging_pending[_surface.name][string.format("{%d,%d}", math.floor(x), math.floor(y))] == nil then 
@@ -364,7 +374,7 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 end)
 
 script.on_event(defines.events.on_player_mined_entity, function(event)
-	if event.entity.name == "subsurface-walls" then
+	if event.entity.name == "subsurface-wall" then
 		clear_subsurface(event.entity.surface, event.entity.position, 1, nil)
 	elseif event.entity.name == "item-elevator-output" or event.entity.name == "item-elevator-input" then
 		for i,elevators in ipairs(global.subsurface_item_elevators) do
