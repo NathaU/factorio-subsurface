@@ -3,7 +3,7 @@ data:extend(
   {
 	type = "recipe",
 	name = "surface-driller",
-	enabled = true,
+	enabled = false,
 	ingredients =
 	{
 	  {"electric-mining-drill", 5},
@@ -24,7 +24,7 @@ data:extend(
   {
 	type = "recipe",
 	name = "fluid-elevator-input",
-	enabled = true,
+	enabled = false,
 	ingredients =
 	{
 	  {"storage-tank", 1},
@@ -36,7 +36,7 @@ data:extend(
   {
 	type = "recipe",
 	name = "fluid-elevator-output",
-	enabled = true,
+	enabled = false,
 	ingredients =
 	{
 	  {"storage-tank", 1},
@@ -48,7 +48,7 @@ data:extend(
   {
 	type = "recipe",
 	name = "item-elevator-input",
-	enabled = true,
+	enabled = false,
 	ingredients =
 	{
 	  {"underground-belt", 4},
@@ -60,7 +60,7 @@ data:extend(
   {
 	type = "recipe",
 	name = "item-elevator-output",
-	enabled = true,
+	enabled = false,
 	ingredients =
 	{
 	  {"underground-belt", 4},
@@ -72,7 +72,7 @@ data:extend(
   {
 	type = "recipe",
 	name = "air-vent",
-	enabled = true,
+	enabled = false,
 	ingredients =
 	{
 	  {"iron-plate", 10},
@@ -83,7 +83,7 @@ data:extend(
   {
 	type = "recipe",
 	name = "active-air-vent",
-	enabled = true,
+	enabled = false,
 	ingredients =
 	{
 	  {"plastic-bar", 10},
