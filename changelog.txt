@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+  Changes:
+    - Tunnel entrances and exists can't be mined
+    - New tunnel entrances can't be digged near existing ones
+---------------------------------------------------------------------------------------------------
 Version: 1.0.0
   Features:
     - Support for AAI Miners to dig the underground
