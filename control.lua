@@ -164,6 +164,11 @@ script.on_event(defines.events.on_tick, function(event)
 			global.car_links[entrance_car.unit_number] = exit_car
 			global.car_links[exit_car.unit_number] = entrance_car
 			
+			script.register_on_entity_destroyed(entrance_pole)
+			script.register_on_entity_destroyed(exit_pole)
+			script.register_on_entity_destroyed(entrance_car)
+			script.register_on_entity_destroyed(exit_car)
+			
 			d.destroy()
 		end
 	end
@@ -420,5 +425,20 @@ script.on_event(defines.events.on_pre_surface_deleted, function(event)
 	end
 	if is_subsurface(get_surface(event.surface_index)) then -- remove this surface from list
 		global.subsurfaces[get_oversurface(game.get_surface(event.surface_index)).index] = nil
+	end
+end)
+
+script.on_event(defines.events.on_entity_destroyed, function(event)
+	-- entrances can't be mined, but in case they are destroyed by mods we have to handle it
+	if global.pole_links[event.unit_number] and global.pole_links[event.unit_number].valid then
+		local opposite_car = global.pole_links[event.unit_number].surface.find_entities_filtered{name={"tunnel-entrance", "tunnel-exit"}, position=global.pole_links[event.unit_number].position, radius=1}[1]
+		if opposite_car and opposite_car.valid then opposite_car.destroy() end
+		global.pole_links[event.unit_number].destroy()
+		global.pole_links[event.unit_number] = nil
+	elseif global.car_links[event.unit_number] and global.car_links[event.unit_number].valid then
+		local opposite_pole = global.car_links[event.unit_number].surface.find_entities_filtered{name={"tunnel-entrance-cable", "tunnel-exit-cable"}, position=global.car_links[event.unit_number].position, radius=1}[1]
+		if opposite_pole and opposite_pole.valid then opposite_pole.destroy() end
+		global.car_links[event.unit_number].destroy()
+		global.car_links[event.unit_number] = nil
 	end
 end)
