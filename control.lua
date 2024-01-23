@@ -351,8 +351,28 @@ end
 script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity}, function(event)
 	local entity = event.created_entity
 	if entity.name == "surface-driller" then
-		table.insert(global.surface_drillers, entity)
-		get_subsurface(entity.surface).request_to_generate_chunks(entity.position, 3)
+		if entity.surface.count_entities_filtered{name={"tunnel-entrance", "tunnel-exit"}, position=entity.position, radius=7} == 0 then
+			table.insert(global.surface_drillers, entity)
+			get_subsurface(entity.surface).request_to_generate_chunks(entity.position, 3)
+		else
+			if event["player_index"] then
+				local p = game.get_player(event.player_index)
+				p.create_local_flying_text{text={"subsurface.cannot-place-here"}, position=entity.position}
+				p.mine_entity(entity, true)
+			else -- robot built it
+				local it = entity.surface.create_entity{
+					name = "item-on-ground",
+					position = entity.position,
+					force = entity.force,
+					stack = {name=entity.name, count=1}
+				}
+				if it ~= nil then it.order_deconstruction(entity.force) end -- if it is nil, then the item is now on a belt
+				for _,p in ipairs(entity.surface.find_entities_filtered{type="character", position=entity.position, radius=50}) do
+					if p.player then p.player.create_local_flying_text{text={"subsurface.cannot-place-here"}, position=entity.position} end
+				end
+				entity.destroy()
+			end
+		end
 	elseif entity.name == "item-elevator-input" then
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-input", position=entity.position, force=entity.force, direction=entity.direction}
