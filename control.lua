@@ -42,10 +42,12 @@ function get_subsurface(surface)
 		
 		local subsurface = game.get_surface(name)
 		if not subsurface then
-			subsurface = game.create_surface(name)
+			local msg = surface.map_gen_settings
+			subsurface = game.create_surface(name, msg)
 			subsurface.generate_with_lab_tiles = true
 			subsurface.daytime = 0.5
 			subsurface.freeze_daytime = true
+			subsurface.show_clouds = false
 		end
 		global.subsurfaces[surface.index] = subsurface
 		return subsurface
@@ -82,56 +84,32 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 	
 	local walls_destroyed = 0
 	for x, y in iarea(digging_subsurface_area) do
-		if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name ~= "caveground" then
-			table.insert(new_tiles, {name = "caveground", position = {x, y}})
-		end
-
-		--[[if global.marked_for_digging[string.format("%s&@{%d,%d}", _surface.name, math.floor(x), math.floor(y))] then -- remove the mark
-			if global.marked_for_digging[string.format("%s&@{%d,%d}", _surface.name, math.floor(x), math.floor(y))].valid then
-				global.marked_for_digging[string.format("%s&@{%d,%d}", _surface.name, math.floor(x), math.floor(y))].destroy()
+		if math.abs(x) < _surface.map_gen_settings.width / 2 and math.abs(y) < _surface.map_gen_settings.height / 2 then
+			if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name ~= "caveground" then
+				table.insert(new_tiles, {name = "caveground", position = {x, y}})
 			end
-			global.marked_for_digging[string.format("%s&@{%d,%d}", _surface.name, math.floor(x), math.floor(y))] = nil
-		end
-		if global.digging_pending[_surface.name] and global.digging_pending[_surface.name][string.format("{%d,%d}", math.floor(x), math.floor(y))] then -- remove the digging pending entity
-			if global.digging_pending[_surface.name][string.format("{%d,%d}", math.floor(x), math.floor(y))].valid then
-				global.digging_pending[_surface.name][string.format("{%d,%d}", math.floor(x), math.floor(y))].destroy()
-			end
-			global.digging_pending[_surface.name][string.format("{%d,%d}", math.floor(x), math.floor(y))] = nil
-		end]]
 
-		-- destroy walls in the area
-		local wall = _surface.find_entity("subsurface-wall", {x = x, y = y})
-		if wall then
-			wall.destroy()
-			walls_destroyed = walls_destroyed + 1
+			-- destroy walls in the area
+			local wall = _surface.find_entity("subsurface-wall", {x = x, y = y})
+			if wall and math.abs(x) < _surface.map_gen_settings.width / 2 and math.abs(y) < _surface.map_gen_settings.height / 2 then
+				wall.destroy()
+				walls_destroyed = walls_destroyed + 1
+			end
 		end
 	end
 	
-	local to_add = {}
 	for x, y in iouter_area_border(digging_subsurface_area) do
 		if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name == "out-of-map" then
 			table.insert(new_tiles, {name = "cave-walls", position = {x, y}})
-			_surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
-			
-			--[[if global.marked_for_digging[string.format("%s&@{%d,%d}", _surface.name, math.floor(x), math.floor(y))] then -- manage the marked for digging cells
-				if global.digging_pending[_surface.name] == nil then global.digging_pending[_surface.name] = {} end
-				if global.digging_pending[_surface.name][string.format("{%d,%d}", math.floor(x), math.floor(y))] == nil then 
-					table.insert(to_add, {surface = _surface,x = x, y = y})
-				end
-				if global.marked_for_digging[string.format("%s&@{%d,%d}", _surface.name, math.floor(x), math.floor(y))].valid then	
-					global.marked_for_digging[string.format("%s&@{%d,%d}", _surface.name, math.floor(x), math.floor(y))].destroy()
-				end
-				global.marked_for_digging[string.format("%s&@{%d,%d}", _surface.name, math.floor(x), math.floor(y))] = nil
-			end]]
+			local wall = _surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
+			if math.abs(x)+2 > _surface.map_gen_settings.width / 2 or math.abs(y)+2 > _surface.map_gen_settings.height / 2 then
+				wall.destroy()
+			elseif math.abs(x) > _surface.map_gen_settings.width / 2 or math.abs(y) > _surface.map_gen_settings.height / 2 then
+				wall.minable = false
+			end
 		end
 	end
 	_surface.set_tiles(new_tiles)
-
-	-- done after because set_tiles remove decorations
-	for _,data in ipairs(to_add) do
-		local pending_entity = data.surface.create_entity{name = "pending-digging", position = {x = data.x, y = data.y}, force=game.forces.neutral}
-		global.digging_pending[data.surface.name][string.format("{%d,%d}", math.floor(data.x), math.floor(data.y))] = pending_entity
-	end
 	
 	return walls_destroyed
 end
