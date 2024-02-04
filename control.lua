@@ -29,6 +29,7 @@ function setup()
 	global.item_elevators = global.item_elevators or {}
 	global.fluid_elevators = global.fluid_elevators or {}
 	global.air_vents = global.air_vents or {}
+	global.exposed_chunks = global.exposed_chunks or {} -- [surface][x][y], 1 means chunk is exposed, 0 means chunk is next to an exposed chunk
 end
 
 script.on_init(setup)
@@ -98,6 +99,20 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 				wall.destroy()
 				walls_destroyed = walls_destroyed + 1
 			end
+			
+			-- add all surrounding chunks to exposed_chunks list, if not already present (0 in table) and delete this chunk
+			--if global.exposed_chunks == nil then global.exposed_chunks = {[_surface.index]={}} end
+			local cx = math.floor(x / 32)
+			local cy = math.floor(y / 32)
+			if global.exposed_chunks[_surface.index][cx] == nil then global.exposed_chunks[_surface.index][cx] = {} end
+			if global.exposed_chunks[_surface.index][cx - 1] == nil then global.exposed_chunks[_surface.index][cx - 1] = {} end
+			if global.exposed_chunks[_surface.index][cx + 1] == nil then global.exposed_chunks[_surface.index][cx + 1] = {} end
+			global.exposed_chunks[_surface.index][cx][cy] = 1 -- this chunk is exposed
+			-- surrounding chunks are set to 0 if not already exposed
+			global.exposed_chunks[_surface.index][cx - 1][cy] = global.exposed_chunks[_surface.index][cx - 1][cy] or 0
+			global.exposed_chunks[_surface.index][cx + 1][cy] = global.exposed_chunks[_surface.index][cx + 1][cy] or 0
+			global.exposed_chunks[_surface.index][cx][cy - 1] = global.exposed_chunks[_surface.index][cx][cy - 1] or 0
+			global.exposed_chunks[_surface.index][cx][cy + 1] = global.exposed_chunks[_surface.index][cx][cy + 1] or 0
 		end
 	end
 	
@@ -132,6 +147,7 @@ script.on_event(defines.events.on_tick, function(event)
 			
 			-- subsurface entity placing
 			local subsurface = get_subsurface(d.surface)
+			global.exposed_chunks[subsurface.index] = {}
 			clear_subsurface(subsurface, d.position, 4, 1.5)
 			local exit_car = subsurface.create_entity{name="tunnel-exit", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
 			local exit_pole = subsurface.create_entity{name="tunnel-exit-cable", position=p, force=d.force}
@@ -193,23 +209,28 @@ script.on_event(defines.events.on_tick, function(event)
 		
 		for _,subsurface in pairs(global.subsurfaces) do
 			-- chunks that are not exposed but polluted distribute their pollution back to a chunk that is polluted (amount is proportional to adjacent chunks pollution)
-			for chunk in subsurface.get_chunks() do
-				local pollution = subsurface.get_pollution{chunk.x*32, chunk.y*32}
-				if pollution > 0 and subsurface.count_tiles_filtered{area=chunk.area, name="caveground"} == 0 then
-					local north = subsurface.get_pollution{chunk.x*32, (chunk.y-1)*32}
-					local south = subsurface.get_pollution{chunk.x*32, (chunk.y+1)*32}
-					local east = subsurface.get_pollution{(chunk.x+1)*32, chunk.y*32}
-					local west = subsurface.get_pollution{(chunk.x-1)*32, chunk.y*32}
-					local total = north + south + east + west
-					if total > 0 then
-						subsurface.pollute({chunk.x*32, (chunk.y-1)*32}, pollution*north/total)
-						subsurface.pollute({chunk.x*32, (chunk.y+1)*32}, pollution*south/total)
-						subsurface.pollute({(chunk.x+1)*32, chunk.y*32}, pollution*east/total)
-						subsurface.pollute({(chunk.x-1)*32, chunk.y*32}, pollution*west/total)
-						subsurface.pollute({chunk.x*32, chunk.y*32}, -pollution)
+			--for cx,cyt in pairs(global.exposed_chunks[subsurface.index] or {}) do
+				--for cy,expval in pairs(cyt) do
+				for chunk in subsurface.get_chunks() do
+					local cx = chunk.x
+					local cy = chunk.y
+					local pollution = subsurface.get_pollution{cx*32, cy*32}
+					if pollution > 0 and --[[expval == 0]]subsurface.count_tiles_filtered{area=chunk.area, name="caveground"} == 0 then
+						local north = subsurface.get_pollution{cx*32, (cy-1)*32}
+						local south = subsurface.get_pollution{cx*32, (cy+1)*32}
+						local east = subsurface.get_pollution{(cx+1)*32, cy*32}
+						local west = subsurface.get_pollution{(cx-1)*32, cy*32}
+						local total = north + south + east + west
+						if total > 0 then
+							subsurface.pollute({cx*32, (cy-1)*32}, pollution*north/total)
+							subsurface.pollute({cx*32, (cy+1)*32}, pollution*south/total)
+							subsurface.pollute({(cx+1)*32, cy*32}, pollution*east/total)
+							subsurface.pollute({(cx-1)*32, cy*32}, pollution*west/total)
+							subsurface.pollute({cx*32, cy*32}, -pollution)
+						end
 					end
 				end
-			end
+			--end
 			
 		end
 		
