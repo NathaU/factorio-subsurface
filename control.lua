@@ -40,9 +40,9 @@ function get_subsurface(surface)
 		return global.subsurfaces[surface.index]
 	else -- we need to create the subsurface (pattern : <surface>_subsurface_<number>
 		local name = ""
-		local _, _, oname, number = string.find(surface.name, "(.+)_subsurface_([0-9]+)$")
-		if oname == nil then name = surface.name .. "_subsurface_1"
-		else name = oname .. "_subsurface_" .. (tonumber(number)+1) end
+		local _, _, osname, number = string.find(surface.name, "(.+)_subsurface_([0-9]+)$")
+		if osname == nil then name = surface.name .. "_subsurface_1"
+		else name = osname .. "_subsurface_" .. (tonumber(number)+1) end
 		
 		local subsurface = game.get_surface(name)
 		if not subsurface then
@@ -62,6 +62,11 @@ function get_oversurface(subsurface)
 		if s == subsurface and game.get_surface(i) then return game.get_surface(i) end
 	end
 	return nil
+end
+
+function get_subsurface_level(surface)
+	local _, _, osname, number = string.find(surface.name, "(.+)_subsurface_([0-9]+)$")
+	return tonumber(number)
 end
 
 function is_subsurface(_surface)
@@ -241,7 +246,7 @@ script.on_event(defines.events.on_tick, function(event)
 				if vent.name == "active-air-vent" and vent.energy > 0 then
 					local current_energy = vent.energy -- 918.5285 if full
 					local max_energy = 918.5285
-					max_movable_pollution = current_energy / max_energy * max_pollution_move_active -- how much polution can be moved with the current available energy
+					local max_movable_pollution = max_pollution_move_active * (0.8 ^ (get_subsurface_level(subsurface) - 1)) * current_energy / max_energy -- how much polution can be moved with the current available energy
 					
 					local pollution_to_move = math.min(max_movable_pollution, subsurface.get_pollution(vent.position))
 					
@@ -259,9 +264,10 @@ script.on_event(defines.events.on_tick, function(event)
 					local pollution_surface = vent.surface.get_pollution(vent.position)
 					local pollution_subsurface = subsurface.get_pollution(vent.position)
 					local diff = pollution_surface - pollution_subsurface
-
-					if math.abs(diff) > max_pollution_move_passive then
-						diff = diff / math.abs(diff) * max_pollution_move_passive
+					local max_movable_pollution = max_pollution_move_passive * (0.8 ^ (get_subsurface_level(subsurface) - 1))
+					
+					if math.abs(diff) > max_movable_pollution then
+						diff = diff / math.abs(diff) * max_movable_pollution
 					end
 
 					if diff < 0 then -- pollution in subsurface is higher
