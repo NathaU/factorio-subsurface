@@ -5,7 +5,7 @@ data:extend(
     name = "caveground",
     needs_correction = false,
     mined_sound = { filename = "__base__/sound/deconstruct-bricks.ogg" },
-    collision_mask = {"ground-tile"},
+    collision_mask = {"ground-tile", "layer-50"},
     walking_speed_modifier = 1.4,
     layer = 61,
 	pollution_absorption_per_second = 0,
