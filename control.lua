@@ -186,7 +186,7 @@ script.on_event(defines.events.on_tick, function(event)
 	end
 	
 	-- POLLUTION (since there is no mechanic to just reflect pollution (no absorption but also no spread) we have to do it for our own. The game's mechanic can't be changed so we need to consider it)
-	if event.tick % 64 == 0 and global.subsurfaces then
+	if (event.tick - 1) % 64 == 0 then
 		for _,subsurface in pairs(global.subsurfaces) do
 			
 			-- first, do the spreading but just on exposed caveground
@@ -200,11 +200,11 @@ script.on_event(defines.events.on_tick, function(event)
 					local west = subsurface.get_pollution{(chunk.x-1)*32, chunk.y*32}
 					local total = north + south + east + west
 					if total > 0 then
-						subsurface.pollute({chunk.x*32, (chunk.y-1)*32}, 1.5*north/total)
-						subsurface.pollute({chunk.x*32, (chunk.y+1)*32}, 1.5*south/total)
-						subsurface.pollute({(chunk.x+1)*32, chunk.y*32}, 1.5*east/total)
-						subsurface.pollute({(chunk.x-1)*32, chunk.y*32}, 1.5*west/total)
-						subsurface.pollute({chunk.x*32, chunk.y*32}, -total)
+						subsurface.pollute({chunk.x*32, (chunk.y-1)*32}, pollution*north/total)
+						subsurface.pollute({chunk.x*32, (chunk.y+1)*32}, pollution*south/total)
+						subsurface.pollute({(chunk.x+1)*32, chunk.y*32}, pollution*east/total)
+						subsurface.pollute({(chunk.x-1)*32, chunk.y*32}, pollution*west/total)
+						subsurface.pollute({chunk.x*32, chunk.y*32}, -pollution)
 					end
 				end
 			end
