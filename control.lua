@@ -5,6 +5,9 @@ max_fluid_flow_per_tick = 100
 max_pollution_move_active = 128 -- the max amount of pollution that can be moved per 64 ticks from one surface to the above
 max_pollution_move_passive = 64
 
+suffocation_threshold = 1000
+suffocation_damage = 2.5 -- per 64 ticks (~1 second)
+
 function dump(o)
    if type(o) == 'table' then
       local s = '{ '
@@ -187,9 +190,8 @@ script.on_event(defines.events.on_tick, function(event)
 	
 	-- POLLUTION (since there is no mechanic to just reflect pollution (no absorption but also no spread) we have to do it for our own. The game's mechanic can't be changed so we need to consider it)
 	if (event.tick - 1) % 64 == 0 then
+		
 		for _,subsurface in pairs(global.subsurfaces) do
-			
-			-- first, do the spreading but just on exposed caveground
 			-- chunks that are not exposed but polluted distribute their pollution back to a chunk that is polluted (amount is proportional to adjacent chunks pollution)
 			for chunk in subsurface.get_chunks() do
 				local pollution = subsurface.get_pollution{chunk.x*32, chunk.y*32}
@@ -212,7 +214,7 @@ script.on_event(defines.events.on_tick, function(event)
 		end
 		
 		-- next, move pollution using air vents
-		for i,vent in ipairs(global.air_vents or {}) do
+		for i,vent in ipairs(global.air_vents) do
 			if vent.valid then
 				local subsurface = get_subsurface(vent.surface)
 				if vent.name == "active-air-vent" and vent.energy > 0 then
@@ -250,6 +252,14 @@ script.on_event(defines.events.on_tick, function(event)
 				end
 			else
 				table.remove(global.air_vents, i)
+			end
+		end
+		
+		-- player suffocation damage
+		for _,p in pairs(game.players) do
+			if p.connected and is_subsurface(p.surface) and p.surface.get_pollution(p.position) > suffocation_threshold then
+				p.character.damage(suffocation_damage, game.forces.neutral, "poison")
+				if (event.tick - 1) % 256 == 0 then p.print({"subsurface.suffocation"}, {1, 0, 0}) end
 			end
 		end
 	end
