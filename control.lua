@@ -29,6 +29,7 @@ function setup()
 	global.item_elevators = global.item_elevators or {}
 	global.fluid_elevators = global.fluid_elevators or {}
 	global.air_vents = global.air_vents or {}
+	global.air_vent_lights = global.air_vent_lights or {}
 	global.exposed_chunks = global.exposed_chunks or {} -- [surface][x][y], 1 means chunk is exposed, 0 means chunk is next to an exposed chunk
 end
 
@@ -106,7 +107,6 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 			end
 			
 			-- add all surrounding chunks to exposed_chunks list, if not already present (0 in table) and delete this chunk
-			--if global.exposed_chunks == nil then global.exposed_chunks = {[_surface.index]={}} end
 			local cx = math.floor(x / 32)
 			local cy = math.floor(y / 32)
 			if global.exposed_chunks[_surface.index][cx] == nil then global.exposed_chunks[_surface.index][cx] = {} end
@@ -421,6 +421,9 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		build_safe(event, function()
 			table.insert(global.air_vents, entity)
 			entity.operable = false
+			if not is_subsurface(entity.surface) then -- draw light in subsurface, but only if air vent is placed on surface
+				global.air_vent_lights[script.register_on_entity_destroyed(entity)] = rendering.draw_light{surface=get_subsurface(entity.surface), target=entity.position, sprite="utility/light_small"}
+			end
 		end, false)
 	end
 end)
@@ -475,5 +478,8 @@ script.on_event(defines.events.on_entity_destroyed, function(event)
 		if opposite_pole and opposite_pole.valid then opposite_pole.destroy() end
 		global.car_links[event.unit_number].destroy()
 		global.car_links[event.unit_number] = nil
+	elseif global.air_vent_lights[event.registration_number] then
+		rendering.destroy(global.air_vent_lights[event.registration_number])
+		global.air_vent_lights[event.registration_number] = nil
 	end
 end)
