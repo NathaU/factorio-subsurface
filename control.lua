@@ -79,8 +79,8 @@ end
 
 function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius)
 	if not is_subsurface(_surface) then return end
-	if _digging_radius < 1 then return nil end -- min radius is 1
-	local digging_subsurface_area = get_area(_position, _digging_radius - 1) -- caveground area
+	_digging_radius = math.max(1, _digging_radius)
+	local digging_subsurface_area = get_area(_position, _digging_radius) -- caveground area
 	local new_tiles = {}
 
 	if _clearing_radius then -- destroy all entities in this radius except players
@@ -97,7 +97,7 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 	local walls_destroyed = 0
 	for x, y in iarea(digging_subsurface_area) do
 		if math.abs(x) < _surface.map_gen_settings.width / 2 and math.abs(y) < _surface.map_gen_settings.height / 2 then
-			if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name ~= "caveground" then
+			if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name == "out-of-map" then
 				table.insert(new_tiles, {name = "caveground", position = {x, y}})
 			end
 
@@ -125,7 +125,6 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 	
 	for x, y in iouter_area_border(digging_subsurface_area) do
 		if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name == "out-of-map" then
-			table.insert(new_tiles, {name = "cave-walls", position = {x, y}})
 			local wall = _surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
 			if math.abs(x)+2 > _surface.map_gen_settings.width / 2 or math.abs(y)+2 > _surface.map_gen_settings.height / 2 then
 				wall.destroy()
@@ -155,7 +154,7 @@ script.on_event(defines.events.on_tick, function(event)
 			-- subsurface entity placing
 			local subsurface = get_subsurface(d.surface)
 			global.exposed_chunks[subsurface.index] = {}
-			clear_subsurface(subsurface, d.position, 4, 1.5)
+			clear_subsurface(subsurface, {x=d.position.x+0.5, y=d.position.y+0.5}, 3, 1.5)
 			local exit_car = subsurface.create_entity{name="tunnel-exit", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
 			local exit_pole = subsurface.create_entity{name="tunnel-exit-cable", position=p, force=d.force}
 			
