@@ -34,6 +34,78 @@ fluid_elevator_output.fluid_box.pipe_connections[4]["type"] = "output"
 fluid_elevator_output.fluid_box.hide_connection_info = false
 fluid_elevator_output.two_direction_only = false
 
+--[[local subsurface_walls = table.deepcopy(data.raw["simple-entity"]["rock-big"])
+subsurface_walls.name = "subsurface-wall"
+subsurface_walls.resistances = {
+	{type = "physical", percent = 100},
+	{type = "impact", percent = 100},
+	{type = "explosion", percent = 100},
+	{type = "fire", percent = 100},
+	{type = "laser", percent = 100}
+}
+subsurface_walls.flags = {"placeable-neutral", "not-on-map"}
+subsurface_walls.minable = {
+	mining_particle = "stone-particle",
+	mining_time = 1,
+	results = {{name = "stone", amount_min = 10, amount_max = 30}}
+}
+subsurface_walls.selection_box = {{-1.0, -1.0}, {1.0, 1.0}}
+subsurface_walls.collision_box = {{-1.1, -1.1}, {1.1, 1.1}}
+for _,p in ipairs(data.raw["simple-entity"]["rock-huge"].pictures) do
+	table.insert(subsurface_walls.pictures, p)
+end
+for _,p in ipairs(data.raw["optimized-decorative"]["rock-medium"].pictures) do
+	table.insert(subsurface_walls.pictures, p)
+end]]
+local wall_pictures = table.deepcopy(data.raw["simple-entity"]["rock-big"].pictures)
+for _,p in ipairs(data.raw["simple-entity"]["rock-huge"].pictures) do
+	table.insert(wall_pictures, p)
+end
+for _,p in ipairs(data.raw["optimized-decorative"]["rock-medium"].pictures) do
+	table.insert(wall_pictures, p)
+end
+local subsurface_walls = {
+	type = "cliff",
+	name = "subsurface-wall",
+    icon = "__base__/graphics/icons/rock-huge.png",
+    icon_size = 64, icon_mipmaps = 4,
+	flags = {"placeable-neutral", "not-on-map"},
+	minable = {
+		mining_particle = "stone-particle",
+		mining_time = 1,
+		results = {{name = "stone", amount_min = 10, amount_max = 30}}
+	},
+	selection_box = {{-1.0, -1.0}, {1.0, 1.0}},
+	collision_box = {{-1.1, -1.1}, {1.1, 1.1}},
+	mined_sound = data.raw.cliff.cliff.mined_sound,
+	vehicle_impact_sound = data.raw.cliff.cliff.vehicle_impact_sound,
+    cliff_explosive = "cliff-explosives",
+	grid_offset = {0, 0},
+	grid_size = {1, 1},
+	orientations = {
+		west_to_east   = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		north_to_south = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		east_to_west   = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		south_to_north = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		west_to_north  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		north_to_east  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		east_to_south  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		south_to_west  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		west_to_south  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		north_to_west  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		east_to_north  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		south_to_east  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		west_to_none   = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		none_to_east   = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		north_to_none  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		none_to_south  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		east_to_none   = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		none_to_west   = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		south_to_none  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+		none_to_north  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
+	}
+}
+
 local blank_image = {
 	filename = "__core__/graphics/empty.png",
 	priority = "high",
@@ -370,42 +442,6 @@ data:extend(
 	  apparent_volume = 2.5,
 	},
   },
-  {
-	type = "wall",
-	name = "subsurface-wall",
-	icon = "__base__/graphics/icons/wall.png",
-	icon_size = 64, icon_mipmaps = 4,
-	minable = {mining_time = 1, result = "stone",count = 20},
-	flags = {"placeable-neutral", "not-on-map"},
-	selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
-	collision_box = {{-0.29, -0.29}, {0.29, 0.29}},
-	--collision_mask = {"player-layer"}, -- these walls are just for the visuals, only players collide
-	max_health = 350,
-	corpse = "wall-remnants",
-	repair_sound = { filename = "__base__/sound/manual-repair-simple.ogg" },
-	mined_sound = { filename = "__base__/sound/deconstruct-bricks.ogg" },
-	vehicle_impact_sound =  { filename = "__base__/sound/car-stone-impact.ogg", volume = 1.0 },
-	order = "z",
-	resistances =
-	{
-	  { type = "physical", percent = 100 },
-	  { type = "impact", percent = 100 },
-	  { type = "explosion", percent = 100 },
-	  { type = "fire", percent = 100 },
-	  { type = "laser", percent = 100 }
-	},
-	pictures =
-	{
-	  single = {layers = {blank_image}},
-	  straight_vertical = {{layers = {blank_image}}},
-	  straight_horizontal = {{layers = {blank_image}}},
-	  corner_right_down = {layers = {blank_image}},
-	  corner_left_down = {layers = {blank_image}},
-	  t_up = {layers = {blank_image}},
-	  ending_right = {layers = {blank_image}},
-	  ending_left = {layers = {blank_image}},
-	}
-  },
 	
   {
 	type = "assembling-machine",
@@ -466,5 +502,6 @@ data:extend(
   item_elevator_input,
   item_elevator_output,
   fluid_elevator_input,
-  fluid_elevator_output
+  fluid_elevator_output,
+  subsurface_walls
 })
