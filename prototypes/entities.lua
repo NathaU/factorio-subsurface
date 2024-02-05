@@ -61,9 +61,9 @@ local wall_pictures = table.deepcopy(data.raw["simple-entity"]["rock-big"].pictu
 for _,p in ipairs(data.raw["simple-entity"]["rock-huge"].pictures) do
 	table.insert(wall_pictures, p)
 end
-for _,p in ipairs(data.raw["optimized-decorative"]["rock-medium"].pictures) do
+--[[for _,p in ipairs(data.raw["optimized-decorative"]["rock-medium"].pictures) do
 	table.insert(wall_pictures, p)
-end
+end]]
 local subsurface_walls = {
 	type = "cliff",
 	name = "subsurface-wall",
