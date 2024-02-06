@@ -14,3 +14,10 @@ data:extend({
 	linked_game_control = "place-ping"
   },
 })
+
+table.insert(data.raw.projectile["cliff-explosives"].action[1].action_delivery.target_effects, {
+	type = "script",
+	effect_id = "cliff-explosives"
+})
+data.raw.capsule["cliff-explosives"].capsule_action.type = "throw"
+data.raw.cliff.cliff.cliff_explosive = nil

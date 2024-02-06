@@ -34,7 +34,7 @@ fluid_elevator_output.fluid_box.pipe_connections[4]["type"] = "output"
 fluid_elevator_output.fluid_box.hide_connection_info = false
 fluid_elevator_output.two_direction_only = false
 
---[[local subsurface_walls = table.deepcopy(data.raw["simple-entity"]["rock-big"])
+local subsurface_walls = table.deepcopy(data.raw["simple-entity"]["rock-big"])
 subsurface_walls.name = "subsurface-wall"
 subsurface_walls.resistances = {
 	{type = "physical", percent = 100},
@@ -43,7 +43,7 @@ subsurface_walls.resistances = {
 	{type = "fire", percent = 100},
 	{type = "laser", percent = 100}
 }
-subsurface_walls.flags = {"placeable-neutral", "not-on-map"}
+subsurface_walls.flags = {"placeable-neutral", "not-on-map", "not-deconstructable"}
 subsurface_walls.minable = {
 	mining_particle = "stone-particle",
 	mining_time = 1,
@@ -54,22 +54,16 @@ subsurface_walls.collision_box = {{-1.1, -1.1}, {1.1, 1.1}}
 for _,p in ipairs(data.raw["simple-entity"]["rock-huge"].pictures) do
 	table.insert(subsurface_walls.pictures, p)
 end
-for _,p in ipairs(data.raw["optimized-decorative"]["rock-medium"].pictures) do
-	table.insert(subsurface_walls.pictures, p)
-end]]
-local wall_pictures = table.deepcopy(data.raw["simple-entity"]["rock-big"].pictures)
+--[[local wall_pictures = table.deepcopy(data.raw["simple-entity"]["rock-big"].pictures)
 for _,p in ipairs(data.raw["simple-entity"]["rock-huge"].pictures) do
 	table.insert(wall_pictures, p)
 end
---[[for _,p in ipairs(data.raw["optimized-decorative"]["rock-medium"].pictures) do
-	table.insert(wall_pictures, p)
-end]]
 local subsurface_walls = {
 	type = "cliff",
 	name = "subsurface-wall",
     icon = "__base__/graphics/icons/rock-huge.png",
     icon_size = 64, icon_mipmaps = 4,
-	flags = {"placeable-neutral", "not-on-map"},
+	flags = {"placeable-neutral", "not-on-map", "not-deconstructable"},
 	minable = {
 		mining_particle = "stone-particle",
 		mining_time = 1,
@@ -104,7 +98,7 @@ local subsurface_walls = {
 		south_to_none  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
 		none_to_north  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
 	}
-}
+}]]
 
 local blank_image = {
 	filename = "__core__/graphics/empty.png",
