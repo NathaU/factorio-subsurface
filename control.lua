@@ -79,8 +79,10 @@ end
 
 function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius)
 	if not is_subsurface(_surface) then return end
-	_digging_radius = math.max(1, _digging_radius)
+	_digging_radius = math.max(0, _digging_radius)
 	local digging_subsurface_area = get_area(_position, _digging_radius) -- caveground area
+	digging_subsurface_area.left_top.x = digging_subsurface_area.left_top.x - 2
+	digging_subsurface_area.left_top.y = digging_subsurface_area.left_top.y - 2
 	local new_tiles = {}
 
 	if _clearing_radius then -- destroy all entities in this radius except players
@@ -100,7 +102,7 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 			if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name == "out-of-map" then
 				table.insert(new_tiles, {name = "caveground", position = {x, y}})
 			end
-
+			
 			-- destroy walls in the area
 			local wall = _surface.find_entity("subsurface-wall", {x = x, y = y})
 			if wall and math.abs(x) < _surface.map_gen_settings.width / 2 and math.abs(y) < _surface.map_gen_settings.height / 2 then
@@ -124,8 +126,9 @@ function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius
 	end
 	
 	for x, y in iouter_area_border(digging_subsurface_area) do
-		if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name == "out-of-map" then
+		if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name == "out-of-map" and _surface.count_entities_filtered{position={x, y}, name="subsurface-wall"} < 3 then
 			local wall = _surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
+			if not wall then game.print("faild") end
 			if math.abs(x)+2 > _surface.map_gen_settings.width / 2 or math.abs(y)+2 > _surface.map_gen_settings.height / 2 then
 				wall.destroy()
 			elseif math.abs(x) > _surface.map_gen_settings.width / 2 or math.abs(y) > _surface.map_gen_settings.height / 2 then
@@ -449,7 +452,7 @@ end)
 
 script.on_event(defines.events.on_player_mined_entity, function(event)
 	if event.entity.name == "subsurface-wall" then
-		clear_subsurface(event.entity.surface, event.entity.position, 1, nil)
+		clear_subsurface(event.entity.surface, event.entity.position, 0, nil)
 	end
 end)
 
@@ -482,6 +485,19 @@ script.on_event(defines.events.on_entity_destroyed, function(event)
 	elseif global.air_vent_lights[event.registration_number] then
 		rendering.destroy(global.air_vent_lights[event.registration_number])
 		global.air_vent_lights[event.registration_number] = nil
+	end
+end)
+
+script.on_event(defines.events.on_script_trigger_effect, function(event)
+	if event.effect_id == "cliff-explosives" then
+		local surface = game.get_surface(event.surface_index)
+		for _,wall in ipairs(surface.find_entities_filtered{position=event.target_position, radius=3, name="subsurface-wall"}) do
+			if wall.valid then
+				local pos = wall.position
+				clear_subsurface(surface, pos, 1, nil)
+				surface.spill_item_stack(pos, {name="stone", count=20}, true, game.forces.neutral)
+			end
+		end
 	end
 end)
 
