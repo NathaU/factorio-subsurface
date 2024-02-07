@@ -1,4 +1,17 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.2
+  Features:
+    - Map limits are now adopted to subsurfaces
+    - Players suffocate if there is too much pollution
+    - Locomotives now produce pollution (not only in the underground)
+    - There is a small light cone beneath air vents
+    - Pinging locations into chat (Ctrl+Alt+Left mouse by default) also pings these locations in the subsurface and oversurface to mark building positions
+  Changes:
+    - Air vents are less effective in deeper subsurfaces
+    - Rocket silos can't be placed in subsurfaces (of course!)
+    - Subsurface walls now look like rocks and areas are exposed in a circular shape
+    - Cliff explosives can be thrown even when there are no cliffs near, because they can be used to blow away subsurface walls
+---------------------------------------------------------------------------------------------------
 Version: 1.0.1
   Changes:
     - Tunnel entrances and exists can't be mined
