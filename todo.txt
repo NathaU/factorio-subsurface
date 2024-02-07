@@ -1,11 +1,17 @@
 wooden and iron supports
-uranium ore only in subsurfaces
+uranium ore, better oil fields only in subsurfaces
+underground not available ndner oil fields
 graphics by yuoki
 enemies
-position marker
 vent and elevator placement requires boring; one item rotatable with arrows
 electricity for fluid and item elevators
-loading animation when teleporting (like the original mod)
-damage when too long in subsurface with pollution
-chunk pollution based on caveground/out of map proportion
-remove tunnels and entrance by filling up with stones
+teleport cutscene
+remove tunnels and entrance by filling up with stones (DE versiegeln)
+Different textures for different subsurface levels (e.g., stone for the second level, darker textures for deeper levels).
+SE radius
+requester/provider elevator
+unbreakable Rock-Spots
+find abandoned shelters
+smoke in polluted chunks
+smoke when miner mines
+rocket silos cant be placed above exposed underground and underground cant digged when there is a rocket silo above
