@@ -10,19 +10,6 @@ suffocation_damage = 2.5 -- per 64 ticks (~1 second)
 
 miner_names = {"vehicle-miner", "vehicle-miner-mk2", "vehicle-miner-mk3", "vehicle-miner-mk4", "vehicle-miner-mk5"}
 
-function dump(o)
-   if type(o) == 'table' then
-      local s = '{ '
-      for k,v in pairs(o) do
-         --if type(k) ~= 'number' then k = '"'..k..'"' end
-         s = s .. '['..k..'] = ' .. dump(v) .. ','
-      end
-      return s .. '} '
-   else
-      return tostring(o)
-   end
-end
-
 function setup()
 	global.subsurfaces = global.subsurfaces or {}
 	global.pole_links = global.pole_links or {}
