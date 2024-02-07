@@ -49,8 +49,8 @@ subsurface_walls.minable = {
 	mining_time = 1,
 	results = {{name = "stone", amount_min = 10, amount_max = 30}}
 }
-subsurface_walls.selection_box = {{-1.0, -1.0}, {1.0, 1.0}}
-subsurface_walls.collision_box = {{-1.1, -1.1}, {1.1, 1.1}}
+subsurface_walls.selection_box = {{-0.9, -0.9}, {0.9, 0.9}}
+subsurface_walls.collision_box = {{-0.9, -0.9}, {0.9, 0.9}}
 for _,p in ipairs(data.raw["simple-entity"]["rock-huge"].pictures) do
 	table.insert(subsurface_walls.pictures, p)
 end

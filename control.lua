@@ -8,6 +8,8 @@ max_pollution_move_passive = 64
 suffocation_threshold = 1000
 suffocation_damage = 2.5 -- per 64 ticks (~1 second)
 
+miner_names = {"vehicle-miner", "vehicle-miner-mk2", "vehicle-miner-mk3", "vehicle-miner-mk4", "vehicle-miner-mk5"}
+
 function dump(o)
    if type(o) == 'table' then
       local s = '{ '
@@ -77,67 +79,54 @@ function is_subsurface(_surface)
 	else return false end
 end
 
-function clear_subsurface(_surface, _position, _digging_radius, _clearing_radius)
-	if not is_subsurface(_surface) then return end
-	_digging_radius = math.max(0, _digging_radius)
-	local digging_subsurface_area = get_area(_position, _digging_radius) -- caveground area
-	digging_subsurface_area.left_top.x = digging_subsurface_area.left_top.x - 2
-	digging_subsurface_area.left_top.y = digging_subsurface_area.left_top.y - 2
+function clear_subsurface(surface, pos, radius, clearing_radius)
+	if not is_subsurface(surface) then return end
 	local new_tiles = {}
-
-	if _clearing_radius then -- destroy all entities in this radius except players
-		local clearing_subsurface_area = get_area(_position, _clearing_radius)
-		for _,entity in ipairs(_surface.find_entities(clearing_subsurface_area)) do
-			if entity.type ~="player" then
-				entity.destroy()
-			else
-				entity.teleport(get_safe_position(_position, {x=_position.x + _clearing_radius, y = _position.y}))
-			end
-		end
-	end
-	
 	local walls_destroyed = 0
-	for x, y in iarea(digging_subsurface_area) do
-		if math.abs(x) < _surface.map_gen_settings.width / 2 and math.abs(y) < _surface.map_gen_settings.height / 2 then
-			if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name == "out-of-map" then
+
+	if clearing_radius then -- destroy all entities in this radius except players
+		local clearing_subsurface_area = get_area(pos, clearing_radius)
+		for _,entity in ipairs(surface.find_entities(clearing_subsurface_area)) do
+			if entity.type ~="player" then entity.destroy()
+			else entity.teleport(get_safe_position(pos, {x=pos.x + clearing_radius, y = pos.y})) end
+		end
+	end
+	
+	for x, y in iarea(get_area(pos, radius)) do
+		if surface.get_tile(x, y).valid and surface.get_tile(x, y).name == "out-of-map" then
+			if (x-pos.x)^2 + (y-pos.y)^2 < radius^2 then
 				table.insert(new_tiles, {name = "caveground", position = {x, y}})
-			end
-			
-			-- destroy walls in the area
-			local wall = _surface.find_entity("subsurface-wall", {x = x, y = y})
-			if wall and math.abs(x) < _surface.map_gen_settings.width / 2 and math.abs(y) < _surface.map_gen_settings.height / 2 then
-				wall.destroy()
-				walls_destroyed = walls_destroyed + 1
-			end
-			
-			-- add all surrounding chunks to exposed_chunks list, if not already present (0 in table) and delete this chunk
-			local cx = math.floor(x / 32)
-			local cy = math.floor(y / 32)
-			if global.exposed_chunks[_surface.index][cx] == nil then global.exposed_chunks[_surface.index][cx] = {} end
-			if global.exposed_chunks[_surface.index][cx - 1] == nil then global.exposed_chunks[_surface.index][cx - 1] = {} end
-			if global.exposed_chunks[_surface.index][cx + 1] == nil then global.exposed_chunks[_surface.index][cx + 1] = {} end
-			global.exposed_chunks[_surface.index][cx][cy] = 1 -- this chunk is exposed
-			-- surrounding chunks are set to 0 if not already exposed
-			global.exposed_chunks[_surface.index][cx - 1][cy] = global.exposed_chunks[_surface.index][cx - 1][cy] or 0
-			global.exposed_chunks[_surface.index][cx + 1][cy] = global.exposed_chunks[_surface.index][cx + 1][cy] or 0
-			global.exposed_chunks[_surface.index][cx][cy - 1] = global.exposed_chunks[_surface.index][cx][cy - 1] or 0
-			global.exposed_chunks[_surface.index][cx][cy + 1] = global.exposed_chunks[_surface.index][cx][cy + 1] or 0
-		end
-	end
-	
-	for x, y in iouter_area_border(digging_subsurface_area) do
-		if _surface.get_tile(x, y).valid and _surface.get_tile(x, y).name == "out-of-map" and _surface.count_entities_filtered{position={x, y}, name="subsurface-wall"} < 3 then
-			local wall = _surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
-			if not wall then game.print("faild") end
-			if math.abs(x)+2 > _surface.map_gen_settings.width / 2 or math.abs(y)+2 > _surface.map_gen_settings.height / 2 then
-				wall.destroy()
-			elseif math.abs(x) > _surface.map_gen_settings.width / 2 or math.abs(y) > _surface.map_gen_settings.height / 2 then
-				wall.minable = false
+				local wall = surface.find_entity("subsurface-wall", {x, y})
+				if wall and wall.minable then
+					wall.destroy()
+					walls_destroyed = walls_destroyed + 1
+				end
+				
+				-- add all surrounding chunks to exposed_chunks list, if not already present (0 in table) and delete this chunk
+				local cx = math.floor(x / 32)
+				local cy = math.floor(y / 32)
+				global.exposed_chunks = global.exposed_chunks or {}
+				global.exposed_chunks[surface.index] = global.exposed_chunks[surface.index] or {}
+				if global.exposed_chunks[surface.index][cx] == nil then global.exposed_chunks[surface.index][cx] = {} end
+				if global.exposed_chunks[surface.index][cx - 1] == nil then global.exposed_chunks[surface.index][cx - 1] = {} end
+				if global.exposed_chunks[surface.index][cx + 1] == nil then global.exposed_chunks[surface.index][cx + 1] = {} end
+				global.exposed_chunks[surface.index][cx][cy] = 1 -- this chunk is exposed
+				-- surrounding chunks are set to 0 if not already exposed
+				global.exposed_chunks[surface.index][cx - 1][cy] = global.exposed_chunks[surface.index][cx - 1][cy] or 0
+				global.exposed_chunks[surface.index][cx + 1][cy] = global.exposed_chunks[surface.index][cx + 1][cy] or 0
+				global.exposed_chunks[surface.index][cx][cy - 1] = global.exposed_chunks[surface.index][cx][cy - 1] or 0
+				global.exposed_chunks[surface.index][cx][cy + 1] = global.exposed_chunks[surface.index][cx][cy + 1] or 0
+				
+			elseif math.abs((x-pos.x)^2 + (y-pos.y)^2) < (radius+1)^2 and surface.find_entity("subsurface-wall", {x, y}) == nil then
+				local wall = surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
+				if math.abs(x) + 1 > surface.map_gen_settings.width / 2 or math.abs(y) + 1 > surface.map_gen_settings.height / 2 then
+					wall.minable = false
+				end
 			end
 		end
 	end
-	_surface.set_tiles(new_tiles)
 	
+	surface.set_tiles(new_tiles)
 	return walls_destroyed
 end
 
@@ -157,8 +146,9 @@ script.on_event(defines.events.on_tick, function(event)
 			-- subsurface entity placing
 			local subsurface = get_subsurface(d.surface)
 			global.exposed_chunks[subsurface.index] = {}
-			clear_subsurface(subsurface, {x=d.position.x+0.5, y=d.position.y+0.5}, 3, 1.5)
+			clear_subsurface(subsurface, {x=d.position.x+0.5, y=d.position.y+0.5}, 4, 1.5)
 			local exit_car = subsurface.create_entity{name="tunnel-exit", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
+
 			local exit_pole = subsurface.create_entity{name="tunnel-exit-cable", position=p, force=d.force}
 			
 			entrance_pole.connect_neighbour(exit_pole)
@@ -298,7 +288,7 @@ script.on_event(defines.events.on_tick, function(event)
 	-- handle miners
 	if event.tick % 10 == 0 then
 		for _,subsurface in ipairs(global.subsurfaces) do
-			for _,miner in ipairs(subsurface.find_entities_filtered{name={"vehicle-miner", "vehicle-miner-mk2", "vehicle-miner-mk3", "vehicle-miner-mk4", "vehicle-miner-mk5"}}) do
+			for _,miner in ipairs(subsurface.find_entities_filtered{name=miner_names}) do
 				if miner.speed > 0 then
 					local orientation = miner.orientation
 					local miner_collision_box = miner.prototype.collision_box
@@ -319,10 +309,10 @@ script.on_event(defines.events.on_tick, function(event)
 					end
 
 					local speed_test_tile = subsurface.get_tile(speed_test_position.x, speed_test_position.y)
-					if miner.friction_modifier ~= 4 and miner.speed > 0 and (speed_test_tile.name == "out-of-map" or speed_test_tile.name == "cave-walls") then
+					if miner.friction_modifier ~= 4 and miner.speed > 0 and speed_test_tile.name == "out-of-map" then
 						miner.friction_modifier = 4
 					end
-					if miner.friction_modifier ~= 1 and not(miner.speed > 0 and (speed_test_tile.name == "out-of-map" or speed_test_tile.name == "cave-walls")) then
+					if miner.friction_modifier ~= 1 and not(miner.speed > 0 and speed_test_tile.name == "out-of-map") then
 						miner.friction_modifier = 1
 					end
 				end
@@ -452,7 +442,7 @@ end)
 
 script.on_event(defines.events.on_player_mined_entity, function(event)
 	if event.entity.name == "subsurface-wall" then
-		clear_subsurface(event.entity.surface, event.entity.position, 0, nil)
+		clear_subsurface(event.entity.surface, event.entity.position, 2, nil)
 	end
 end)
 
