@@ -429,7 +429,7 @@ end)
 
 script.on_event(defines.events.on_player_mined_entity, function(event)
 	if event.entity.name == "subsurface-wall" then
-		clear_subsurface(event.entity.surface, event.entity.position, 2, nil)
+		clear_subsurface(event.entity.surface, event.entity.position, 1.5, nil)
 	end
 end)
 
