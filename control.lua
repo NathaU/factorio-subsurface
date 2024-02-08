@@ -106,7 +106,9 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 				
 			elseif math.abs((x-pos.x)^2 + (y-pos.y)^2) < (radius+1)^2 and surface.find_entity("subsurface-wall", {x, y}) == nil then
 				local wall = surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
-				if math.abs(x) + 1 > surface.map_gen_settings.width / 2 or math.abs(y) + 1 > surface.map_gen_settings.height / 2 then
+				-- now, if wall is outside map border, make it unminable
+				if (remote.interfaces["space-exploration"] and math.sqrt(x*x + y*y) > remote.call("space-exploration", "get_zone_from_surface_index", {surface_index = get_oversurface(surface).index}).radius - 5)
+				or math.abs(x) + 1 > surface.map_gen_settings.width / 2 or math.abs(y) + 1 > surface.map_gen_settings.height / 2 then
 					wall.minable = false
 				end
 			end
