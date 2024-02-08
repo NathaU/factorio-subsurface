@@ -371,14 +371,14 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		end
 	elseif entity.name == "item-elevator-input" then
 		build_safe(event, function()
-			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-input", position=entity.position, force=entity.force, direction=entity.direction}
+			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-output", position=entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
 				table.insert(global.item_elevators, {entity, complementary}) -- {input, output}
 			end
 		end)
 	elseif entity.name == "item-elevator-output" then
 		build_safe(event, function()
-			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-output", position=entity.position, force=entity.force, direction=entity.direction}
+			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-input", position=entity.position, force=entity.force, direction=entity.direction}
 			if complementary then
 				table.insert(global.item_elevators, {complementary, entity}) -- {input, output}
 			end
