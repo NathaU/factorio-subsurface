@@ -8,7 +8,12 @@ max_pollution_move_passive = 64
 suffocation_threshold = 1000
 suffocation_damage = 2.5 -- per 64 ticks (~1 second)
 
-miner_names = {"vehicle-miner", "vehicle-miner-mk2", "vehicle-miner-mk3", "vehicle-miner-mk4", "vehicle-miner-mk5"}
+miner_names = {
+	"vehicle-miner", "vehicle-miner-mk2", "vehicle-miner-mk3", "vehicle-miner-mk4", "vehicle-miner-mk5",
+	"vehicle-miner-0", "vehicle-miner-mk2-0", "vehicle-miner-mk3-0", "vehicle-miner-mk4-0", "vehicle-miner-mk5-0",
+	"vehicle-miner-0-_-ghost", "vehicle-miner-mk2-0-_-ghost", "vehicle-miner-mk3-0-_-ghost", "vehicle-miner-mk4-0-_-ghost", "vehicle-miner-mk5-0-_-ghost",
+	"vehicle-miner-0-_-solid", "vehicle-miner-mk2-0-_-solid", "vehicle-miner-mk3-0-_-solid", "vehicle-miner-mk4-0-_-solid", "vehicle-miner-mk5-0-_-solid"
+}
 
 function setup()
 	global.subsurfaces = global.subsurfaces or {}
@@ -20,6 +25,7 @@ function setup()
 	global.air_vents = global.air_vents or {}
 	global.air_vent_lights = global.air_vent_lights or {}
 	global.exposed_chunks = global.exposed_chunks or {} -- [surface][x][y], 1 means chunk is exposed, 0 means chunk is next to an exposed chunk
+	global.aai_miner_paths = global.aai_miner_paths or {}
 end
 
 script.on_init(setup)
@@ -61,8 +67,14 @@ function get_subsurface_level(surface)
 	return tonumber(number)
 end
 
-function is_subsurface(_surface)
-	if string.find(_surface.name, "_subsurface_([0-9]+)$") or 0 > 1 then return true
+function is_subsurface(surface)
+	local name = ""
+	if type(surface) == "table" then name = surface.name
+	elseif type(surface) == "string" then name = surface
+	elseif type(surface) == "number" then name = game.get_surface(surface).name
+	end
+	
+	if string.find(name, "_subsurface_([0-9]+)$") or 0 > 1 then return true
 	else return false end
 end
 
@@ -275,16 +287,32 @@ script.on_event(defines.events.on_tick, function(event)
 	end
 	
 	-- handle miners
-	if event.tick % 10 == 0 then
+	if remote.interfaces["aai-programmable-vehicles"] and event.tick % 10 == 0 then
 		for _,subsurface in ipairs(global.subsurfaces) do
 			for _,miner in ipairs(subsurface.find_entities_filtered{name=miner_names}) do
-				if miner.speed > 0 then
+				
+				-- navigation part
+				local miner_data = remote.call("aai-programmable-vehicles", "get_unit_by_entity", miner)
+				if global.aai_miner_paths[miner_data.unit_id] >= 1 and miner_data.mode == "vehicle" then
+					local path = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=subsurface.index, force_name=miner.force.name})[global.aai_miner_paths[miner_data.unit_id]]
+					local found_wp = false
+					for i,w in ipairs(path.waypoints) do
+						if w.type == "position" and miner.position.x - 2 < w.position.x and miner.position.x + 2 > w.position.x and miner.position.y - 2 < w.position.y and miner.position.y + 2 > w.position.y then
+							-- miner is at this waypoint
+							found_wp = true
+							remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_position_direct=(path.waypoints[i + 1] or path.waypoints[1]).position})
+						end
+					end
+					if not found_wp then remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_position_direct=path.waypoints[1].position}) end
+				end
+				
+				if miner.speed > 0 then -- digging part
 					local orientation = miner.orientation
 					local miner_collision_box = miner.prototype.collision_box
 					local center_big_excavation = move_towards_continuous(miner.position, orientation, -miner_collision_box.left_top.y)
 					local center_small_excavation = move_towards_continuous(center_big_excavation, orientation, 1.7)
 					local speed_test_position = move_towards_continuous(center_small_excavation, orientation, 1.5)
-
+					
 					local walls_dug = clear_subsurface(subsurface, center_small_excavation, 1, nil)
 					walls_dug = walls_dug + clear_subsurface(subsurface, center_big_excavation, 3, nil)
 					
@@ -432,6 +460,46 @@ end)
 script.on_event(defines.events.on_player_mined_entity, function(event)
 	if event.entity.name == "subsurface-wall" then
 		clear_subsurface(event.entity.surface, event.entity.position, 1.5, nil)
+	end
+end)
+
+-- AAI miner gui
+script.on_event(defines.events.on_player_changed_surface, function(event)
+	local player = game.get_player(event.player_index)
+	local surface = player.surface
+	local miners = surface.find_entities_filtered{name=miner_names, force=player.force}
+	if player.gui.left.aai_gui ~= nil then player.gui.left.aai_gui.destroy() end
+	if is_subsurface(surface) and #miners > 0 then
+		local miner_list = player.gui.left.add{
+			type = "scroll-pane",
+			name = "aai_gui",
+			direction = "vertical",
+			style = "aai_vehicles_units-scroll-pane"
+		}
+		for _,miner in ipairs(miners) do
+			local miner_data = remote.call("aai-programmable-vehicles", "get_unit_by_entity", miner)
+			local frame = miner_list.add{
+				type = "frame",
+				name = miner_data.unit_id,
+				direction = "horizontal",
+				style = "aai_vehicles_unit-frame"
+			}
+			frame.add{type="sprite", sprite="entity/"..miner_data.unit_type}
+			frame.add{type="label", caption=miner_data.unit_id, style="aai_vehicles_unit-number-label"}
+			
+			local paths = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=surface.index, force_name=player.force.name})
+			local path_names = {"None"}
+			for _,p in ipairs(paths) do
+				path_names[p.path_id + 1] = p.path_id .. ": " .. p.name
+			end
+			frame.add{type="drop-down", name="miner_path", tags={unit_id=miner_data.unit_id}, items=path_names, selected_index=(global.aai_miner_paths[miner_data.unit_id] or 0) + 1}
+		end
+	end
+end)
+script.on_event(defines.events.on_gui_selection_state_changed, function(event)
+	if event.element.name == "miner_path" then
+		local unit_id = event.element.tags.unit_id
+		global.aai_miner_paths[unit_id] = event.element.selected_index - 1
 	end
 end)
 
