@@ -44,6 +44,7 @@ subsurface_walls.resistances = {
 	{type = "laser", percent = 100}
 }
 subsurface_walls.flags = {"placeable-neutral", "not-on-map", "not-deconstructable"}
+subsurface_walls.count_as_rock_for_filtered_deconstruction = false
 subsurface_walls.minable = {
 	mining_particle = "stone-particle",
 	mining_time = 1,
