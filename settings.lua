@@ -13,4 +13,11 @@ data:extend({
 	allow_blank = true,
 	auto_traim = true
   },
+  {
+	type = "int-setting",
+	setting_type = "runtime-global",
+	name = "subsurface-limit",
+	default_value = 20,
+	minimum_value = 1
+  },
 })
