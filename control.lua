@@ -303,7 +303,7 @@ script.on_event(defines.events.on_tick, function(event)
 					local target_position = path.waypoints[global.aai_miner_paths[miner_data.unit_id][2]].position
 					if miner_data.mode == "unit" and miner_data.speed == 0 then -- miner has no path (stucked)
 						for _,p in ipairs(miner.force.players) do
-							if event.tick % 180 == 0 then p.add_custom_alert(miner, {type="item", name=miner_data.unit_type}, "Miner is stucked", true) end
+							if event.tick % 180 == 0 then p.add_custom_alert(miner, {type="item", name=miner_data.unit_type}, {"subsurface.miner-stuck"}, true) end
 						end
 					elseif miner_data.mode == "vehicle" and not miner_data.vehicle.get_inventory(defines.inventory.car_trunk).is_full() then
 						if miner.position.x - 2 < target_position.x and miner.position.x + 2 > target_position.x and miner.position.y - 2 < target_position.y and miner.position.y + 2 > target_position.y then
@@ -318,7 +318,7 @@ script.on_event(defines.events.on_tick, function(event)
 						remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_position_direct=path.waypoints[global.aai_miner_paths[miner_data.unit_id][2]].position})
 					elseif miner_data.vehicle.get_inventory(defines.inventory.car_trunk).is_full() then
 						for _,p in ipairs(miner.force.players) do
-							if event.tick % 180 == 0 then p.add_custom_alert(miner, {type="item", name=miner_data.unit_type}, "Miner has full inventory", true) end
+							if event.tick % 180 == 0 then p.add_custom_alert(miner, {type="item", name=miner_data.unit_type}, {"subsurface.miner-inventory-full"}, true) end
 						end
 						remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_speed=0})
 					end
