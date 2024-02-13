@@ -289,24 +289,39 @@ script.on_event(defines.events.on_tick, function(event)
 	-- handle miners
 	if remote.interfaces["aai-programmable-vehicles"] and event.tick % 10 == 0 then
 		for _,subsurface in ipairs(global.subsurfaces) do
+			
 			for _,miner in ipairs(subsurface.find_entities_filtered{name=miner_names}) do
 				
 				-- navigation part
 				local miner_data = remote.call("aai-programmable-vehicles", "get_unit_by_entity", miner)
-				if global.aai_miner_paths[miner_data.unit_id] >= 1 and miner_data.mode == "vehicle" then
-					local path = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=subsurface.index, force_name=miner.force.name})[global.aai_miner_paths[miner_data.unit_id]]
-					local found_wp = false
-					for i,w in ipairs(path.waypoints) do
-						if w.type == "position" and miner.position.x - 2 < w.position.x and miner.position.x + 2 > w.position.x and miner.position.y - 2 < w.position.y and miner.position.y + 2 > w.position.y then
-							-- miner is at this waypoint
-							found_wp = true
-							remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_position_direct=(path.waypoints[i + 1] or path.waypoints[1]).position})
-						end
-					end
-					if not found_wp then remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_position_direct=path.waypoints[1].position}) end
+				local path = nil
+				if global.aai_miner_paths[miner_data.unit_id] and global.aai_miner_paths[miner_data.unit_id][1] > 0 then
+					path = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=subsurface.index, force_name=miner.force.name})[global.aai_miner_paths[miner_data.unit_id][1]]
 				end
 				
-				if miner.speed > 0 then -- digging part
+				if path then
+					local target_position = path.waypoints[global.aai_miner_paths[miner_data.unit_id][2]].position
+					if miner_data.mode == "unit" and miner_data.speed == 0 then -- miner has no path (stucked)
+						for _,p in ipairs(miner.force.players) do
+							p.add_custom_alert(miner, {type="item", name=miner_data.unit_type}, "Miner is stucked", true)
+						end
+					elseif miner_data.mode == "vehicle" then
+						if miner.position.x - 2 < target_position.x and miner.position.x + 2 > target_position.x and miner.position.y - 2 < target_position.y and miner.position.y + 2 > target_position.y then
+							local next_waypoint = path.first_waypoint_id
+							for i,w in pairs(path.waypoints) do
+								if next_waypoint == path.first_waypoint_id and i > global.aai_miner_paths[miner_data.unit_id][2] and path.waypoints[i] and path.waypoints[i].type == "position" then
+									next_waypoint = i
+								end
+							end
+							global.aai_miner_paths[miner_data.unit_id][2] = next_waypoint
+						end
+						remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_position_direct=path.waypoints[global.aai_miner_paths[miner_data.unit_id][2]].position})
+					end
+				else
+					global.aai_miner_paths[miner_data.unit_id] = {0, 0}
+				end
+				
+				if miner.valid and miner.speed > 0 then -- digging part
 					local orientation = miner.orientation
 					local miner_collision_box = miner.prototype.collision_box
 					local center_big_excavation = move_towards_continuous(miner.position, orientation, -miner_collision_box.left_top.y)
@@ -497,10 +512,10 @@ script.on_event({defines.events.on_player_cursor_stack_changed, defines.events.o
 				
 				local paths = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=surface.index, force_name=player.force.name})
 				local path_names = {"None"}
-				for _,p in ipairs(paths) do
+				for _,p in ipairs(paths or {}) do
 					path_names[p.path_id + 1] = p.path_id .. ": " .. p.name
 				end
-				frame.add{type="drop-down", name="miner_path", tags={unit_id=miner_data.unit_id}, items=path_names, selected_index=(global.aai_miner_paths[miner_data.unit_id] or 0) + 1}
+				frame.add{type="drop-down", name="miner_path", tags={unit_id=miner_data.unit_id}, items=path_names, selected_index=(global.aai_miner_paths[miner_data.unit_id] or {0, 0})[1] + 1}
 			end
 		end
 	end
@@ -508,7 +523,11 @@ end)
 script.on_event(defines.events.on_gui_selection_state_changed, function(event)
 	if event.element.name == "miner_path" then
 		local unit_id = event.element.tags.unit_id
-		global.aai_miner_paths[unit_id] = event.element.selected_index - 1
+		if event.element.selected_index == 1 then
+			global.aai_miner_paths[unit_id] = {0, 0}
+		else
+			global.aai_miner_paths[unit_id] = {event.element.selected_index - 1, remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=game.get_player(event.player_index).surface.index, force_name=game.get_player(event.player_index).force.name})[event.element.selected_index - 1].first_waypoint_id}
+		end
 	end
 end)
 
