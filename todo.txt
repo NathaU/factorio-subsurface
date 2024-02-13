@@ -1,17 +1,23 @@
 wooden and iron supports
 uranium ore, better oil fields only in subsurfaces
-underground not available ndner oil fields
+underground not available ndner oil fields and water
 graphics by yuoki
 enemies
-vent and elevator placement requires boring; one item rotatable with arrows
-electricity for fluid and item elevators
 teleport cutscene
 remove tunnels and entrance by filling up with stones (DE versiegeln)
 Different textures for different subsurface levels (e.g., stone for the second level, darker textures for deeper levels).
-SE radius
-requester/provider elevator
 unbreakable Rock-Spots
 find abandoned shelters
 smoke in polluted chunks
-smoke when miner mines
+smoke and pollution when miner mines
 rocket silos cant be placed above exposed underground and underground cant digged when there is a rocket silo above
+scale digging cost by depth (and time)
+wall mining should cost resources (and time), not per hand but a tool
+
+Elevators:
+- vent and elevator placement requires boring
+- Elevators should not be split into separate items, but rotatable (arrows in alt mode)
+- Elevators should require setup in both places, similar to the underground belts and pipes
+- requester/provider elevator
+- electricity for fluid and item elevators
+- item elevator throughput change (items/tick)

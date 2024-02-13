@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.3
+  Features:
+    - AAI miners can now dig automatically (but still now very good). They stop if their inventory is full
+    - Number of subsurfaces can now be limited
+  Changes:
+    - Subsurfaces now adopt radius from Space Exploration planets
+    - Locomotive pollution is now disableable
+  Bugfixes:
+    - Fixed crash when mods add locomotives without burner prototype
+    - Fixed crash when mods add new cliffs
+---------------------------------------------------------------------------------------------------
 Version: 1.0.2
   Features:
     - Map limits are now adopted to subsurfaces
