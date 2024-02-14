@@ -1,5 +1,6 @@
 require "util"
 require "lib"
+require "cutscene"
 
 max_fluid_flow_per_tick = 100
 max_pollution_move_active = 128 -- the max amount of pollution that can be moved per 64 ticks from one surface to the above
@@ -463,14 +464,6 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 				global.air_vent_lights[script.register_on_entity_destroyed(entity)] = rendering.draw_light{surface=get_subsurface(entity.surface), target=entity.position, sprite="utility/light_small"}
 			end
 		end, false)
-	end
-end)
-
--- player elevator
-script.on_event(defines.events.on_player_driving_changed_state, function(event)
-	if event.entity and (event.entity.name == "tunnel-entrance" or event.entity.name == "tunnel-exit") and global.car_links and global.car_links[event.entity.unit_number] then
-		local opposite_car = global.car_links[event.entity.unit_number]
-		game.get_player(event.player_index).teleport(game.get_player(event.player_index).position, opposite_car.surface)
 	end
 end)
 
