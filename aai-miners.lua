@@ -10,7 +10,7 @@ script.on_event({defines.events.on_player_cursor_stack_changed, defines.events.o
 	local player = game.get_player(event.player_index)
 	local surface = player.surface
 	if player.gui.left.aai_gui ~= nil then player.gui.left.aai_gui.destroy() end
-	if player.cursor_stack.valid_for_read and player.cursor_stack.name == "unit-remote-control" and is_subsurface(surface) then
+	if player.cursor_stack and player.cursor_stack.valid_for_read and player.cursor_stack.name == "unit-remote-control" and is_subsurface(surface) then
 		local miners = surface.find_entities_filtered{name=miner_names, force=player.force}
 		if #miners > 0 then
 			
