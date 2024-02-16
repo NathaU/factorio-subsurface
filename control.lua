@@ -1,5 +1,6 @@
 require "util"
 require "lib"
+require "remote"
 require "cutscene"
 require "aai-miners"
 
@@ -78,7 +79,7 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 	local new_tiles = {}
 	local walls_destroyed = 0
 
-	if clearing_radius then -- destroy all entities in this radius except players
+	if clearing_radius and clearing_radius < radius then -- destroy all entities in this radius except players
 		local clearing_subsurface_area = get_area(pos, clearing_radius)
 		for _,entity in ipairs(surface.find_entities(clearing_subsurface_area)) do
 			if entity.type ~="player" then entity.destroy()
@@ -405,7 +406,7 @@ end)
 
 script.on_event(defines.events.on_player_mined_entity, function(event)
 	if event.entity.name == "subsurface-wall" then
-		clear_subsurface(event.entity.surface, event.entity.position, 1.5, nil)
+		clear_subsurface(event.entity.surface, event.entity.position, 1.5)
 	end
 end)
 
@@ -447,7 +448,7 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 		for _,wall in ipairs(surface.find_entities_filtered{position=event.target_position, radius=3, name="subsurface-wall"}) do
 			if wall.valid then
 				local pos = wall.position
-				clear_subsurface(surface, pos, 1, nil)
+				clear_subsurface(surface, pos, 1)
 				surface.spill_item_stack(pos, {name="stone", count=20}, true, game.forces.neutral)
 			end
 		end
