@@ -11,6 +11,15 @@ function dump(o)
    end
 end
 
+function get_surface_object(param)
+	if type(param) == "string" or type(param) == "number" then return game.get_surface(param)
+	else return param end
+end
+
+function get_position(pos)
+	return {x = pos.x or pos[1], y = pos.y or pos[2]}
+end
+
 function iarea(area)
 	local leftTop = area[1]
 	if not leftTop then leftTop = {area.left_top.x, area.left_top.y} end
