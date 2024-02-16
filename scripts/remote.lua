@@ -1,6 +1,6 @@
 --[[ shorthand definitions possible for:
- surface: index or name
- position: array with two elements
+ surfaces: index or name
+ positions: array with two elements
 ]]
 remote.add_interface("subsurface", {
 	

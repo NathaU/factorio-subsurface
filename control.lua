@@ -1,8 +1,8 @@
 require "util"
-require "lib"
-require "remote"
-require "cutscene"
-require "aai-miners"
+require "scripts.lib"
+require "scripts.remote"
+require "scripts.cutscene"
+require "scripts.aai-miners"
 
 max_fluid_flow_per_tick = 100
 max_pollution_move_active = 128 -- the max amount of pollution that can be moved per 64 ticks from one surface to the above
