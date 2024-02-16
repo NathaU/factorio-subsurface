@@ -47,6 +47,7 @@ function get_subsurface(surface, create)
 			subsurface.show_clouds = false
 		end
 		global.subsurfaces[surface.index] = subsurface
+		global.exposed_chunks[subsurface.index] = global.exposed_chunks[subsurface.index] or {}
 		return subsurface
 	else return nil
 	end
@@ -97,11 +98,9 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 					walls_destroyed = walls_destroyed + 1
 				end
 				
-				-- add all surrounding chunks to exposed_chunks list, if not already present (0 in table) and delete this chunk
+				-- add all surrounding chunks to exposed_chunks list, if not already present
 				local cx = math.floor(x / 32)
 				local cy = math.floor(y / 32)
-				global.exposed_chunks = global.exposed_chunks or {}
-				global.exposed_chunks[surface.index] = global.exposed_chunks[surface.index] or {}
 				if global.exposed_chunks[surface.index][cx] == nil then global.exposed_chunks[surface.index][cx] = {} end
 				if global.exposed_chunks[surface.index][cx - 1] == nil then global.exposed_chunks[surface.index][cx - 1] = {} end
 				if global.exposed_chunks[surface.index][cx + 1] == nil then global.exposed_chunks[surface.index][cx + 1] = {} end
@@ -142,10 +141,8 @@ script.on_event(defines.events.on_tick, function(event)
 			
 			-- subsurface entity placing
 			local subsurface = get_subsurface(d.surface)
-			global.exposed_chunks[subsurface.index] = {}
 			clear_subsurface(subsurface, {x=d.position.x+0.5, y=d.position.y+0.5}, 4, 1.5)
 			local exit_car = subsurface.create_entity{name="tunnel-exit", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
-
 			local exit_pole = subsurface.create_entity{name="tunnel-exit-cable", position=p, force=d.force}
 			
 			entrance_pole.connect_neighbour(exit_pole)
