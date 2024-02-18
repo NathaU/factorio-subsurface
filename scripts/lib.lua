@@ -44,8 +44,19 @@ function iarea(area)
 	end
 end
 
-function get_area(position, size)
-	return {{math.floor(position.x - size), math.floor(position.y - size)}, {math.ceil(position.x + size), math.ceil(position.y + size)}}
+function get_area(pos, size)
+	pos = get_position(pos)
+	return {left_top={x=math.floor(pos.x - size), y=math.floor(pos.y - size)}, right_bottom={x=math.ceil(pos.x + size), y=math.ceil(pos.y + size)}}
+end
+
+function get_area_positions(area)
+	local arr = {}
+	for x=area.left_top.x,area.right_bottom.x,1 do
+		for y=area.left_top.y,area.right_bottom.y,1 do
+			table.insert(arr, {x, y})
+		end
+	end
+	return arr
 end
 
 function get_safe_position(entity_position, player_position)
