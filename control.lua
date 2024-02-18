@@ -3,6 +3,7 @@ require "scripts.lib"
 require "scripts.remote"
 require "scripts.cutscene"
 require "scripts.aai-miners"
+require "scripts.resources"
 
 max_fluid_flow_per_tick = 100
 max_pollution_move_active = 128 -- the max amount of pollution that can be moved per 64 ticks from one surface to the above
@@ -78,6 +79,7 @@ end
 function clear_subsurface(surface, pos, radius, clearing_radius)
 	if not is_subsurface(surface) then return end
 	local new_tiles = {}
+	local new_tile_positions = {}
 	local walls_destroyed = 0
 
 	if clearing_radius and clearing_radius < radius then -- destroy all entities in this radius except players
@@ -92,6 +94,7 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 		if surface.get_tile(x, y).valid and surface.get_tile(x, y).name == "out-of-map" then
 			if (x-pos.x)^2 + (y-pos.y)^2 < radius^2 then
 				table.insert(new_tiles, {name = "caveground", position = {x, y}})
+				table.insert(new_tile_positions, {x, y})
 				local wall = surface.find_entity("subsurface-wall", {x, y})
 				if wall and wall.minable then
 					wall.destroy()
@@ -123,6 +126,7 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 	end
 	
 	surface.set_tiles(new_tiles)
+	place_resources(surface, new_tile_positions)
 	return walls_destroyed
 end
 
@@ -391,6 +395,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 	end
 end)
 
+-- DO NOT clear surfaces here because this could destroy subsurface walls on chunk borders!
 script.on_event(defines.events.on_chunk_generated, function(event)
 	if is_subsurface(event.surface) then
 		local newTiles = {}
