@@ -12,7 +12,7 @@ max_pollution_move_passive = 64
 suffocation_threshold = 1000
 suffocation_damage = 2.5 -- per 64 ticks (~1 second)
 
-function setup()
+function setup_globals()
 	global.subsurfaces = global.subsurfaces or {}
 	global.pole_links = global.pole_links or {}
 	global.car_links = global.car_links or {}
@@ -25,24 +25,39 @@ function setup()
 	global.aai_miner_paths = global.aai_miner_paths or {}
 end
 
-script.on_init(setup)
-script.on_configuration_changed(setup)
+script.on_init(function()
+	setup_globals()
+	for _,surface in pairs(game.surfaces) do manipulate_autoplace_controls(surface) end
+end)
+script.on_configuration_changed(setup_globals)
 
 function get_subsurface(surface, create)
 	if create == nil then create = true end
 	if global.subsurfaces[surface.index] then -- the subsurface already exists
 		return global.subsurfaces[surface.index]
 	elseif create then -- we need to create the subsurface (pattern : <surface>_subsurface_<number>
-		local name = ""
-		local _, _, osname, number = string.find(surface.name, "(.+)_subsurface_([0-9]+)$")
-		if osname == nil then name = surface.name .. "_subsurface_1"
-		else name = osname .. "_subsurface_" .. (tonumber(number)+1) end
+		local subsurface_name = ""
+		local _, _, topname, level = string.find(surface.name, "(.+)_subsurface_([0-9]+)$")
+		if topname == nil then -- surface is not a subsurface
+			topname = surface.name
+			level = 1
+		else
+			level = tonumber(level) + 1
+		end
+		subsurface_name = topname .. "_subsurface_" .. level
 		
-		local subsurface = game.get_surface(name)
+		local subsurface = game.get_surface(subsurface_name)
 		if not subsurface then
-			local msg = surface.map_gen_settings
-			subsurface = game.create_surface(name, msg)
-			subsurface.generate_with_lab_tiles = true
+			
+			local mgs = surface.map_gen_settings
+			mgs.autoplace_controls = make_autoplace_controls(topname, level)
+			mgs.default_enable_all_autoplace_controls = false
+			mgs.starting_points = nil
+			mgs.starting_area = nil
+			mgs.seed = mgs.seed + 1
+			
+			subsurface = game.create_surface(subsurface_name, mgs)
+			
 			subsurface.daytime = 0.5
 			subsurface.freeze_daytime = true
 			subsurface.show_clouds = false
@@ -59,10 +74,10 @@ function get_oversurface(subsurface)
 	end
 	return nil
 end
-
 function get_subsurface_level(surface)
-	local _, _, osname, number = string.find(surface.name, "(.+)_subsurface_([0-9]+)$")
-	return tonumber(number)
+	if type(surface) == "table" then surface = surface.name end
+	local _, _, _, level = string.find(surface, "(.+)_subsurface_([0-9]+)$")
+	return tonumber(level)
 end
 
 function is_subsurface(surface)
