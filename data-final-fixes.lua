@@ -30,13 +30,6 @@ for _,a in ipairs(assemblers) do
 	end
 end
 
-
--- remove cliff explosives from all cliffs
-table.insert(data.raw.projectile["cliff-explosives"].action[1].action_delivery.target_effects, {
-	type = "script",
-	effect_id = "cliff-explosives"
-})
-data.raw.capsule["cliff-explosives"].capsule_action.type = "throw"
-for _,c in pairs(data.raw.cliff) do
-	c.cliff_explosive = nil
+if data.raw.technology["cliff-explosives"] then
+	table.insert(data.raw.technology["cliff-explosives"].effects, {type = "unlock-recipe", recipe = "rock-explosives"})
 end

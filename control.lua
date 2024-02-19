@@ -107,14 +107,14 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 	
 	for x, y in iarea(get_area(pos, radius)) do
 		if surface.get_tile(x, y).valid and surface.get_tile(x, y).name == "out-of-map" then
-			if (x-pos.x)^2 + (y-pos.y)^2 < radius^2 then
+			local wall = surface.find_entity("subsurface-wall", {x, y})
+			if (x-pos.x)^2 + (y-pos.y)^2 < radius^2  and wall and wall.minable then
+				
+				wall.destroy()
+				walls_destroyed = walls_destroyed + 1
+				
 				table.insert(new_tiles, {name = "caveground", position = {x, y}})
 				table.insert(new_tile_positions, {x, y})
-				local wall = surface.find_entity("subsurface-wall", {x, y})
-				if wall and wall.minable then
-					wall.destroy()
-					walls_destroyed = walls_destroyed + 1
-				end
 				
 				-- add all surrounding chunks to exposed_chunks list, if not already present
 				local cx = math.floor(x / 32)
@@ -129,7 +129,7 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 				global.exposed_chunks[surface.index][cx][cy - 1] = global.exposed_chunks[surface.index][cx][cy - 1] or 0
 				global.exposed_chunks[surface.index][cx][cy + 1] = global.exposed_chunks[surface.index][cx][cy + 1] or 0
 				
-			elseif math.abs((x-pos.x)^2 + (y-pos.y)^2) < (radius+1)^2 and surface.find_entity("subsurface-wall", {x, y}) == nil then
+			elseif math.abs((x-pos.x)^2 + (y-pos.y)^2) < (radius+1)^2 and not wall then
 				local wall = surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
 				-- now, if wall is outside map border, make it unminable
 				if (remote.interfaces["space-exploration"] and math.sqrt(x*x + y*y) > remote.call("space-exploration", "get_zone_from_surface_index", {surface_index = get_oversurface(surface).index}).radius - 5)
@@ -460,13 +460,14 @@ script.on_event(defines.events.on_entity_destroyed, function(event)
 end)
 
 script.on_event(defines.events.on_script_trigger_effect, function(event)
-	if event.effect_id == "cliff-explosives" then
+	if event.effect_id == "rock-explosives" then
 		local surface = game.get_surface(event.surface_index)
 		for _,wall in ipairs(surface.find_entities_filtered{position=event.target_position, radius=3, name="subsurface-wall"}) do
 			if wall.valid then
 				local pos = wall.position
 				clear_subsurface(surface, pos, 1)
 				surface.spill_item_stack(pos, {name="stone", count=20}, true, game.forces.neutral)
+				surface.pollute(pos, 1)
 			end
 		end
 	end
