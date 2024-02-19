@@ -55,51 +55,12 @@ subsurface_walls.collision_box = {{-0.9, -0.9}, {0.9, 0.9}}
 for _,p in ipairs(data.raw["simple-entity"]["rock-huge"].pictures) do
 	table.insert(subsurface_walls.pictures, p)
 end
---[[local wall_pictures = table.deepcopy(data.raw["simple-entity"]["rock-big"].pictures)
-for _,p in ipairs(data.raw["simple-entity"]["rock-huge"].pictures) do
-	table.insert(wall_pictures, p)
-end
-local subsurface_walls = {
-	type = "cliff",
-	name = "subsurface-wall",
-    icon = "__base__/graphics/icons/rock-huge.png",
-    icon_size = 64, icon_mipmaps = 4,
-	flags = {"placeable-neutral", "not-on-map", "not-deconstructable"},
-	minable = {
-		mining_particle = "stone-particle",
-		mining_time = 1,
-		results = {{name = "stone", amount_min = 10, amount_max = 30}}
-	},
-	selection_box = {{-1.0, -1.0}, {1.0, 1.0}},
-	collision_box = {{-1.1, -1.1}, {1.1, 1.1}},
-	mined_sound = data.raw.cliff.cliff.mined_sound,
-	vehicle_impact_sound = data.raw.cliff.cliff.vehicle_impact_sound,
-    cliff_explosive = "cliff-explosives",
-	grid_offset = {0, 0},
-	grid_size = {1, 1},
-	orientations = {
-		west_to_east   = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		north_to_south = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		east_to_west   = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		south_to_north = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		west_to_north  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		north_to_east  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		east_to_south  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		south_to_west  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		west_to_south  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		north_to_west  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		east_to_north  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		south_to_east  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		west_to_none   = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		none_to_east   = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		north_to_none  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		none_to_south  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		east_to_none   = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		none_to_west   = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		south_to_none  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-		none_to_north  = {pictures = wall_pictures, collision_bounding_box = {{-1.1, -1.1}, {1.1, 1.1}}, fill_volume = 0},
-	}
-}]]
+
+local rock_explosives = table.deepcopy(data.raw.projectile["cliff-explosives"])
+rock_explosives.name = "rock-explosives"
+rock_explosives.animation.filename = "__Subsurface__/graphics/entities/rock-explosives.png"
+rock_explosives.animation.hr_version.filename = "__Subsurface__/graphics/entities/hr-rock-explosives.png"
+table.insert(rock_explosives.action[1].action_delivery.target_effects, {type = "script", effect_id = "rock-explosives"})
 
 local blank_image = {
 	filename = "__core__/graphics/empty.png",
@@ -493,10 +454,12 @@ data:extend(
 		height = 64,
 	  }
 	},
-  },  
+  },
+  
   item_elevator_input,
   item_elevator_output,
   fluid_elevator_input,
   fluid_elevator_output,
-  subsurface_walls
+  subsurface_walls,
+  rock_explosives
 })
