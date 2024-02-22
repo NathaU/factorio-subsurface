@@ -495,32 +495,34 @@ script.on_event({defines.events.on_player_cursor_stack_changed, defines.events.o
 	local player = game.get_player(event.player_index)
 	local surface = player.surface
 	if player.gui.left.aai_gui ~= nil then player.gui.left.aai_gui.destroy() end
-	if player.cursor_stack.valid_for_read and player.cursor_stack.name == "unit-remote-control" and is_subsurface(surface) then
-		local miners = surface.find_entities_filtered{name=miner_names, force=player.force}
-		if #miners > 0 then
-			local miner_list = player.gui.left.add{
-				type = "scroll-pane",
-				name = "aai_gui",
-				direction = "vertical",
-				style = "aai_vehicles_units-scroll-pane"
-			}
-			for _,miner in ipairs(miners) do
-				local miner_data = remote.call("aai-programmable-vehicles", "get_unit_by_entity", miner)
-				local frame = miner_list.add{
-					type = "frame",
-					name = miner_data.unit_id,
-					direction = "horizontal",
-					style = "aai_vehicles_unit-frame"
+	if player.cursor_stack ~= nil then
+		if player.cursor_stack.valid_for_read and player.cursor_stack.name == "unit-remote-control" and is_subsurface(surface) then
+			local miners = surface.find_entities_filtered{name=miner_names, force=player.force}
+			if #miners > 0 then
+				local miner_list = player.gui.left.add{
+					type = "scroll-pane",
+					name = "aai_gui",
+					direction = "vertical",
+					style = "aai_vehicles_units-scroll-pane"
 				}
-				frame.add{type="sprite", sprite="entity/"..miner_data.unit_type}
-				frame.add{type="label", caption=miner_data.unit_id, style="aai_vehicles_unit-number-label"}
-				
-				local paths = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=surface.index, force_name=player.force.name})
-				local path_names = {"None"}
-				for _,p in ipairs(paths or {}) do
-					path_names[p.path_id + 1] = p.path_id .. ": " .. p.name
+				for _,miner in ipairs(miners) do
+					local miner_data = remote.call("aai-programmable-vehicles", "get_unit_by_entity", miner)
+					local frame = miner_list.add{
+						type = "frame",
+						name = miner_data.unit_id,
+						direction = "horizontal",
+						style = "aai_vehicles_unit-frame"
+					}
+					frame.add{type="sprite", sprite="entity/"..miner_data.unit_type}
+					frame.add{type="label", caption=miner_data.unit_id, style="aai_vehicles_unit-number-label"}
+					
+					local paths = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=surface.index, force_name=player.force.name})
+					local path_names = {"None"}
+					for _,p in ipairs(paths or {}) do
+						path_names[p.path_id + 1] = p.path_id .. ": " .. p.name
+					end
+					frame.add{type="drop-down", name="miner_path", tags={unit_id=miner_data.unit_id}, items=path_names, selected_index=(global.aai_miner_paths[miner_data.unit_id] or {0, 0})[1] + 1}
 				end
-				frame.add{type="drop-down", name="miner_path", tags={unit_id=miner_data.unit_id}, items=path_names, selected_index=(global.aai_miner_paths[miner_data.unit_id] or {0, 0})[1] + 1}
 			end
 		end
 	end
