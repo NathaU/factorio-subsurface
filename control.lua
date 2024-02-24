@@ -109,10 +109,12 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 	for x, y in iarea(get_area(pos, radius)) do
 		if surface.get_tile(x, y).valid and surface.get_tile(x, y).name == "out-of-map" then
 			local wall = surface.find_entity("subsurface-wall", {x, y})
-			if (x-pos.x)^2 + (y-pos.y)^2 < radius^2  and wall and wall.minable then
+			if (x-pos.x)^2 + (y-pos.y)^2 < radius^2 then
 				
-				wall.destroy()
-				walls_destroyed = walls_destroyed + 1
+				if wall and wall.minable then
+					wall.destroy()
+					walls_destroyed = walls_destroyed + 1
+				end
 				
 				table.insert(new_tiles, {name = "caveground", position = {x, y}})
 				table.insert(new_tile_positions, {x, y})
