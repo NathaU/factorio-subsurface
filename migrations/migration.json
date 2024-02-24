@@ -1,5 +1,11 @@
 {
 	"tile": [
 		["cave-walls", "caveground"]
+	],
+	"entity": [
+		["surface-driller", "surface-drill"]
+	],
+	"item": [
+		["surface-driller", "surface-drill"]
 	]
 }
