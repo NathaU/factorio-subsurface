@@ -5,7 +5,7 @@
 remote.add_interface("subsurface", {
 	
 	expose = function(surface, pos, radius, clearing_radius)
-		clear_subsurface(get_surface_object(surface), get_position(pos), radius, clearing_radius)
+		clear_subsurface(get_surface_object(surface), math2d.position.ensure_xy(pos), radius, clearing_radius)
 	end,
 	expose_patches = function(surface, resource, position, radius)
 		local surface = get_surface_object(surface)
