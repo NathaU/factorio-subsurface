@@ -16,10 +16,6 @@ function get_surface_object(param)
 	else return param end
 end
 
-function get_position(pos)
-	return {x = pos.x or pos[1], y = pos.y or pos[2]}
-end
-
 function iarea(area)
 	local leftTop = area[1]
 	if not leftTop then leftTop = {area.left_top.x, area.left_top.y} end
@@ -44,8 +40,8 @@ function iarea(area)
 	end
 end
 
-function get_area(pos, size)
-	pos = get_position(pos)
+function get_area(pos, size) -- cannot use math2d.bounding_box.create_from_centre because of floor and ceil
+	pos = math2d.position.ensure_xy(pos)
 	return {left_top={x=math.floor(pos.x - size), y=math.floor(pos.y - size)}, right_bottom={x=math.ceil(pos.x + size), y=math.ceil(pos.y + size)}}
 end
 
