@@ -356,49 +356,54 @@ data:extend(
 	  selected_minimap_representation = blank_image,
   },
   {
-	type = "assembling-machine",
-	name = "surface-driller",
-	icon = "__base__/graphics/icons/assembling-machine-1.png",
+	type = "mining-drill",
+	name = "surface-drill",
+	icon = "__base__/graphics/icons/burner-mining-drill.png",
 	icon_size = 64, icon_mipmaps = 4,
 	flags = {"placeable-player", "player-creation"},
-	minable = {hardness = 0.2, mining_time = 0.5, result = "surface-driller"},
-	max_health = 200,
-	corpse = "big-remnants",
-	dying_explosion = "massive-explosion",
-	crafting_categories = {"digging"},
-	ingredient_count = 0,
-	fixed_recipe = "drilling",
+    resource_categories = {"subsurface-hole"},
+	minable = {hardness = 0.2, mining_time = 2, result = "surface-drill"},
+	max_health = 300,
+    corpse = "burner-mining-drill-remnants",
+	dying_explosion = "burner-mining-drill-explosion",
 	collision_box = {{-2.2, -2.2}, {2.2, 2.2}},
-	selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
-	animation =
-	{
-	  filename = "__Subsurface__/graphics/entities/big-assembly.png",
-	  priority="high",
-	  width = 165,
-	  height = 170,
-	  frame_count = 32,
-	  line_length = 8,
-	  shift = {0.417, -0.167}
-	},
-	crafting_speed = 1,
-	energy_source =
-	{
-	  type = "electric",
-	  usage_priority = "secondary-input",
-	  emissions = 0.05 / 1.5
-	},
-	energy_usage = "50kW",
-	open_sound = { filename = "__base__/sound/machine-open.ogg", volume = 0.85 },
-	close_sound = { filename = "__base__/sound/machine-close.ogg", volume = 0.75 },
-	vehicle_impact_sound =  { filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65 },
-	working_sound =
-	{
-	  sound = { filename = "__base__/sound/oil-refinery.ogg" },
-	  idle_sound = { filename = "__base__/sound/idle1.ogg", volume = 0.6 },
-	  apparent_volume = 2.5,
-	},
+	selection_box = {{-2.2, -2.2}, {2.2, 2.2}},
+	damaged_trigger_effect = data.raw["mining-drill"]["burner-mining-drill"].damaged_trigger_effect,
+    mining_speed = 0.25,
+	energy_source = {type = "electric", usage_priority = "secondary-input", emissions = 0.05 / 1.5},
+	energy_usage = "500kW",
+	open_sound = data.raw["mining-drill"]["burner-mining-drill"].open_sound,
+    close_sound = data.raw["mining-drill"]["burner-mining-drill"].close_sound,
+	vehicle_impact_sound =  data.raw["mining-drill"]["burner-mining-drill"].vehicle_impact_sound,
+	working_sound = data.raw["mining-drill"]["burner-mining-drill"].working_sound,
+	resource_searching_radius = 0.49,
+	vector_to_place_result = {-1, -2.6},
+	animations = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].animations)
   },
-	
+  {
+	type = "assembling-machine",
+	name = "surface-drill-placer",
+	icon = "__base__/graphics/icons/burner-mining-drill.png",
+	icon_size = 64, icon_mipmaps = 4,
+	flags = {"placeable-player", "player-creation"},
+	max_health = 300,
+	collision_box = {{-2.1, -2.2}, {2.2, 2.2}},
+	selection_box = {{-2.5, -2.5}, {2.5, 2.5}},
+	animation = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].animations),
+	energy_source = {type = "electric", usage_priority = "secondary-input", emissions = 0.05 / 1.5},
+	energy_usage = "500kW",
+	crafting_speed = 1,
+	crafting_categories = {"crafting"},
+  },
+  {
+	type = "resource",
+	name = "subsurface-hole",
+	category = "subsurface-hole",
+	minable = {mining_time = 1, result = "stone", count = 20},
+	stages = {blank_image},
+	stage_counts = {0},
+  },
+  
   {
 	type = "assembling-machine",
 	name = "active-air-vent",
@@ -463,3 +468,37 @@ data:extend(
   subsurface_walls,
   rock_explosives
 })
+
+data.raw["mining-drill"]["surface-drill"].animations.north.layers[1].scale = 2
+data.raw["mining-drill"]["surface-drill"].animations.north.layers[1].hr_version.scale = 1
+data.raw["mining-drill"]["surface-drill"].animations.north.layers[2].scale = 2
+data.raw["mining-drill"]["surface-drill"].animations.north.layers[2].hr_version.scale = 1
+data.raw["mining-drill"]["surface-drill"].animations.west.layers[1].scale = 2
+data.raw["mining-drill"]["surface-drill"].animations.west.layers[1].hr_version.scale = 1
+data.raw["mining-drill"]["surface-drill"].animations.west.layers[2].scale = 2
+data.raw["mining-drill"]["surface-drill"].animations.west.layers[2].hr_version.scale = 1
+data.raw["mining-drill"]["surface-drill"].animations.south.layers[1].scale = 2
+data.raw["mining-drill"]["surface-drill"].animations.south.layers[1].hr_version.scale = 1
+data.raw["mining-drill"]["surface-drill"].animations.south.layers[2].scale = 2
+data.raw["mining-drill"]["surface-drill"].animations.south.layers[2].hr_version.scale = 1
+data.raw["mining-drill"]["surface-drill"].animations.east.layers[1].scale = 2
+data.raw["mining-drill"]["surface-drill"].animations.east.layers[1].hr_version.scale = 1
+data.raw["mining-drill"]["surface-drill"].animations.east.layers[2].scale = 2
+data.raw["mining-drill"]["surface-drill"].animations.east.layers[2].hr_version.scale = 1
+
+data.raw["assembling-machine"]["surface-drill-placer"].animation.north.layers[1].scale = 2
+data.raw["assembling-machine"]["surface-drill-placer"].animation.north.layers[1].hr_version.scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].animation.north.layers[2].scale = 2
+data.raw["assembling-machine"]["surface-drill-placer"].animation.north.layers[2].hr_version.scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].animation.west.layers[1].scale = 2
+data.raw["assembling-machine"]["surface-drill-placer"].animation.west.layers[1].hr_version.scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].animation.west.layers[2].scale = 2
+data.raw["assembling-machine"]["surface-drill-placer"].animation.west.layers[2].hr_version.scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].animation.south.layers[1].scale = 2
+data.raw["assembling-machine"]["surface-drill-placer"].animation.south.layers[1].hr_version.scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].animation.south.layers[2].scale = 2
+data.raw["assembling-machine"]["surface-drill-placer"].animation.south.layers[2].hr_version.scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].animation.east.layers[1].scale = 2
+data.raw["assembling-machine"]["surface-drill-placer"].animation.east.layers[1].hr_version.scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].animation.east.layers[2].scale = 2
+data.raw["assembling-machine"]["surface-drill-placer"].animation.east.layers[2].hr_version.scale = 1

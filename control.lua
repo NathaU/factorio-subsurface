@@ -17,7 +17,7 @@ function setup_globals()
 	global.subsurfaces = global.subsurfaces or {}
 	global.pole_links = global.pole_links or {}
 	global.car_links = global.car_links or {}
-	global.surface_drillers = global.surface_drillers or {}
+	global.surface_drills = global.surface_drills or global.surface_drillers or {}
 	global.item_elevators = global.item_elevators or {}
 	global.fluid_elevators = global.fluid_elevators or {}
 	global.air_vents = global.air_vents or {}
@@ -150,16 +150,16 @@ end
 
 script.on_event(defines.events.on_tick, function(event)
 	
-	-- handle all working drillers
-	for i,d in ipairs(global.surface_drillers) do
-		if not d.valid then table.remove(global.surface_drillers, i)
-		elseif d.products_finished == 5 then -- time for one driller finish digging
+	-- handle all working drills
+	for i,d in ipairs(global.surface_drills) do
+		if not d.valid then table.remove(global.surface_drills, i)
+		elseif d.mining_progress >= 0.00416 and not d.mining_target then -- time for one drill finish digging
 			
 			-- oversurface entity placing
 			local p = d.position
 			local entrance_car = d.surface.create_entity{name="tunnel-entrance", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
 			local entrance_pole = d.surface.create_entity{name="tunnel-entrance-cable", position=p, force=d.force}
-			table.remove(global.surface_drillers, i)
+			table.remove(global.surface_drills, i)
 			
 			-- subsurface entity placing
 			local subsurface = get_subsurface(d.surface)
@@ -343,7 +343,7 @@ function build_safe(event, func, check_for_entities)
 end
 script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity}, function(event)
 	local entity = event.created_entity
-	if entity.name == "surface-driller" then
+	if entity.name == "surface-drill-placer" then
 		local text = ""
 		if is_subsurface(entity.surface) and get_subsurface_level(entity.surface) >= settings.global["subsurface-limit"].value then
 			text = "subsurface.limit-reached"
@@ -352,21 +352,19 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		end
 		
 		if text == "" then
-			table.insert(global.surface_drillers, entity)
-			get_subsurface(entity.surface).request_to_generate_chunks(entity.position, 3)
+			entity.surface.create_entity{name="subsurface-hole", position=entity.position, amount=100}
+			local real_drill = entity.surface.create_entity{name="surface-drill", position=entity.position, direction=entity.direction, force=entity.force, player=(event.player_index or nil)}
+			entity.destroy()
+			table.insert(global.surface_drills, real_drill)
+			get_subsurface(real_drill.surface).request_to_generate_chunks(real_drill.position, 3)
 		else
-			if event["player_index"] then
+			if event.player_index then
 				local p = game.get_player(event.player_index)
 				p.create_local_flying_text{text={text}, position=entity.position}
-				p.mine_entity(entity, true)
+				entity.surface.spill_item_stack(p.position, {name="surface-drill", count=1}, true, entity.force, false)
+				entity.destroy()
 			else -- robot built it
-				local it = entity.surface.create_entity{
-					name = "item-on-ground",
-					position = entity.position,
-					force = entity.force,
-					stack = {name=entity.name, count=1}
-				}
-				if it ~= nil then it.order_deconstruction(entity.force) end -- if it is nil, then the item is now on a belt
+				entity.surface.spill_item_stack(entity.position, {name="surface-drill", count=1}, true, entity.force, false)
 				for _,p in ipairs(entity.surface.find_entities_filtered{type="character", position=entity.position, radius=50}) do
 					if p.player then p.player.create_local_flying_text{text={text}, position=entity.position} end
 				end
@@ -425,7 +423,9 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 end)
 
 script.on_event(defines.events.on_player_mined_entity, function(event)
-	if event.entity.name == "subsurface-wall" then
+	if event.entity.name == "surface-drill" then
+		if event.entity.mining_target then event.entity.mining_target.destroy() end
+	elseif event.entity.name == "subsurface-wall" then
 		clear_subsurface(event.entity.surface, event.entity.position, 1.5)
 	end
 end)

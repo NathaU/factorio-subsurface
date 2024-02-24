@@ -4,7 +4,6 @@ require("prototypes.items-groups")
 require("prototypes.recipes")
 require("prototypes.tech")
 require("prototypes.tiles")
-require("prototypes.categories")
 
 data:extend({
   {
@@ -13,4 +12,8 @@ data:extend({
 	key_sequence = "",
 	linked_game_control = "place-ping"
   },
+  {
+	type = "resource-category",
+	name = "subsurface-hole"
+  }
 })

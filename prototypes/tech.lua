@@ -3,11 +3,11 @@ data:extend(
   {
     type = "technology",
     name = "surface-drilling",
-    icon = "__base__/graphics/icons/electric-mining-drill.png",
-	icon_size = 32,
+    icon = "__base__/graphics/icons/burner-mining-drill.png",
+	icon_size = 64, icon_mipmaps = 4,
     effects =
     {
-      {type = "unlock-recipe", recipe = "surface-driller"},
+      {type = "unlock-recipe", recipe = "surface-drill"},
     },
     prerequisites = {},
     unit = {

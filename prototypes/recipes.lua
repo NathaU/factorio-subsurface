@@ -1,24 +1,19 @@
 data:extend(
 {
   {
+    type = "recipe-category",
+    name = "venting"
+  },
+  
+  {
 	type = "recipe",
-	name = "surface-driller",
+	name = "surface-drill",
 	enabled = false,
 	ingredients =
 	{
 	  {"electric-mining-drill", 5},
 	},
-	result = "surface-driller"
-  },
-  {
-	type = "recipe",
-	name = "drilling",
-	enabled = true,
-	hidden = true,
-	category = "digging",
-	energy_required = 5,
-	ingredients = {},
-	results = {{type="item", name="stone", amount=50}}
+	result = "surface-drill"
   },
   
   {

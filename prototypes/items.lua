@@ -2,13 +2,13 @@ data:extend(
 {
   {
 	type = "item",
-	name = "surface-driller",
-	icon = "__base__/graphics/icons/assembling-machine-1.png",
+	name = "surface-drill",
+	icon = "__base__/graphics/icons/burner-mining-drill.png",
 	icon_size = 64, icon_mipmaps = 4,
 	subgroup = "production-machine",
-	order = "a[assembling-machine-1]",
-	place_result = "surface-driller",
-	stack_size = 50
+	order = "a",
+	place_result = "surface-drill-placer",
+	stack_size = 5
   },
   {
 	type = "item",
