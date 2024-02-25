@@ -16,7 +16,7 @@ function place_resources(surface, pos_arr)
 	end
 end
 
--- this is for top surfaces (level 0). It directly manipulates the surface's map_gen_settings
+-- this is for top surfaces (depth 0). It directly manipulates the surface's map_gen_settings
 function manipulate_autoplace_controls(surface)
 	local mgs = surface.map_gen_settings
 	mgs.default_enable_all_autoplace_controls = false
@@ -31,14 +31,14 @@ end
 
 -- this is for subsurfaces, it returns a freshly new autoplace_controls array
 -- ensure that all resources really exist!
-function make_autoplace_controls(topname, level)
+function make_autoplace_controls(topname, depth)
 	if topname == "nauvis" then
 		return {
-			["iron-ore"] = 		{frequency = 1.5*level, 	size = 1.1*level, 	richness = 2*level},
-			["copper-ore"] = 	{frequency = 1.5*level, 	size = 1.1*level, 	richness = 2*level},
+			["iron-ore"] = 		{frequency = 1.5*depth, 	size = 1.1*depth, 	richness = 2*depth},
+			["copper-ore"] = 	{frequency = 1.5*depth, 	size = 1.1*depth, 	richness = 2*depth},
 			["uranium-ore"] = 	{frequency = 1, 			size = 1, 			richness = 1},
-			["crude-oil"] = 	{frequency = 1.5*level, 	size = 1.1*level, 	richness = 2*level},
-			["coal"] = 			{frequency = 0.8^level, 	size = 0.5^level, 	richness = 0.8^level},
+			["crude-oil"] = 	{frequency = 1.5*depth, 	size = 1.1*depth, 	richness = 2*depth},
+			["coal"] = 			{frequency = 0.8^depth, 	size = 0.5^depth, 	richness = 0.8^depth},
 		}
 	else return {}
 	end

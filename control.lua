@@ -38,20 +38,20 @@ function get_subsurface(surface, create)
 		return global.subsurfaces[surface.index]
 	elseif create then -- we need to create the subsurface (pattern : <surface>_subsurface_<number>
 		local subsurface_name = ""
-		local _, _, topname, level = string.find(surface.name, "(.+)_subsurface_([0-9]+)$")
+		local _, _, topname, depth = string.find(surface.name, "(.+)_subsurface_([0-9]+)$")
 		if topname == nil then -- surface is not a subsurface
 			topname = surface.name
-			level = 1
+			depth = 1
 		else
-			level = tonumber(level) + 1
+			depth = tonumber(depth) + 1
 		end
-		subsurface_name = topname .. "_subsurface_" .. level
+		subsurface_name = topname .. "_subsurface_" .. depth
 		
 		local subsurface = game.get_surface(subsurface_name)
 		if not subsurface then
 			
 			local mgs = surface.map_gen_settings
-			mgs.autoplace_controls = make_autoplace_controls(topname, level)
+			mgs.autoplace_controls = make_autoplace_controls(topname, depth)
 			mgs.default_enable_all_autoplace_controls = false
 			mgs.starting_points = nil
 			mgs.starting_area = nil
@@ -75,10 +75,10 @@ function get_oversurface(subsurface)
 	end
 	return nil
 end
-function get_subsurface_level(surface)
+function get_subsurface_depth(surface)
 	if type(surface) == "table" then surface = surface.name end
-	local _, _, _, level = string.find(surface, "(.+)_subsurface_([0-9]+)$")
-	return tonumber(level)
+	local _, _, _, depth = string.find(surface, "(.+)_subsurface_([0-9]+)$")
+	return tonumber(depth)
 end
 
 function is_subsurface(surface)
@@ -256,7 +256,7 @@ script.on_event(defines.events.on_tick, function(event)
 				if vent.name == "active-air-vent" and vent.energy > 0 then
 					local current_energy = vent.energy -- 918.5285 if full
 					local max_energy = 918.5285
-					local max_movable_pollution = max_pollution_move_active * (0.8 ^ (get_subsurface_level(subsurface) - 1)) * current_energy / max_energy -- how much polution can be moved with the current available energy
+					local max_movable_pollution = max_pollution_move_active * (0.8 ^ (get_subsurface_depth(subsurface) - 1)) * current_energy / max_energy -- how much polution can be moved with the current available energy
 					
 					local pollution_to_move = math.min(max_movable_pollution, subsurface.get_pollution(vent.position))
 					
@@ -274,7 +274,7 @@ script.on_event(defines.events.on_tick, function(event)
 					local pollution_surface = vent.surface.get_pollution(vent.position)
 					local pollution_subsurface = subsurface.get_pollution(vent.position)
 					local diff = pollution_surface - pollution_subsurface
-					local max_movable_pollution = max_pollution_move_passive * (0.8 ^ (get_subsurface_level(subsurface) - 1))
+					local max_movable_pollution = max_pollution_move_passive * (0.8 ^ (get_subsurface_depth(subsurface) - 1))
 					
 					if math.abs(diff) > max_movable_pollution then
 						diff = diff / math.abs(diff) * max_movable_pollution
@@ -345,14 +345,14 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 	local entity = event.created_entity
 	if entity.name == "surface-drill-placer" then
 		local text = ""
-		if is_subsurface(entity.surface) and get_subsurface_level(entity.surface) >= settings.global["subsurface-limit"].value then
+		if is_subsurface(entity.surface) and get_subsurface_depth(entity.surface) >= settings.global["subsurface-limit"].value then
 			text = "subsurface.limit-reached"
 		elseif entity.surface.count_entities_filtered{name={"tunnel-entrance", "tunnel-exit"}, position=entity.position, radius=7} > 0 then
 			text = "subsurface.cannot-place-here"
 		end
 		
 		if text == "" then
-			entity.surface.create_entity{name="subsurface-hole", position=entity.position, amount=100}
+			entity.surface.create_entity{name="subsurface-hole", position=entity.position, amount=100 * (2 ^ (get_subsurface_depth(entity.surface) - 1))}
 			local real_drill = entity.surface.create_entity{name="surface-drill", position=entity.position, direction=entity.direction, force=entity.force, player=(event.player_index or nil)}
 			entity.destroy()
 			table.insert(global.surface_drills, real_drill)
