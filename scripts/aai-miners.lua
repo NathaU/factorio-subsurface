@@ -4,6 +4,7 @@ miner_names = {
 	"vehicle-miner-0-_-ghost", "vehicle-miner-mk2-0-_-ghost", "vehicle-miner-mk3-0-_-ghost", "vehicle-miner-mk4-0-_-ghost", "vehicle-miner-mk5-0-_-ghost",
 	"vehicle-miner-0-_-solid", "vehicle-miner-mk2-0-_-solid", "vehicle-miner-mk3-0-_-solid", "vehicle-miner-mk4-0-_-solid", "vehicle-miner-mk5-0-_-solid"
 }
+non_ai_miner_names = {["vehicle-miner"]=1, ["vehicle-miner-mk2"]=1, ["vehicle-miner-mk3"]=1, ["vehicle-miner-mk4"]=1, ["vehicle-miner-mk5"]=1}
 
 -- AAI miner gui
 script.on_event({defines.events.on_player_cursor_stack_changed, defines.events.on_player_changed_surface}, function(event)
@@ -57,46 +58,47 @@ function handle_miners(tick)
 	for _,subsurface in ipairs(global.subsurfaces) do
 		for _,miner in ipairs(subsurface.find_entities_filtered{name=miner_names}) do
 			
-			-- navigation part
-			local miner_data = remote.call("aai-programmable-vehicles", "get_unit_by_entity", miner)
-			local path = nil
-			if global.aai_miner_paths[miner_data.unit_id] and global.aai_miner_paths[miner_data.unit_id][1] > 0 then
-				path = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=subsurface.index, force_name=miner.force.name})[global.aai_miner_paths[miner_data.unit_id][1]]
-			end
-			
-			if path then
-				local target_position = path.waypoints[global.aai_miner_paths[miner_data.unit_id][2]].position -- position of next waypoint
-				if miner_data.mode == "unit" and miner_data.speed == 0 then -- miner has no path (stucked)
-					for _,p in ipairs(miner.force.players) do
-						if tick % 180 == 0 then p.add_custom_alert(miner, {type="item", name=miner_data.unit_type}, {"subsurface.miner-stuck"}, true) end
-					end
-				elseif miner_data.mode == "vehicle" and not miner_data.vehicle.get_inventory(defines.inventory.car_trunk).is_full() then
-					if miner.position.x - 2 < target_position.x and miner.position.x + 2 > target_position.x and miner.position.y - 2 < target_position.y and miner.position.y + 2 > target_position.y then
-						local next_waypoint = path.first_waypoint_id
-						for i,w in pairs(path.waypoints) do
-							if next_waypoint == path.first_waypoint_id and i > global.aai_miner_paths[miner_data.unit_id][2] and path.waypoints[i] and path.waypoints[i].type == "position" then
-								next_waypoint = i
-							end
-						end
-						global.aai_miner_paths[miner_data.unit_id][2] = next_waypoint
-					end
-					remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_position_direct=path.waypoints[global.aai_miner_paths[miner_data.unit_id][2]].position})
-				elseif miner_data.vehicle.get_inventory(defines.inventory.car_trunk).is_full() then
-					for _,p in ipairs(miner.force.players) do
-						if tick % 180 == 0 then p.add_custom_alert(miner, {type="item", name=miner_data.unit_type}, {"subsurface.miner-inventory-full"}, true) end
-					end
-					remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_speed=0})
+			if not non_ai_miner_names[miner.name] then -- navigation part
+				local miner_data = remote.call("aai-programmable-vehicles", "get_unit_by_entity", miner)
+				local path = nil
+				if global.aai_miner_paths[miner_data.unit_id] and global.aai_miner_paths[miner_data.unit_id][1] > 0 then
+					path = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=subsurface.index, force_name=miner.force.name})[global.aai_miner_paths[miner_data.unit_id][1]]
 				end
-			else
-				global.aai_miner_paths[miner_data.unit_id] = {0, 0}
+				
+				if path then
+					local target_position = path.waypoints[global.aai_miner_paths[miner_data.unit_id][2]].position -- position of next waypoint
+					if miner_data.mode == "unit" and miner_data.speed == 0 then -- miner has no path (stucked)
+						for _,p in ipairs(miner.force.players) do
+							if tick % 180 == 0 then p.add_custom_alert(miner, {type="item", name=miner_data.unit_type}, {"subsurface.miner-stuck"}, true) end
+						end
+					elseif miner_data.mode == "vehicle" and not miner_data.vehicle.get_inventory(defines.inventory.car_trunk).is_full() then
+						if miner.position.x - 2 < target_position.x and miner.position.x + 2 > target_position.x and miner.position.y - 2 < target_position.y and miner.position.y + 2 > target_position.y then
+							local next_waypoint = path.first_waypoint_id
+							for i,w in pairs(path.waypoints) do
+								if next_waypoint == path.first_waypoint_id and i > global.aai_miner_paths[miner_data.unit_id][2] and path.waypoints[i] and path.waypoints[i].type == "position" then
+									next_waypoint = i
+								end
+							end
+							global.aai_miner_paths[miner_data.unit_id][2] = next_waypoint
+						end
+						remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_position_direct=path.waypoints[global.aai_miner_paths[miner_data.unit_id][2]].position})
+					elseif miner_data.vehicle.get_inventory(defines.inventory.car_trunk).is_full() then
+						for _,p in ipairs(miner.force.players) do
+							if tick % 180 == 0 then p.add_custom_alert(miner, {type="item", name=miner_data.unit_type}, {"subsurface.miner-inventory-full"}, true) end
+						end
+						remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_speed=0})
+					end
+				else
+					global.aai_miner_paths[miner_data.unit_id] = {0, 0}
+				end
 			end
 			
 			if miner.valid and miner.speed > 0 then -- digging part
 				local orientation = miner.orientation
 				local miner_collision_box = miner.prototype.collision_box
 				local center_big_excavation = move_towards_continuous(miner.position, orientation, -miner_collision_box.left_top.y)
-				local center_small_excavation = move_towards_continuous(center_big_excavation, orientation, 1.7)
-				local speed_test_position = center_big_excavation --move_towards_continuous(center_small_excavation, orientation, 1.5)
+				local center_small_excavation = move_towards_continuous(center_big_excavation, orientation, 1.5)
+				local speed_test_position = move_towards_continuous(center_small_excavation, orientation, 1.8)
 				
 				local walls_dug = clear_subsurface(subsurface, center_small_excavation, 1, nil)
 				walls_dug = walls_dug + clear_subsurface(subsurface, center_big_excavation, 3, nil)
@@ -108,13 +110,17 @@ function handle_miners(tick)
 						stack.count = stack.count - actually_inserted
 						subsurface.spill_item_stack(miner.position, stack)
 					end
+					subsurface.pollute(center_small_excavation, walls_dug * 0.25)
+					subsurface.create_trivial_smoke{name="fire-smoke-without-glow", position=speed_test_position}
+					subsurface.create_trivial_smoke{name="fire-smoke-without-glow", position=speed_test_position}
+					subsurface.create_trivial_smoke{name="fire-smoke-without-glow", position=speed_test_position}
 				end
 
 				local speed_test_tile = subsurface.get_tile(speed_test_position.x, speed_test_position.y)
 				if miner.speed > 0 and speed_test_tile.name == "out-of-map" then
 					miner.friction_modifier = 50
-				elseif not(miner.speed > 0 and speed_test_tile.name == "out-of-map") then
-					miner.friction_modifier = 1
+				else
+					miner.friction_modifier = 10
 				end
 			end
 		end
