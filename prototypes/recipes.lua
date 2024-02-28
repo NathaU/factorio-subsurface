@@ -1,8 +1,12 @@
 data:extend(
 {
   {
-    type = "recipe-category",
-    name = "venting"
+	type = "recipe-category",
+	name = "venting"
+  },
+  {
+	type = "recipe-category",
+	name = "prospecting"
   },
   
   {
@@ -14,6 +18,17 @@ data:extend(
 	  {"electric-mining-drill", 5},
 	},
 	result = "surface-drill"
+  },
+  
+  {
+	type = "recipe",
+	name = "prospector",
+	enabled = false,
+	ingredients =
+	{
+	  {"radar", 5},
+	},
+	result = "prospector"
   },
   
   {
@@ -90,19 +105,6 @@ data:extend(
   },
   {
 	type = "recipe",
-	name = "venting",
-	icon = "__core__/graphics/empty.png",
-	icon_size = 1,
-	subgroup = "inter-surface-transport",
-	enabled = true,
-	hidden = true,
-	category = "venting",
-	energy_required = 1,
-	ingredients = {},	
-	results = {}
-  },
-  {
-	type = "recipe",
 	name = "rock-explosives",
 	enabled = false,
 	energy_required = 8,
@@ -111,5 +113,32 @@ data:extend(
 	  {"cliff-explosives", 10},
 	},
 	result = "rock-explosives"
+  },
+  
+  {
+	type = "recipe",
+	name = "venting",
+	icon = "__core__/graphics/empty.png",
+	icon_size = 1,
+	subgroup = "inter-surface-transport",
+	enabled = true,
+	hidden = true,
+	category = "venting",
+	energy_required = 1,
+	ingredients = {},
+	results = {}
+  },
+  {
+	type = "recipe",
+	name = "prospecting",
+	icon = "__core__/graphics/empty.png",
+	icon_size = 1,
+	subgroup = "inter-surface-transport",
+	enabled = true,
+	hidden = true,
+	category = "prospecting",
+	energy_required = 100,
+	ingredients = {},
+	results = {}
   },
 })
