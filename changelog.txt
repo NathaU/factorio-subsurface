@@ -1,7 +1,18 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.4
+  Features:
+    - Subsurfaces now generate resources based on given autoplace settings, it's also possible to prevent resources from being generated on top surfaces
+    - New item 'rock explosives' that can be used to expose the underground, but it causes pollution
+    - The ore prospector is a machine that detects resource patches in the subsurface below
+  Changes:
+    - A small cutscene is shown when teleporting between subsurfaces
+    - Surface drill now acts as a regular miming drill and excavates more stone in deeper levels
+    - The deeper, the richer the ore patches are
+    - Miners now produce pollution while mining
+---------------------------------------------------------------------------------------------------
 Version: 1.0.3
   Features:
-    - AAI miners can now dig automatically (but still now very good). They stop if their inventory is full
+    - AAI miners can now dig automatically (but still not very good). They stop if their inventory is full
     - Number of subsurfaces can now be limited
   Changes:
     - Subsurfaces now adopt radius from Space Exploration planets
