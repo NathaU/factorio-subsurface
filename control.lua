@@ -24,6 +24,7 @@ function setup_globals()
 	global.air_vent_lights = global.air_vent_lights or {}
 	global.exposed_chunks = global.exposed_chunks or {} -- [surface][x][y], 1 means chunk is exposed, 0 means chunk is next to an exposed chunk
 	global.aai_miner_paths = global.aai_miner_paths or {}
+	global.prospectors = global.prospectors or {}
 end
 
 script.on_init(function()
@@ -78,7 +79,7 @@ end
 function get_subsurface_depth(surface)
 	if type(surface) == "table" then surface = surface.name end
 	local _, _, _, depth = string.find(surface, "(.+)_subsurface_([0-9]+)$")
-	return tonumber(depth)
+	return tonumber(depth or 0)
 end
 
 function is_subsurface(surface)
@@ -182,6 +183,15 @@ script.on_event(defines.events.on_tick, function(event)
 			script.register_on_entity_destroyed(exit_car)
 			
 			d.destroy()
+		end
+	end
+	
+	-- handle prospectors
+	for i,p in ipairs(global.prospectors) do
+		if p.valid and p.products_finished == 1 then
+			p.active = false
+			prospect_resources(p)
+			table.remove(global.prospectors, i)
 		end
 	end
 	
@@ -371,6 +381,8 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 				entity.destroy()
 			end
 		end
+	elseif entity.name == "prospector" then
+		table.insert(global.prospectors, entity)
 	elseif entity.name == "item-elevator-input" then
 		build_safe(event, function()
 			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-output", position=entity.position, force=entity.force, direction=entity.direction}

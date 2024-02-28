@@ -12,6 +12,16 @@ data:extend(
   },
   {
 	type = "item",
+	name = "prospector",
+	icon = "__Subsurface__/graphics/icons/prospector.png",
+	icon_size = 64, icon_mipmaps = 4,
+	subgroup = "production-machine",
+	order = "a",
+	place_result = "prospector",
+	stack_size = 50
+  },
+  {
+	type = "item",
 	name = "item-elevator-input",
 	icon = "__Subsurface__/graphics/icons/items-elevator-icon.png",
 	icon_size = 32, icon_mipmaps = 1,

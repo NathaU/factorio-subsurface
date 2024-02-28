@@ -361,19 +361,19 @@ data:extend(
 	icon = "__base__/graphics/icons/burner-mining-drill.png",
 	icon_size = 64, icon_mipmaps = 4,
 	flags = {"placeable-player", "player-creation"},
-    resource_categories = {"subsurface-hole"},
+	resource_categories = {"subsurface-hole"},
 	minable = {hardness = 0.2, mining_time = 2, result = "surface-drill"},
 	max_health = 300,
-    corpse = "burner-mining-drill-remnants",
+	corpse = "burner-mining-drill-remnants",
 	dying_explosion = "burner-mining-drill-explosion",
 	collision_box = {{-2.2, -2.2}, {2.2, 2.2}},
 	selection_box = {{-2.2, -2.2}, {2.2, 2.2}},
 	damaged_trigger_effect = data.raw["mining-drill"]["burner-mining-drill"].damaged_trigger_effect,
-    mining_speed = 0.25,
+	mining_speed = 0.25,
 	energy_source = {type = "electric", usage_priority = "secondary-input", emissions = 0.05 / 1.5},
 	energy_usage = "500kW",
 	open_sound = data.raw["mining-drill"]["burner-mining-drill"].open_sound,
-    close_sound = data.raw["mining-drill"]["burner-mining-drill"].close_sound,
+	close_sound = data.raw["mining-drill"]["burner-mining-drill"].close_sound,
 	vehicle_impact_sound =  data.raw["mining-drill"]["burner-mining-drill"].vehicle_impact_sound,
 	working_sound = data.raw["mining-drill"]["burner-mining-drill"].working_sound,
 	resource_searching_radius = 0.49,
@@ -459,6 +459,81 @@ data:extend(
 		height = 64,
 	  }
 	},
+  },
+  
+  {
+	type = "assembling-machine",
+	name = "prospector",
+	icon = "__Subsurface__/graphics/icons/prospector.png",
+	icon_size = 64, icon_mipmaps = 4,
+	flags = {"placeable-player", "player-creation"},
+	minable = {mining_time = 0.1, result = "prospector"},
+	max_health = 250,
+	corpse = "radar-remnants",
+	dying_explosion = "radar-explosion",
+	resistances = {
+	  {type = "fire", percent = 70},
+	  {type = "impact", percent = 30}
+	},
+	collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
+	selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
+	energy_source = {
+	  type = "electric",
+	  usage_priority = "secondary-input"
+	},
+	energy_usage = "1MW",
+	animation =
+	{
+	  layers =
+	  {
+		{
+		  filename = "__Subsurface__/graphics/entity/prospector.png",
+		  priority = "low",
+		  width = 98,
+		  height = 128,
+		  frame_count = 64,
+		  line_length = 8,
+		  shift = util.by_pixel(1, -16),
+		  hr_version =
+		  {
+			filename = "__Subsurface__/graphics/entities/hr-prospector.png",
+			priority = "low",
+			width = 196,
+			height = 254,
+			frame_count = 64,
+			line_length = 8,
+			shift = util.by_pixel(1, -16),
+			scale = 0.5
+		  }
+		},
+		{
+		  filename = "__Subsurface__/graphics/entities/prospector-shadow.png",
+		  priority = "low",
+		  width = 172,
+		  height = 94,
+		  frame_count = 64,
+		  line_length = 8,
+		  shift = util.by_pixel(39,3),
+		  draw_as_shadow = true,
+		  hr_version =
+		  {
+			filename = "__Subsurface__/graphics/entities/hr-prospector-shadow.png",
+			priority = "low",
+			width = 343,
+			height = 186,
+			frame_count = 64,
+			line_length = 8,
+			shift = util.by_pixel(39.25,3),
+			draw_as_shadow = true,
+			scale = 0.5
+		  }
+		}
+	  }
+	},
+	working_sound = table.deepcopy(data.raw.radar.radar.working_sound),
+	crafting_speed = 1,
+	crafting_categories = {"prospecting"},
+	fixed_recipe = "prospecting"
   },
   
   item_elevator_input,
