@@ -24,6 +24,7 @@ function manipulate_autoplace_controls(surface)
 	if surface.name == "nauvis" then
 		mgs.autoplace_controls["uranium-ore"] = nil
 		mgs.autoplace_controls["stone"].richness = mgs.autoplace_controls["stone"].richness * 0.7
+		if game.active_mods["bztitanium"] then mgs.autoplace_controls["titanium-ore"] = nil end
 	end
 	
 	surface.map_gen_settings = mgs
@@ -33,46 +34,22 @@ end
 -- ensure that all resources really exist!
 -- depth is always >= 1
 function make_autoplace_controls(topname, depth)
-	if topname == "nauvis" then
-		return {
-			["iron-ore"] = 		{frequency = 1.5*depth, 	size = 1.5*depth, 	richness = 2*depth},
-			["copper-ore"] = 	{frequency = 1.5*depth, 	size = 1.5*depth, 	richness = 2*depth},
-			["uranium-ore"] = 	{frequency = 1, 			size = 1, 			richness = 1},
-			["crude-oil"] = 	{frequency = 1.5*depth, 	size = 1.5*depth, 	richness = 2*depth},
-			["coal"] = 			{frequency = 0.8^depth, 	size = 0.5^depth, 	richness = 0.8^depth},
+	local res_table = {}
+	for resource,control in pairs(game.get_surface(topname).map_gen_settings.autoplace_controls) do -- alter all resources that occur on the topsurface
+		res_table[resource] = {
+			frequency = control.frequency * (1 + depth*0.2),
+			size = control.size * (1 + depth*0.2),
+			richness = control.richness * (1 + depth*0.2)
 		}
-	elseif remote.interfaces["space-exploration"] then
-		local zone = remote.call("space-exploration", "get_zone_from_name", {zone_name = (topname:gsub("^%l", string.upper))})
-		local res_table = {}
-		for _,control in pairs(game.autoplace_control_prototypes) do
-			if control.category == "resource" and zone.controls[control.name] then
-				local zone_control = zone.controls[control.name]
-				local freq = game.get_surface(topname).map_gen_settings.autoplace_controls[control.name].frequency
-				local size = zone_control.size
-				local rich = zone_control.richness
-				if control.name == "crude-oil" or control.name == "adamo-carbon natural-gas" or control.name == "mineral-water" then
-					rich = rich * 0.01
-				end
-				-- This is for mods added after space exploration.
-				if freq == 0 and size == 0 then
-					freq = 1
-					size = 1
-					rich = 1
-				end
-				-- end of exception
-				local res = {
-					frequency = freq * (1 + depth * 0.2),
-					size = size * (1 + depth * 0.2),
-					richness = rich * (1 + depth * 0.2)
-				}
-				game.print(control.name.." old values: "..string.format("%.2f\t%.2f\t%.2f", freq, size, rich))
-				game.print(control.name.." new values: "..string.format("%.2f\t%.2f\t%.2f", res.frequency, res.size, res.richness))
-				res_table[control.name] = res;
-			end
-		end
-		return res_table
-	else return {}
 	end
+	
+	-- specific changes
+	if topname == "nauvis" then
+		res_table["uranium-ore"] = {frequency = 1.5*depth, size = 1.5*depth, richness = 2*depth}
+		if game.active_mods["bztitanium"] then res_table["titanium-ore"] = {frequency = 1.5*depth, size = 1.5*depth, richness = 2*depth} end
+	end
+	
+	return res_table
 end
 
 -- When top surfaces are created (this is not called for nauvis)
