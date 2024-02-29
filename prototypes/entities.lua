@@ -487,7 +487,7 @@ data:extend(
 	  layers =
 	  {
 		{
-		  filename = "__Subsurface__/graphics/entity/prospector.png",
+		  filename = "__Subsurface__/graphics/entities/prospector.png",
 		  priority = "low",
 		  width = 98,
 		  height = 128,
