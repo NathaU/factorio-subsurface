@@ -49,6 +49,10 @@ function make_autoplace_controls(topname, depth)
 		if game.active_mods["bztitanium"] then res_table["titanium-ore"] = {frequency = 1.5*depth, size = 1.5*depth, richness = 2*depth} end
 	end
 	
+	for interface,contents in ipairs(remote.interfaces) do
+		if contents["subsurface_make_autoplace_controls"] then res_table = remote.call(interface, "subsurface_make_autoplace_controls", res_table, topname, depth) end
+	end
+	
 	return res_table
 end
 
