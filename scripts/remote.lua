@@ -18,3 +18,17 @@ remote.add_interface("subsurface", {
 		end
 	end,
 })
+
+--[[
+Events:
+Mods that want to register to specific events have to implement a remote function in their own interface.
+
+remote.add_interface(interface_name, {
+	subsurface_make_autoplace_controls = function(res_table, topname, depth)
+		-- return the manipulated res_table (format is {[resource-name] = {frequency = x, size = x, richness = x}})
+		-- topname is the topmost surface name
+		-- depth is the subsurface depth this autoplace controls are generated for
+	end
+})
+
+]]
