@@ -1,5 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.5
+Date: 2024-03-03
+  Features:
+    - Better implementaton of resource generator which can be manipulated by mods by implementing the "subsurface_make_autoplace_controls" remote function
+    - Surface drill can be connected to the circuit network
+  Bugfixes:
+    - Fixed mod loading error when graphics resolution settings are normal
+    - Surface drill is now blueprintable and deconstructable
+---------------------------------------------------------------------------------------------------
 Version: 1.0.4
+Date: 2024-02-28
   Features:
     - Subsurfaces now generate resources based on given autoplace settings, it's also possible to prevent resources from being generated on top surfaces
     - New item 'rock explosives' that can be used to expose the underground, but it causes pollution
@@ -11,6 +21,7 @@ Version: 1.0.4
     - Miners now produce pollution while mining
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.3
+Date: 2024-02-13
   Features:
     - AAI miners can now dig automatically (but still not very good). They stop if their inventory is full
     - Number of subsurfaces can now be limited
@@ -22,6 +33,7 @@ Version: 1.0.3
     - Fixed crash when mods add new cliffs
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.2
+Date: 2024-02-07
   Features:
     - Map limits are now adopted to subsurfaces
     - Players suffocate if there is too much pollution
@@ -35,11 +47,13 @@ Version: 1.0.2
     - Cliff explosives can be thrown even when there are no cliffs near, because they can be used to blow away subsurface walls
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.1
+Date: 2024-01-23
   Changes:
     - Tunnel entrances and exists can't be mined
     - New tunnel entrances can't be digged near existing ones
 ---------------------------------------------------------------------------------------------------
 Version: 1.0.0
+Date: 2024-01-20
   Features:
     - Support for AAI Miners to dig the underground
     - Basic recipes and technology
@@ -51,11 +65,13 @@ Version: 1.0.0
     - Tunnel entrance and exit are undestroyable
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.2
+Date: 2024-01-20
   Features:
     - Added air vents and pollution handling
   Changes:
     - Item and fluid elevators can only built on positions where the subsurface is already exposed and not occupied by existing entities
 ---------------------------------------------------------------------------------------------------
 Version: 0.0.1
+Date: 2024-01-16
   Information:
     - First release with basic features
