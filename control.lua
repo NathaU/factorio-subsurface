@@ -154,7 +154,7 @@ script.on_event(defines.events.on_tick, function(event)
 	-- handle all working drills
 	for i,d in ipairs(global.surface_drills) do
 		if not d.valid then table.remove(global.surface_drills, i)
-		elseif d.mining_progress >= 0.00416 and not d.mining_target then -- time for one drill finish digging
+		elseif d.mining_progress > 0 and not d.mining_target then -- time for one drill finish digging
 			
 			-- oversurface entity placing
 			local p = d.position
