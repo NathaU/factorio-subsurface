@@ -1,4 +1,5 @@
 require "util"
+require "circuit-connector-generated-definitions"
 
 local item_elevator_input = table.deepcopy(data.raw.container["steel-chest"])
 item_elevator_input.name = "item-elevator-input"
@@ -68,6 +69,13 @@ local blank_image = {
 	width = 1,
 	height = 1
 }
+
+local ccd = circuit_connector_definitions.create(universal_connector_template, {
+	{ variation = 17, main_offset = util.by_pixel(-36, 17), shadow_offset = util.by_pixel(12.5, 4), show_shadow = false }, -- N
+	{ variation = 17, main_offset = util.by_pixel(-38, 5), shadow_offset = util.by_pixel(7, 1), show_shadow = false }, -- E
+	{ variation = 17, main_offset = util.by_pixel(-37, 9), shadow_offset = util.by_pixel(10, 5), show_shadow = false }, -- S
+	{ variation = 17, main_offset = util.by_pixel(-39, 14), shadow_offset = util.by_pixel(4.5, 7), show_shadow = false } -- W
+})
 
 data:extend(
 {
@@ -378,7 +386,10 @@ data:extend(
 	working_sound = data.raw["mining-drill"]["burner-mining-drill"].working_sound,
 	resource_searching_radius = 0.49,
 	vector_to_place_result = {-1, -2.6},
-	animations = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].animations)
+	animations = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].animations),
+    circuit_wire_connection_points = ccd.points,
+    circuit_connector_sprites = ccd.sprites,
+    circuit_wire_max_distance = default_circuit_wire_max_distance,
   },
   {
 	type = "assembling-machine",
