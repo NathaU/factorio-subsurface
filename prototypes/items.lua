@@ -12,6 +12,17 @@ data:extend(
   },
   {
 	type = "item",
+	name = "surface-drill-dummy",
+	icon = "__base__/graphics/icons/burner-mining-drill.png",
+	icon_size = 64, icon_mipmaps = 4,
+	flags = {"hidden", "hide-from-bonus-gui"},
+	subgroup = "production-machine",
+	order = "a",
+	place_result = "surface-drill",
+	stack_size = 5
+  },
+  {
+	type = "item",
 	name = "prospector",
 	icon = "__Subsurface__/graphics/icons/prospector.png",
 	icon_size = 64, icon_mipmaps = 4,
