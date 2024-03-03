@@ -1,18 +1,29 @@
-wooden and iron supports
+wooden and iron supports (otherwise random collapses)
 uranium ore, better oil fields only in subsurfaces
-underground not available ndner oil fields and water
-graphics by yuoki
-enemies
-teleport cutscene
-remove tunnels and entrance by filling up with stones (DE versiegeln)
+underground not available under oil fields and water
+seal tunnels and entrance by filling up with stones
 Different textures for different subsurface levels (e.g., stone for the second level, darker textures for deeper levels).
-unbreakable Rock-Spots
-find abandoned shelters
+unbreakable Rock-Spots (biome patches)
+Rocket silo construction, stage 1 clears subsurface
+rocket-silo needs drilling (like RSC but not that much)
+find abandoned shelters (as secret) but with sealed entrance from above
 smoke in polluted chunks
-smoke and pollution when miner mines
 rocket silos cant be placed above exposed underground and underground cant digged when there is a rocket silo above
-scale digging cost by depth (and time)
-wall mining should cost resources (and time), not per hand but a tool
+wall mining should cost resources (and time), not per hand but a tool (like minecraft), maybe only by explosive?
+support for https://mods.factorio.com/mod/AbandonedRuins
+Biters https://mods.factorio.com/mod/Subsurface/discussion/65cd6a8f4294e70fb2eeaca3 dig to both exposed and unexposed (not really, spawn when players dig to them) chunks
+biters are harder in underground
+"minesweeper"
+lgiht cone in entrances, reuse rocket silo graphics for hole
+better tech and recipe cost
+alien biomes integration (rocks and ground tiles), rock decals on the ground
+
+Resources:
+- areas of "hard" stone (or like minecraft, below layer 3)
+- SE planets have no ores, they are all in the underground
+- high! size and richness
+- find possible patch candidates but also nulls
+
 
 Elevators:
 - vent and elevator placement requires boring
@@ -21,3 +32,11 @@ Elevators:
 - requester/provider elevator
 - electricity for fluid and item elevators
 - item elevator throughput change (items/tick)
+- some maintenance stuff (cables)
+
+Surface drill:
+- create small holes and smoke while drilling (graphics_set)
+- slowly clear subsurface randomly in given area, resource patch amount is reduced proportionally
+- reuse driller (create hole, but leave drill where it is) (it needs to be expensive then)
+- deeper( from lvl 1) drillings needs fluids
+- lubricant as maintenance
