@@ -402,7 +402,7 @@ data:extend(
 	selection_box = {{-2.2, -2.2}, {2.2, 2.2}},
 	animation = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].animations),
 	energy_source = {type = "electric", usage_priority = "secondary-input", emissions_per_minute = 5},
-	energy_usage = "500kW",
+	energy_usage = "2MW",
 	crafting_speed = 1,
 	crafting_categories = {"crafting"},
   },
