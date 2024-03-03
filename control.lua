@@ -434,7 +434,7 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 	end
 end)
 
-script.on_event(defines.events.on_player_mined_entity, function(event)
+script.on_event({defines.events.on_player_mined_entity, defines.events.on_robot_mined_entity}, function(event)
 	if event.entity.name == "surface-drill" then
 		if event.entity.mining_target then event.entity.mining_target.destroy() end
 	elseif event.entity.name == "subsurface-wall" then
@@ -493,4 +493,26 @@ script.on_event("subsurface-position", function(event)
 	local surface = game.get_player(event.player_index).surface
 	if get_oversurface(surface) then force.print("[gps=".. string.format("%.1f,%.1f,", event.cursor_position.x, event.cursor_position.y) .. get_oversurface(surface).name .."]") end
 	if get_subsurface(surface, false) then force.print("[gps=".. string.format("%.1f,%.1f,", event.cursor_position.x, event.cursor_position.y) .. get_subsurface(surface, false).name .."]") end
+end)
+
+script.on_event(defines.events.on_player_configured_blueprint, function(event)
+	local item = game.get_player(event.player_index).cursor_stack
+	if item.valid_for_read then
+		local contents = item.get_blueprint_entities()
+		for _,e in ipairs(contents or {}) do
+			if e.name == "surface-drill" then e.name = "surface-drill-placer" end
+		end
+		item.set_blueprint_entities(contents)
+	end
+end)
+
+script.on_event(defines.events.on_entity_died, function(event)
+	local entity = event.entity
+	if entity.name == "surface-drill" then
+		if entity.mining_target then entity.mining_target.destroy() end
+		local placer_dummy = entity.surface.create_entity{name="surface-drill-placer", position=entity.position, direction=entity.direction, force=entity.force}
+		entity.destroy()
+		placer_dummy.surface.create_entity{name="massive-explosion", position=placer_dummy.position}
+		placer_dummy.die(event.force, event.cause)
+	end
 end)
