@@ -17,7 +17,6 @@ function setup_globals()
 	global.subsurfaces = global.subsurfaces or {}
 	global.pole_links = global.pole_links or {}
 	global.car_links = global.car_links or {}
-	global.surface_drills = global.surface_drills or global.surface_drillers or {}
 	global.item_elevators = global.item_elevators or {}
 	global.fluid_elevators = global.fluid_elevators or {}
 	global.air_vents = global.air_vents or {}
@@ -150,41 +149,6 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 end
 
 script.on_event(defines.events.on_tick, function(event)
-	
-	-- handle all working drills
-	for i,d in ipairs(global.surface_drills) do
-		if not d.valid then table.remove(global.surface_drills, i)
-		elseif d.mining_progress > 0 and not d.mining_target then -- time for one drill finish digging
-			
-			-- oversurface entity placing
-			local p = d.position
-			local entrance_car = d.surface.create_entity{name="tunnel-entrance", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
-			local entrance_pole = d.surface.create_entity{name="tunnel-entrance-cable", position=p, force=d.force}
-			table.remove(global.surface_drills, i)
-			
-			-- subsurface entity placing
-			local subsurface = get_subsurface(d.surface)
-			clear_subsurface(subsurface, {x=d.position.x+0.5, y=d.position.y+0.5}, 4, 1.5)
-			local exit_car = subsurface.create_entity{name="tunnel-exit", position={p.x+0.5, p.y+0.5}, force=d.force} -- because Factorio sets the entity at -0.5, -0.5
-			local exit_pole = subsurface.create_entity{name="tunnel-exit-cable", position=p, force=d.force}
-			
-			entrance_pole.connect_neighbour(exit_pole)
-			entrance_pole.connect_neighbour{wire=defines.wire_type.red, target_entity=exit_pole, source_circuit_id=1, target_circuit_id=1}
-			entrance_pole.connect_neighbour{wire=defines.wire_type.green, target_entity=exit_pole, source_circuit_id=1, target_circuit_id=1}
-			
-			global.pole_links[entrance_pole.unit_number] = exit_pole
-			global.pole_links[exit_pole.unit_number] = entrance_pole
-			global.car_links[entrance_car.unit_number] = exit_car
-			global.car_links[exit_car.unit_number] = entrance_car
-			
-			script.register_on_entity_destroyed(entrance_pole)
-			script.register_on_entity_destroyed(exit_pole)
-			script.register_on_entity_destroyed(entrance_car)
-			script.register_on_entity_destroyed(exit_car)
-			
-			d.destroy()
-		end
-	end
 	
 	-- handle prospectors
 	for i,p in ipairs(global.prospectors) do
@@ -365,7 +329,6 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 			entity.surface.create_entity{name="subsurface-hole", position=entity.position, amount=100 * (2 ^ (get_subsurface_depth(entity.surface) - 1))}
 			local real_drill = entity.surface.create_entity{name="surface-drill", position=entity.position, direction=entity.direction, force=entity.force, player=(event.player_index or nil)}
 			entity.destroy()
-			table.insert(global.surface_drills, real_drill)
 			get_subsurface(real_drill.surface).request_to_generate_chunks(real_drill.position, 3)
 		else
 			if event.player_index then
@@ -423,6 +386,71 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 	end
 end)
 
+script.on_event({defines.events.on_player_mined_entity, defines.events.on_robot_mined_entity}, function(event)
+	if event.entity.name == "surface-drill" then
+		if event.entity.mining_target then event.entity.mining_target.destroy() end
+	elseif event.entity.name == "subsurface-wall" then
+		clear_subsurface(event.entity.surface, event.entity.position, 1.5)
+	end
+end)
+
+script.on_event(defines.events.on_player_configured_blueprint, function(event)
+	local item = game.get_player(event.player_index).cursor_stack
+	if item.valid_for_read then
+		local contents = item.get_blueprint_entities()
+		for _,e in ipairs(contents or {}) do
+			if e.name == "surface-drill" then e.name = "surface-drill-placer" end
+		end
+		item.set_blueprint_entities(contents)
+	end
+end)
+
+script.on_event(defines.events.on_entity_died, function(event)
+	local entity = event.entity
+	if entity.name == "surface-drill" then
+		if entity.mining_target then entity.mining_target.destroy() end
+		local placer_dummy = entity.surface.create_entity{name="surface-drill-placer", position=entity.position, direction=entity.direction, force=entity.force}
+		entity.destroy()
+		placer_dummy.surface.create_entity{name="massive-explosion", position=placer_dummy.position}
+		placer_dummy.die(event.force, event.cause)
+	end
+end)
+
+script.on_event(defines.events.on_resource_depleted, function(event)
+	if event.entity.name == "subsurface-hole" then
+		local drill = event.entity.surface.find_entity("surface-drill", event.entity.position)
+		if drill then
+			local pos = drill.position
+			
+			-- oversurface entity placing
+			local entrance_car = drill.surface.create_entity{name="tunnel-entrance", position={pos.x+0.5, pos.y+0.5}, force=drill.force} -- because Factorio sets the entity at -0.5, -0.5
+			local entrance_pole = drill.surface.create_entity{name="tunnel-entrance-cable", position=pos, force=drill.force}
+			
+			-- subsurface entity placing
+			local subsurface = get_subsurface(drill.surface)
+			clear_subsurface(subsurface, {x=drill.position.x+0.5, y=drill.position.y+0.5}, 4, 1.5)
+			local exit_car = subsurface.create_entity{name="tunnel-exit", position={pos.x+0.5, pos.y+0.5}, force=drill.force} -- because Factorio sets the entity at -0.5, -0.5
+			local exit_pole = subsurface.create_entity{name="tunnel-exit-cable", position=pos, force=drill.force}
+			
+			entrance_pole.connect_neighbour(exit_pole)
+			entrance_pole.connect_neighbour{wire=defines.wire_type.red, target_entity=exit_pole, source_circuit_id=1, target_circuit_id=1}
+			entrance_pole.connect_neighbour{wire=defines.wire_type.green, target_entity=exit_pole, source_circuit_id=1, target_circuit_id=1}
+			
+			global.pole_links[entrance_pole.unit_number] = exit_pole
+			global.pole_links[exit_pole.unit_number] = entrance_pole
+			global.car_links[entrance_car.unit_number] = exit_car
+			global.car_links[exit_car.unit_number] = entrance_car
+			
+			script.register_on_entity_destroyed(entrance_pole)
+			script.register_on_entity_destroyed(exit_pole)
+			script.register_on_entity_destroyed(entrance_car)
+			script.register_on_entity_destroyed(exit_car)
+			
+			drill.destroy()
+		end
+	end
+end)
+
 -- DO NOT clear surfaces here because this could destroy subsurface walls on chunk borders!
 script.on_event(defines.events.on_chunk_generated, function(event)
 	if is_subsurface(event.surface) then
@@ -431,14 +459,6 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 			table.insert(newTiles, {name = "out-of-map", position = {x, y}})
 		end
 		event.surface.set_tiles(newTiles)
-	end
-end)
-
-script.on_event({defines.events.on_player_mined_entity, defines.events.on_robot_mined_entity}, function(event)
-	if event.entity.name == "surface-drill" then
-		if event.entity.mining_target then event.entity.mining_target.destroy() end
-	elseif event.entity.name == "subsurface-wall" then
-		clear_subsurface(event.entity.surface, event.entity.position, 1.5)
 	end
 end)
 
@@ -493,26 +513,4 @@ script.on_event("subsurface-position", function(event)
 	local surface = game.get_player(event.player_index).surface
 	if get_oversurface(surface) then force.print("[gps=".. string.format("%.1f,%.1f,", event.cursor_position.x, event.cursor_position.y) .. get_oversurface(surface).name .."]") end
 	if get_subsurface(surface, false) then force.print("[gps=".. string.format("%.1f,%.1f,", event.cursor_position.x, event.cursor_position.y) .. get_subsurface(surface, false).name .."]") end
-end)
-
-script.on_event(defines.events.on_player_configured_blueprint, function(event)
-	local item = game.get_player(event.player_index).cursor_stack
-	if item.valid_for_read then
-		local contents = item.get_blueprint_entities()
-		for _,e in ipairs(contents or {}) do
-			if e.name == "surface-drill" then e.name = "surface-drill-placer" end
-		end
-		item.set_blueprint_entities(contents)
-	end
-end)
-
-script.on_event(defines.events.on_entity_died, function(event)
-	local entity = event.entity
-	if entity.name == "surface-drill" then
-		if entity.mining_target then entity.mining_target.destroy() end
-		local placer_dummy = entity.surface.create_entity{name="surface-drill-placer", position=entity.position, direction=entity.direction, force=entity.force}
-		entity.destroy()
-		placer_dummy.surface.create_entity{name="massive-explosion", position=placer_dummy.position}
-		placer_dummy.die(event.force, event.cause)
-	end
 end)
