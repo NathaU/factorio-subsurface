@@ -16,8 +16,8 @@ script.on_event(defines.events.on_cutscene_waypoint_reached, function(event)
 	if event.waypoint_index == 0 and player.cutscene_character.vehicle then -- if this is the first part of the whole cutscene
 		player.exit_cutscene()
 		local name = player.vehicle.name
-		player.teleport(player.position, global.car_links[player.vehicle.unit_number].surface)
 		local start = player.position
+		player.teleport({start.x, start.y + 1}, global.car_links[player.vehicle.unit_number].surface) -- one tile below entity to not get stuck
 		if name == "tunnel-entrance" then
 			start.y = start.y - 2
 		else
