@@ -19,12 +19,11 @@ end
 -- this is for top surfaces (depth 0). It directly manipulates the surface's map_gen_settings
 function manipulate_autoplace_controls(surface)
 	local mgs = surface.map_gen_settings
-	mgs.default_enable_all_autoplace_controls = false
 	
 	if surface.name == "nauvis" then
-		mgs.autoplace_controls["uranium-ore"] = nil
+		mgs.autoplace_controls["uranium-ore"].size = 0
 		mgs.autoplace_controls["stone"].richness = mgs.autoplace_controls["stone"].richness * 0.7
-		if game.active_mods["bztitanium"] then mgs.autoplace_controls["titanium-ore"] = nil end
+		if game.active_mods["bztitanium"] then mgs.autoplace_controls["titanium-ore"].size = 0 end
 	end
 	
 	surface.map_gen_settings = mgs
@@ -41,6 +40,10 @@ function make_autoplace_controls(topname, depth)
 			size = control.size * (1 + depth*0.2),
 			richness = control.richness * (1 + depth*0.2)
 		}
+		if resource == "crude-oil" or resource == "adamo-carbon natural-gas" or resource == "mineral-water" then
+			res_table[resource].size = res_table[resource].size * 0.1
+			res_table[resource].frequency = res_table[resource].frequency * 0.1
+		end
 	end
 	
 	-- specific changes
