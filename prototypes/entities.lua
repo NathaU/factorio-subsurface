@@ -409,6 +409,8 @@ data:extend(
   {
 	type = "resource",
 	name = "subsurface-hole",
+	icon = "__base__/graphics/icons/stone.png",
+	icon_size = 64, icon_mipmaps = 4,
 	category = "subsurface-hole",
 	minable = {mining_time = 1, result = "stone", count = 20},
 	stages = {blank_image},
