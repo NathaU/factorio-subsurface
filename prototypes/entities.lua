@@ -90,48 +90,22 @@ data:extend(
 	selection_box = {{-1.2, -1.2}, {1.2, 1.2}},
 	render_layer = "object",
 	order="zzz",
-	pictures =
-	{
-	  layers =
+	pictures = {
+	  filename = "__Subsurface__/graphics/entities/entrance.png",
+	  priority = "extra-high",
+	  width = 100,
+	  height = 71,
+	  direction_count = 1,
+	  --shift = util.by_pixel(1, -51),
+	  hr_version =
 	  {
-		{
-		  filename = "__base__/graphics/entity/big-electric-pole/big-electric-pole.png",
-		  priority = "extra-high",
-		  width = 76,
-		  height = 156,
-		  direction_count = 1,
-		  shift = util.by_pixel(1, -51),
-		  hr_version =
-		  {
-			filename = "__base__/graphics/entity/big-electric-pole/hr-big-electric-pole.png",
-			priority = "extra-high",
-			width = 148,
-			height = 312,
-			direction_count = 1,
-			shift = util.by_pixel(0, -51),
-			scale = 0.5
-		  }
-		},
-		{
-		  filename = "__base__/graphics/entity/big-electric-pole/big-electric-pole-shadow.png",
-		  priority = "extra-high",
-		  width = 188,
-		  height = 48,
-		  direction_count = 1,
-		  shift = util.by_pixel(60, 0),
-		  draw_as_shadow = true,
-		  hr_version =
-		  {
-			filename = "__base__/graphics/entity/big-electric-pole/hr-big-electric-pole-shadow.png",
-			priority = "extra-high",
-			width = 374,
-			height = 94,
-			direction_count = 1,
-			shift = util.by_pixel(60, 0),
-			draw_as_shadow = true,
-			scale = 0.5
-		  }
-		}
+		filename = "__Subsurface__/graphics/entities/entrance-hr.png",
+		priority = "extra-high",
+		width = 189,
+		height = 134,
+		direction_count = 1,
+		--shift = util.by_pixel(0, -51),
+		scale = 0.5
 	  }
 	},
 	connection_points =
@@ -139,15 +113,15 @@ data:extend(
 	  {
 		shadow =
 		{
-		  copper = {1.2, 0},
-		  green = {1.2, 0.6},
-		  red = {1.2, -0.6}
+		  copper = {-0.7, -0.4},
+		  green = {-0.3, -0.5},
+		  red = {-1.0, -0.3}
 		},
 		wire =
 		{
-		  copper = {1.2, 0},
-		  green = {1.2, 0.6},
-		  red = {1.2, -0.6}
+		  copper = {-0.7, -0.4},
+		  green = {-0.3, -0.5},
+		  red = {-1.0, -0.3}
 		}
 	  }
 	},
@@ -175,9 +149,8 @@ data:extend(
 	  name = "tunnel-entrance",
 	  icon = "__Subsurface__/graphics/icons/Tunnels-icon.png",
 	  icon_size = 32,
-	  collision_box = {{-0.4, -0.4}, {0.4, 0.4}},
+	  collision_box = {{-1.4, -0.8}, {1.4, 1}},
 	  selection_box = {{0, 0}, {0, 0}},
-	  collision_mask = {},
 	  has_belt_immunity = true,
 	  animation = {
 		layers = {
@@ -232,48 +205,22 @@ data:extend(
 	selection_box = {{-1.2, -1.2}, {1.2, 1.2}},
 	render_layer = "object",
 	order="zzz",
-	pictures =
-	{
-	  layers =
+	pictures = {
+	  filename = "__Subsurface__/graphics/entities/exit.png",
+	  priority = "extra-high",
+	  width = 70,
+	  height = 150,
+	  direction_count = 1,
+	  shift = util.by_pixel(0, -32),
+	  hr_version =
 	  {
-		{
-		  filename = "__base__/graphics/entity/big-electric-pole/big-electric-pole.png",
-		  priority = "extra-high",
-		  width = 76,
-		  height = 156,
-		  direction_count = 1,
-		  shift = util.by_pixel(1, -51),
-		  hr_version =
-		  {
-			filename = "__base__/graphics/entity/big-electric-pole/hr-big-electric-pole.png",
-			priority = "extra-high",
-			width = 148,
-			height = 312,
-			direction_count = 1,
-			shift = util.by_pixel(0, -51),
-			scale = 0.5
-		  }
-		},
-		{
-		  filename = "__base__/graphics/entity/big-electric-pole/big-electric-pole-shadow.png",
-		  priority = "extra-high",
-		  width = 188,
-		  height = 48,
-		  direction_count = 1,
-		  shift = util.by_pixel(60, 0),
-		  draw_as_shadow = true,
-		  hr_version =
-		  {
-			filename = "__base__/graphics/entity/big-electric-pole/hr-big-electric-pole-shadow.png",
-			priority = "extra-high",
-			width = 374,
-			height = 94,
-			direction_count = 1,
-			shift = util.by_pixel(60, 0),
-			draw_as_shadow = true,
-			scale = 0.5
-		  }
-		}
+		filename = "__Subsurface__/graphics/entities/exit-hr.png",
+		priority = "extra-high",
+		width = 125,
+		height = 268,
+		direction_count = 1,
+		shift = util.by_pixel(0, -32),
+		scale = 0.5
 	  }
 	},
 	connection_points =
@@ -281,15 +228,15 @@ data:extend(
 	  {
 		shadow =
 		{
-		  copper = {1.2, -3},
-		  green = {1.2, -3.6},
-		  red = {1.2, -2.4}
+		  copper = {0.6, -0.9},
+		  green = {0.8, -0.8},
+		  red = {0.3, -0.9}
 		},
 		wire =
 		{
-		  copper = {1.2, -3},
-		  green = {1.2, -3.6},
-		  red = {1.2, -2.4}
+		  copper = {0.6, -0.9},
+		  green = {0.8, -0.8},
+		  red = {0.3, -0.9}
 		}
 	  }
 	},
@@ -317,9 +264,8 @@ data:extend(
 	  name = "tunnel-exit",
 	  icon = "__Subsurface__/graphics/icons/Tunnels-icon.png",
 	  icon_size = 32,
-	  collision_box = {{-0.4, -0.4}, {0.4, 0.4}},
+	  collision_box = {{-1, 0}, {1, 0.7}},
 	  selection_box = {{0, 0}, {0, 0}},
-	  collision_mask = {},
 	  has_belt_immunity = true,
 	  animation = {
 		layers = {
