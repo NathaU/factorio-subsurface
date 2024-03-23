@@ -10,8 +10,10 @@ max_fluid_flow_per_tick = 100
 max_pollution_move_active = 128 -- the max amount of pollution that can be moved per 64 ticks from one surface to the above
 max_pollution_move_passive = 64
 
-suffocation_threshold = 1000
+suffocation_threshold = 400
 suffocation_damage = 2.5 -- per 64 ticks (~1 second)
+attrition_threshold = 150
+attrition_types = {"assembling-machine", "reactor", "mining-drill", "generator", "inserter", "burner-generator", "car", "construction-robot", "lab", "loader", "loader-1x1", "locomotive", "logistic-robot", "power-switch", "pump", "radar", "roboport", "spider-vehicle", "splitter", "transport-belt"}
 
 function setup_globals()
 	global.subsurfaces = global.subsurfaces or {}
@@ -221,6 +223,11 @@ script.on_event(defines.events.on_tick, function(event)
 				end
 			--end
 			
+			-- machine inefficiency due to pollution
+			for _,e in ipairs(subsurface.find_entities_filtered{type=attrition_types}) do
+				if subsurface.get_pollution(e.position) > attrition_threshold and math.random(5) == 1 then e.damage(e.prototype.max_health*0.01, game.forces.neutral, "physical") end
+			end
+			
 		end
 		
 		-- next, move pollution using air vents
@@ -234,7 +241,6 @@ script.on_event(defines.events.on_tick, function(event)
 					
 					local pollution_to_move = math.min(max_movable_pollution, subsurface.get_pollution(vent.position))
 					
-					--entity.energy = entity.energy - ((pollution_to_move / max_pollution_move_active)*max_energy)
 					subsurface.pollute(vent.position, -pollution_to_move)
 					vent.surface.pollute(vent.position, pollution_to_move)
 					
@@ -273,6 +279,7 @@ script.on_event(defines.events.on_tick, function(event)
 				if (event.tick - 1) % 256 == 0 then p.print({"subsurface.suffocation"}, {1, 0, 0}) end
 			end
 		end
+		
 	end
 	
 	-- handle miners
