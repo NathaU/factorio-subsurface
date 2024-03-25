@@ -141,4 +141,15 @@ data:extend(
 	ingredients = {},
 	results = {}
   },
+  {
+	type = "recipe",
+	name = "wooden-support",
+	enabled = false,
+	ingredients =
+	{
+	  {"small-electric-pole", 1},
+	  {"small-lamp", 1},
+	},
+	result = "wooden-support"
+  },
 })
