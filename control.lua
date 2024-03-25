@@ -26,6 +26,7 @@ function setup_globals()
 	global.exposed_chunks = global.exposed_chunks or {} -- [surface][x][y], 1 means chunk is exposed, 0 means chunk is next to an exposed chunk
 	global.aai_miner_paths = global.aai_miner_paths or {}
 	global.prospectors = global.prospectors or {}
+	global.support_lamps = global.support_lamps or {}
 end
 
 script.on_init(function()
@@ -390,6 +391,9 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 				global.air_vent_lights[script.register_on_entity_destroyed(entity)] = rendering.draw_light{surface=get_subsurface(entity.surface), target=entity.position, sprite="utility/light_small"}
 			end
 		end, false)
+	elseif entity.name == "wooden-support" then
+		global.support_lamps[entity.unit_number] = rendering.draw_light{surface=entity.surface, target=entity, target_offset={0, -2}, sprite="utility/light_medium", scale=1.5}
+		script.register_on_entity_destroyed(entity)
 	end
 end)
 
@@ -499,6 +503,8 @@ script.on_event(defines.events.on_entity_destroyed, function(event)
 	elseif global.air_vent_lights[event.registration_number] then
 		rendering.destroy(global.air_vent_lights[event.registration_number])
 		global.air_vent_lights[event.registration_number] = nil
+	elseif global.support_lamps[event.unit_number] then
+		rendering.destroy(global.support_lamps[event.unit_number])
 	end
 end)
 

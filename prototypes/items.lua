@@ -129,4 +129,14 @@ data:extend(
 	order = "d[rock-explosives]",
 	stack_size = 10
   },
+  {
+	type = "item",
+	name = "wooden-support",
+	icon = "__Subsurface__/graphics/icons/wooden-support.png",
+	icon_size = 64, icon_mipmaps = 4,
+	subgroup = "inter-surface-transport",
+	order = "b[air-vent-active]",
+	place_result = "wooden-support",
+	stack_size = 50
+  },
 })

@@ -495,6 +495,32 @@ data:extend(
 	fixed_recipe = "prospecting"
   },
   
+  {
+	type = "electric-pole",
+	name = "wooden-support",
+	icon = "__Subsurface__/graphics/icons/wooden-support.png",
+	icon_size = 64, icon_mipmaps = 4,
+	flags = {"placeable-neutral", "player-creation"},
+	minable = {mining_time = 0.1, result = "wooden-support"},
+	max_health = 100,
+	corpse = "small-electric-pole-remnants",
+    dying_explosion = "small-electric-pole-explosion",
+    collision_box = {{-0.15, -0.15}, {0.15, 0.15}},
+    selection_box = {{-0.4, -0.4}, {0.4, 0.4}},
+	collision_mask = {"item-layer", "object-layer", "player-layer", "water-tile", "ground-tile"},
+    damaged_trigger_effect = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].damaged_trigger_effect),
+    drawing_box = {{-0.5, -2.6}, {0.5, 0.5}},
+    maximum_wire_distance = 7.5,
+    supply_area_distance = 3.5,
+    vehicle_impact_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].vehicle_impact_sound),
+    open_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].open_sound),
+    close_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].close_sound),
+    track_coverage_during_build_by_moving = true,
+	pictures = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].pictures),
+	connection_points = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].connection_points),
+	radius_visualisation_picture = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].radius_visualisation_picture),
+  },
+  
   item_elevator_input,
   item_elevator_output,
   fluid_elevator_input,
@@ -536,3 +562,8 @@ data.raw["assembling-machine"]["surface-drill-placer"].animation.east.layers[1].
 data.raw["assembling-machine"]["surface-drill-placer"].animation.east.layers[1].hr_version.scale = 1
 data.raw["assembling-machine"]["surface-drill-placer"].animation.east.layers[2].scale = 2
 data.raw["assembling-machine"]["surface-drill-placer"].animation.east.layers[2].hr_version.scale = 1
+
+data.raw["electric-pole"]["wooden-support"].pictures.layers[1].filename = "__Subsurface__/graphics/entities/wooden-support/wooden-support.png"
+data.raw["electric-pole"]["wooden-support"].pictures.layers[1].hr_version.filename = "__Subsurface__/graphics/entities/wooden-support/hr-wooden-support.png"
+data.raw["electric-pole"]["wooden-support"].pictures.layers[2].filename = "__Subsurface__/graphics/entities/wooden-support/wooden-support-shadow.png"
+data.raw["electric-pole"]["wooden-support"].pictures.layers[2].hr_version.filename = "__Subsurface__/graphics/entities/wooden-support/hr-wooden-support-shadow.png"
