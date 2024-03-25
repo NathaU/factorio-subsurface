@@ -5,8 +5,8 @@ data:extend(
 	name = "surface-drill",
 	icon = "__base__/graphics/icons/burner-mining-drill.png",
 	icon_size = 64, icon_mipmaps = 4,
-	subgroup = "production-machine",
-	order = "a",
+	subgroup = "extraction-machine",
+	order = "ca",
 	place_result = "surface-drill-placer",
 	stack_size = 5
   },
@@ -16,8 +16,8 @@ data:extend(
 	icon = "__base__/graphics/icons/burner-mining-drill.png",
 	icon_size = 64, icon_mipmaps = 4,
 	flags = {"hidden", "hide-from-bonus-gui"},
-	subgroup = "production-machine",
-	order = "a",
+	subgroup = "extraction-machine",
+	order = "cb",
 	place_result = "surface-drill",
 	stack_size = 5
   },
@@ -27,7 +27,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/prospector.png",
 	icon_size = 64, icon_mipmaps = 4,
 	subgroup = "production-machine",
-	order = "a",
+	order = "z",
 	place_result = "prospector",
 	stack_size = 50
   },
@@ -37,7 +37,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/items-elevator-icon.png",
 	icon_size = 32, icon_mipmaps = 1,
 	subgroup = "inter-surface-transport",
-	order = "c[transport-belt]-c[items-elevator-mk1]",
+	order = "c-a",
 	place_result = "item-elevator-input",
 	stack_size = 10
   },
@@ -47,7 +47,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/items-elevator-icon.png",
 	icon_size = 32, icon_mipmaps = 1,
 	subgroup = "inter-surface-transport",
-	order = "c[transport-belt]-c[items-elevator-mk1]",
+	order = "c-b",
 	place_result = "item-elevator-output",
 	stack_size = 10
   },
@@ -57,7 +57,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/fluid_elevator_mk1_icon.png",
 	icon_size = 32, icon_mipmaps = 1,
 	subgroup = "inter-surface-transport",
-	order = "d[fluid]-a[fluid-elevator]",
+	order = "c-c",
 	place_result = "fluid-elevator-input",
 	stack_size = 10
   },
@@ -67,7 +67,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/fluid_elevator_mk1_icon.png",
 	icon_size = 32, icon_mipmaps = 1,
 	subgroup = "inter-surface-transport",
-	order = "d[fluid]-a[fluid-elevator]",
+	order = "c-d",
 	place_result = "fluid-elevator-output",
 	stack_size = 10
   },
@@ -77,7 +77,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/air_vent_11_icon.png",
 	icon_size = 32, icon_mipmaps = 1,
 	subgroup = "inter-surface-transport",
-	order = "a[air-vent-passive]",
+	order = "b-a",
 	place_result = "air-vent",
 	stack_size = 50
   }, 
@@ -87,7 +87,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/air_vent_22_icon.png",
 	icon_size = 32, icon_mipmaps = 1,
 	subgroup = "inter-surface-transport",
-	order = "b[air-vent-active]",
+	order = "b-b",
 	place_result = "active-air-vent",
 	stack_size = 50
   },
@@ -126,7 +126,7 @@ data:extend(
 	  }
 	},
 	subgroup = "terrain",
-	order = "d[rock-explosives]",
+	order = "d[rock-explosives]z",
 	stack_size = 10
   },
   {
@@ -135,7 +135,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/wooden-support.png",
 	icon_size = 64, icon_mipmaps = 4,
 	subgroup = "inter-surface-transport",
-	order = "b[air-vent-active]",
+	order = "a-a",
 	place_result = "wooden-support",
 	stack_size = 50
   },
