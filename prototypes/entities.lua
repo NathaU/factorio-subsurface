@@ -333,9 +333,9 @@ data:extend(
 	resource_searching_radius = 0.49,
 	vector_to_place_result = {-1, -2.6},
 	animations = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].animations),
-    circuit_wire_connection_points = ccd.points,
-    circuit_connector_sprites = ccd.sprites,
-    circuit_wire_max_distance = default_circuit_wire_max_distance,
+	circuit_wire_connection_points = ccd.points,
+	circuit_connector_sprites = ccd.sprites,
+	circuit_wire_max_distance = default_circuit_wire_max_distance,
   },
   {
 	type = "assembling-machine",
@@ -504,20 +504,77 @@ data:extend(
 	minable = {mining_time = 0.1, result = "wooden-support"},
 	max_health = 100,
 	corpse = "small-electric-pole-remnants",
-    dying_explosion = "small-electric-pole-explosion",
-    collision_box = {{-0.15, -0.15}, {0.15, 0.15}},
-    selection_box = {{-0.4, -0.4}, {0.4, 0.4}},
+	dying_explosion = "small-electric-pole-explosion",
+	collision_box = {{-0.15, -0.15}, {0.15, 0.15}},
+	selection_box = {{-0.4, -0.4}, {0.4, 0.4}},
 	collision_mask = {"item-layer", "object-layer", "player-layer", "water-tile", "ground-tile"},
-    damaged_trigger_effect = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].damaged_trigger_effect),
-    drawing_box = {{-0.5, -2.6}, {0.5, 0.5}},
-    maximum_wire_distance = 7.5,
-    supply_area_distance = 3.5,
-    vehicle_impact_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].vehicle_impact_sound),
-    open_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].open_sound),
-    close_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].close_sound),
-    track_coverage_during_build_by_moving = true,
+	damaged_trigger_effect = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].damaged_trigger_effect),
+	drawing_box = {{-0.5, -2.6}, {0.5, 0.5}},
+	maximum_wire_distance = 7.5,
+	supply_area_distance = 3.5,
+	vehicle_impact_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].vehicle_impact_sound),
+	open_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].open_sound),
+	close_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].close_sound),
+	track_coverage_during_build_by_moving = true,
 	pictures = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].pictures),
-	connection_points = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].connection_points),
+	connection_points = {
+	  {
+		shadow =
+		{
+		  copper = util.by_pixel(97, -0.5),
+		  red = util.by_pixel(98.5, -0.5),
+		  green = util.by_pixel(95.5, -0.5)
+		},
+		wire =
+		{
+		  copper = util.by_pixel(9.5, -70),
+		  red = util.by_pixel(11, -70),
+		  green = util.by_pixel(8.0, -70)
+		}
+	  },
+	  {
+		shadow =
+		{
+		  copper = util.by_pixel(76, 1),
+		  red = util.by_pixel(77.5, 2.5),
+		  green = util.by_pixel(74.5, -0.5)
+		},
+		wire =
+		{
+		  copper = util.by_pixel(-9.5, -73),
+		  red = util.by_pixel(-7, -73),
+		  green = util.by_pixel(-11.0, -73)
+		}
+	  },
+	  {
+		shadow =
+		{
+		  copper = util.by_pixel(83, 1),
+		  red = util.by_pixel(83, -0.5),
+		  green = util.by_pixel(83, 2.5)
+		},
+		wire =
+		{
+		  copper = util.by_pixel(-1, -74),
+		  red = util.by_pixel(1.0, -74),
+		  green = util.by_pixel(-3.5, -74)
+		}
+	  },
+	  {
+		shadow =
+		{
+		  copper = util.by_pixel(81.5, 3.5),
+		  red = util.by_pixel(80, 3.5),
+		  green = util.by_pixel(83, 3.5)
+		},
+		wire =
+		{
+		  copper = util.by_pixel(-0.5, -66),
+		  red = util.by_pixel(-3, -66),
+		  green = util.by_pixel(2, -66)
+		}
+	  }
+	},
 	radius_visualisation_picture = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].radius_visualisation_picture),
   },
   
