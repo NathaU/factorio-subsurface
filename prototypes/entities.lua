@@ -507,7 +507,6 @@ data:extend(
 	dying_explosion = "small-electric-pole-explosion",
 	collision_box = {{-0.15, -0.15}, {0.15, 0.15}},
 	selection_box = {{-0.4, -0.4}, {0.4, 0.4}},
-	collision_mask = {"item-layer", "object-layer", "player-layer", "water-tile", "ground-tile"},
 	damaged_trigger_effect = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].damaged_trigger_effect),
 	drawing_box = {{-0.5, -2.6}, {0.5, 0.5}},
 	maximum_wire_distance = 7.5,
