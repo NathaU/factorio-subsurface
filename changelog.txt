@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.6
+Date: 2024-03-26
+  Features:
+    - Machines got damaged when pollution is too high
+    - Wooden supports which replace the use of electric poles in subsurfaces
+  Changes:
+    - Tunnel entrances are now just holes
+  Bugfixes:
+    - Maps now generate as they are supposed to (https://github.com/NathaU/factorio-subsurface/issues/6)
+    - Fixed crash when used with YARM and resourcehighlighter
+---------------------------------------------------------------------------------------------------
 Version: 1.0.5
 Date: 2024-03-03
   Features:
