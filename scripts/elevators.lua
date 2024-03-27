@@ -13,11 +13,19 @@ function switch_elevator(entity) -- switch between input and output
 		is_fluid = true
 	end
 	
-	local new_endpoint = entity.surface.create_entity{name=new_name, position=entity.position, direction=entity.direction, force=entity.force, player=entity.last_user}
-	if is_fluid then new_endpoint.fluidbox[1] = entity.fluidbox[1]
+	-- we need to destroy the old entity first because otherwise the new one won't connect to pipes
+	local surface = entity.surface
+	local pos = entity.position
+	local direction = entity.direction
+	local force = entity.force
+	local last_user = entity.last_user
+	if is_fluid then local fluidbox = entity.fluidbox[1] end
+	entity.destroy()
+	
+	local new_endpoint = surface.create_entity{name=new_name, position=pos, direction=direction, force=force, player=last_user}
+	if is_fluid then new_endpoint.fluidbox[1] = fluidbox
 	else -- copy items
 	end
-	entity.destroy()
 	
 	return new_endpoint
 end
