@@ -3,4 +3,5 @@ for index, force in pairs(game.forces) do
 	local recipes = force.recipes
 	
 	recipes["fluid-elevator"].enabled = technologies["inter-surface-transport"].researched
+	recipes["item-elevator"].enabled = technologies["inter-surface-transport"].researched
 end

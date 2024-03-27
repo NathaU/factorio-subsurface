@@ -4,13 +4,13 @@ require "circuit-connector-generated-definitions"
 local item_elevator_input = table.deepcopy(data.raw.container["steel-chest"])
 item_elevator_input.name = "item-elevator-input"
 item_elevator_input.inventory_size = 1
-item_elevator_input.minable.result = "item-elevator-input"
+item_elevator_input.minable.result = "item-elevator"
 item_elevator_input.fast_replaceable_group = nil
 
 local item_elevator_output = table.deepcopy(data.raw.container["steel-chest"])
 item_elevator_output.name = "item-elevator-output"
 item_elevator_output.inventory_size = 1
-item_elevator_output.minable.result = "item-elevator-output"
+item_elevator_output.minable.result = "item-elevator"
 item_elevator_output.fast_replaceable_group = nil
 
 local subsurface_walls = table.deepcopy(data.raw["simple-entity"]["rock-big"])

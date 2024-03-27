@@ -44,7 +44,7 @@ data:extend(
   },
   {
 	type = "recipe",
-	name = "item-elevator-input",
+	name = "item-elevator",
 	enabled = false,
 	ingredients =
 	{
@@ -52,20 +52,8 @@ data:extend(
 	  {"iron-gear-wheel", 10},
 	  {"electronic-circuit", 10},
 	},
-	result = "item-elevator-input"
+	result = "item-elevator"
   },
-  {
-	type = "recipe",
-	name = "item-elevator-output",
-	enabled = false,
-	ingredients =
-	{
-	  {"underground-belt", 4},
-	  {"iron-gear-wheel", 10},
-	  {"electronic-circuit", 10},
-	},
-	result = "item-elevator-output"
-  },  
   {
 	type = "recipe",
 	name = "air-vent",
