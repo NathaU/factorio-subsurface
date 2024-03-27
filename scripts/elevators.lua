@@ -1,5 +1,3 @@
-max_fluid_flow_per_tick = 100
-
 function switch_elevator(entity) -- switch between input and output
 	local is_fluid = false
 	
@@ -19,7 +17,7 @@ function switch_elevator(entity) -- switch between input and output
 	local direction = entity.direction
 	local force = entity.force
 	local last_user = entity.last_user
-	if is_fluid then local fluidbox = entity.fluidbox[1] end
+	local fluidbox = entity.fluidbox[1]
 	entity.destroy()
 	
 	local new_endpoint = surface.create_entity{name=new_name, position=pos, direction=direction, force=force, player=last_user}
@@ -55,7 +53,7 @@ function handle_elevators(tick)
 			local f1 = elevators[1].fluidbox[1]
 			local f2 = elevators[2].fluidbox[1] or {name=f1.name, amount=0, temperature=f1.temperature}
 			if f1.name == f2.name then
-				local diff = math.min(f1.amount, elevators[2].fluidbox.get_capacity(1) - f2.amount, max_fluid_flow_per_tick)
+				local diff = math.min(f1.amount, elevators[2].fluidbox.get_capacity(1) - f2.amount, elevators[2].prototype.pumping_speed)
 				f1.amount = f1.amount - diff
 				f2.amount = f2.amount + diff
 				if f1.amount == 0 then f1 = nil end
