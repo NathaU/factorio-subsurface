@@ -33,22 +33,13 @@ data:extend(
   },
   {
 	type = "item",
-	name = "item-elevator-input",
+	name = "item-elevator",
+	localised_name = {"item-name.item-elevator"},
 	icon = "__Subsurface__/graphics/icons/items-elevator-icon.png",
 	icon_size = 32, icon_mipmaps = 1,
 	subgroup = "inter-surface-transport",
 	order = "c-a",
 	place_result = "item-elevator-input",
-	stack_size = 10
-  },
-  {
-	type = "item",
-	name = "item-elevator-output",
-	icon = "__Subsurface__/graphics/icons/items-elevator-icon.png",
-	icon_size = 32, icon_mipmaps = 1,
-	subgroup = "inter-surface-transport",
-	order = "c-b",
-	place_result = "item-elevator-output",
 	stack_size = 10
   },
   {

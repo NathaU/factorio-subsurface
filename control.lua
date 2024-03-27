@@ -324,22 +324,8 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		end
 	elseif entity.name == "prospector" then
 		table.insert(global.prospectors, entity)
-	elseif entity.name == "item-elevator-input" then
-		build_safe(event, function()
-			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-output", position=entity.position, force=entity.force, direction=entity.direction}
-			if complementary then
-				table.insert(global.item_elevators, {entity, complementary}) -- {input, output}
-			end
-		end)
-	elseif entity.name == "item-elevator-output" then
-		build_safe(event, function()
-			local complementary = get_subsurface(entity.surface).create_entity{name="item-elevator-input", position=entity.position, force=entity.force, direction=entity.direction}
-			if complementary then
-				table.insert(global.item_elevators, {complementary, entity}) -- {input, output}
-			end
-		end)
-	elseif entity.name == "fluid-elevator-input" then
-		elevator_built(entity)
+	elseif entity.name == "item-elevator-input" then elevator_built(entity, "item_elevators")
+	elseif entity.name == "fluid-elevator-input" then elevator_built(entity, "fluid_elevators")
 	elseif entity.name == "air-vent" or entity.name == "active-air-vent" then
 		build_safe(event, function()
 			table.insert(global.air_vents, entity)
@@ -373,13 +359,8 @@ script.on_event(defines.events.on_player_configured_blueprint, function(event)
 	end
 end)
 
-script.on_event(defines.events.on_player_rotated_entity, function(event)
-	elevator_rotated(event.entity, event.previous_direction)
-end)
-
 script.on_event(defines.events.on_player_cursor_stack_changed, function(event)
 	local player = game.get_player(event.player_index)
-	
 	for _,r in ipairs(global.placement_indicators[player.index] or {}) do
 		rendering.destroy(r)
 	end
@@ -395,14 +376,15 @@ script.on_event(defines.events.on_selected_entity_changed, function(event)
 	end
 	if player.selected then
 		if player.selected.name == "fluid-elevator-input" or player.selected.name == "fluid-elevator-output" then
-			elevator_selected(player, player.selected)
+			elevator_selected(player, player.selected, "fluid_elevators")
+		elseif player.selected.name == "item-elevator-input" or player.selected.name == "item-elevator-output" then
+			elevator_selected(player, player.selected, "item_elevators")
 		end
 	end
 end)
 
 script.on_event(defines.events.on_player_changed_surface, function(event)
 	local player = game.get_player(event.player_index)
-	
 	for _,r in ipairs(global.placement_indicators[player.index] or {}) do
 		rendering.destroy(r)
 	end
@@ -522,4 +504,9 @@ script.on_event("subsurface-position", function(event)
 	local surface = game.get_player(event.player_index).surface
 	if get_oversurface(surface) then force.print("[gps=".. string.format("%.1f,%.1f,", event.cursor_position.x, event.cursor_position.y) .. get_oversurface(surface).name .."]") end
 	if get_subsurface(surface, false) then force.print("[gps=".. string.format("%.1f,%.1f,", event.cursor_position.x, event.cursor_position.y) .. get_subsurface(surface, false).name .."]") end
+end)
+
+script.on_event("subsurface-rotate", function(event)
+	local player = game.get_player(event.player_index)
+	if player.selected then elevator_rotated(player.selected, player.selected.direction) end
 end)
