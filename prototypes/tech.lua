@@ -30,8 +30,7 @@ data:extend(
 	{
 	  {type = "unlock-recipe", recipe = "item-elevator-input"},
 	  {type = "unlock-recipe", recipe = "item-elevator-output"},
-	  {type = "unlock-recipe", recipe = "fluid-elevator-input"},
-	  {type = "unlock-recipe", recipe = "fluid-elevator-output"}
+	  {type = "unlock-recipe", recipe = "fluid-elevator"},
 	},
 	prerequisites = {"surface-drilling"},
 	unit = {

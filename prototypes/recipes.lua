@@ -33,27 +33,14 @@ data:extend(
   
   {
 	type = "recipe",
-	name = "fluid-elevator-input",
+	name = "fluid-elevator",
 	enabled = false,
 	ingredients =
 	{
-	  {"storage-tank", 1},
 	  {"pipe", 10},
 	  {"pump", 2},
 	},
-	result = "fluid-elevator-input"
-  },
-  {
-	type = "recipe",
-	name = "fluid-elevator-output",
-	enabled = false,
-	ingredients =
-	{
-	  {"storage-tank", 1},
-	  {"pipe", 10},
-	  {"pump", 2},
-	},
-	result = "fluid-elevator-output"
+	result = "fluid-elevator"
   },
   {
 	type = "recipe",
