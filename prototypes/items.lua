@@ -53,22 +53,13 @@ data:extend(
   },
   {
 	type = "item",
-	name = "fluid-elevator-input",
+	name = "fluid-elevator",
+	localised_name = {"item-name.fluid-elevator"},
 	icon = "__Subsurface__/graphics/icons/fluid_elevator_mk1_icon.png",
 	icon_size = 32, icon_mipmaps = 1,
 	subgroup = "inter-surface-transport",
-	order = "c-c",
+	order = "c-b",
 	place_result = "fluid-elevator-input",
-	stack_size = 10
-  },
-  {
-	type = "item",
-	name = "fluid-elevator-output",
-	icon = "__Subsurface__/graphics/icons/fluid_elevator_mk1_icon.png",
-	icon_size = 32, icon_mipmaps = 1,
-	subgroup = "inter-surface-transport",
-	order = "c-d",
-	place_result = "fluid-elevator-output",
 	stack_size = 10
   },
   {

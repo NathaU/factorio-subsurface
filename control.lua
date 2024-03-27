@@ -5,8 +5,8 @@ require "scripts.remote"
 require "scripts.cutscene"
 require "scripts.aai-miners"
 require "scripts.resources"
+require "scripts.elevators"
 
-max_fluid_flow_per_tick = 100
 max_pollution_move_active = 128 -- the max amount of pollution that can be moved per 64 ticks from one surface to the above
 max_pollution_move_passive = 64
 
@@ -27,6 +27,8 @@ function setup_globals()
 	global.aai_miner_paths = global.aai_miner_paths or {}
 	global.prospectors = global.prospectors or {}
 	global.support_lamps = global.support_lamps or {}
+	global.placement_indicators = global.placement_indicators or {}
+	global.selection_indicators = global.selection_indicators or {}
 end
 
 script.on_init(function()
@@ -162,39 +164,7 @@ script.on_event(defines.events.on_tick, function(event)
 		end
 	end
 	
-	-- handle item elevators
-	for i,elevators in ipairs(global.item_elevators) do  -- move items from input to output
-		if not(elevators[1].valid and elevators[2].valid) then
-			elevators[1].destroy()
-			elevators[2].destroy()
-			table.remove(global.item_elevators, i)
-		else
-			if elevators[1].get_item_count() > 0 and elevators[2].can_insert(elevators[1].get_inventory(defines.inventory.chest)[1]) then
-				elevators[2].insert(elevators[1].get_inventory(defines.inventory.chest)[1])
-				elevators[1].remove_item(elevators[1].get_inventory(defines.inventory.chest)[1])
-			end
-		end
-	end
-	
-	-- handle fluid elevators
-	for i,elevators in ipairs(global.fluid_elevators) do  -- average fluid between input and output
-		if not(elevators[1].valid and elevators[2].valid) then
-			elevators[1].destroy()
-			elevators[2].destroy()
-			table.remove(global.fluid_elevators, i)
-		elseif elevators[1].fluidbox[1] then -- input has some fluid
-			local f1 = elevators[1].fluidbox[1]
-			local f2 = elevators[2].fluidbox[1] or {name=f1.name, amount=0, temperature=f1.temperature}
-			if f1.name == f2.name then
-				local diff = math.min(f1.amount, elevators[2].fluidbox.get_capacity(1) - f2.amount, max_fluid_flow_per_tick)
-				f1.amount = f1.amount - diff
-				f2.amount = f2.amount + diff
-				if f1.amount == 0 then f1 = nil end
-				elevators[1].fluidbox[1] = f1
-				elevators[2].fluidbox[1] = f2
-			end
-		end
-	end
+	handle_elevators(event.tick)
 	
 	-- POLLUTION (since there is no mechanic to just reflect pollution (no absorption but also no spread) we have to do it for our own. The game's mechanic can't be changed so we need to consider it)
 	if (event.tick - 1) % 64 == 0 then
@@ -368,21 +338,8 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 				table.insert(global.item_elevators, {complementary, entity}) -- {input, output}
 			end
 		end)
-	
 	elseif entity.name == "fluid-elevator-input" then
-		build_safe(event, function()
-			local complementary = get_subsurface(entity.surface).create_entity{name = "fluid-elevator-output", position = entity.position, force=entity.force, direction=entity.direction}
-			if complementary then
-				table.insert(global.fluid_elevators, {entity, complementary}) -- {input, output}
-			end
-		end)
-	elseif entity.name == "fluid-elevator-output" then
-		build_safe(event, function()
-			local complementary = get_subsurface(entity.surface).create_entity{name = "fluid-elevator-input", position = entity.position, force=entity.force, direction=entity.direction}
-			if complementary then
-				table.insert(global.fluid_elevators, {complementary, entity}) -- {input, output}
-			end
-		end)
+		elevator_built(entity)
 	elseif entity.name == "air-vent" or entity.name == "active-air-vent" then
 		build_safe(event, function()
 			table.insert(global.air_vents, entity)
@@ -414,6 +371,44 @@ script.on_event(defines.events.on_player_configured_blueprint, function(event)
 		end
 		item.set_blueprint_entities(contents)
 	end
+end)
+
+script.on_event(defines.events.on_player_rotated_entity, function(event)
+	elevator_rotated(event.entity, event.previous_direction)
+end)
+
+script.on_event(defines.events.on_player_cursor_stack_changed, function(event)
+	local player = game.get_player(event.player_index)
+	
+	for _,r in ipairs(global.placement_indicators[player.index] or {}) do
+		rendering.destroy(r)
+	end
+	
+	aai_cursor_stack_changed(player)
+	elevator_on_cursor_stack_changed(player)
+end)
+
+script.on_event(defines.events.on_selected_entity_changed, function(event)
+	local player = game.get_player(event.player_index)
+	for _,r in ipairs(global.selection_indicators[event.player_index] or {}) do
+		rendering.destroy(r)
+	end
+	if player.selected then
+		if player.selected.name == "fluid-elevator-input" or player.selected.name == "fluid-elevator-output" then
+			elevator_selected(player, player.selected)
+		end
+	end
+end)
+
+script.on_event(defines.events.on_player_changed_surface, function(event)
+	local player = game.get_player(event.player_index)
+	
+	for _,r in ipairs(global.placement_indicators[player.index] or {}) do
+		rendering.destroy(r)
+	end
+	
+	aai_cursor_stack_changed(player)
+	elevator_on_cursor_stack_changed(player)
 end)
 
 script.on_event(defines.events.on_entity_died, function(event)

@@ -13,28 +13,6 @@ item_elevator_output.inventory_size = 1
 item_elevator_output.minable.result = "item-elevator-output"
 item_elevator_output.fast_replaceable_group = nil
 
-local fluid_elevator_input = table.deepcopy(data.raw["storage-tank"]["storage-tank"])
-fluid_elevator_input.name = "fluid-elevator-input"
-fluid_elevator_input.minable.result = "fluid-elevator-input"
-fluid_elevator_input.fluid_box.base_area = 10
-fluid_elevator_input.fluid_box.pipe_connections[1]["type"] = "input"
-fluid_elevator_input.fluid_box.pipe_connections[2]["type"] = "input"
-fluid_elevator_input.fluid_box.pipe_connections[3]["type"] = "input"
-fluid_elevator_input.fluid_box.pipe_connections[4]["type"] = "input"
-fluid_elevator_input.fluid_box.hide_connection_info = false
-fluid_elevator_input.two_direction_only = false
-
-local fluid_elevator_output = table.deepcopy(data.raw["storage-tank"]["storage-tank"])
-fluid_elevator_output.name = "fluid-elevator-output"
-fluid_elevator_output.minable.result = "fluid-elevator-output"
-fluid_elevator_output.fluid_box.base_area = 10
-fluid_elevator_output.fluid_box.pipe_connections[1]["type"] = "output"
-fluid_elevator_output.fluid_box.pipe_connections[2]["type"] = "output"
-fluid_elevator_output.fluid_box.pipe_connections[3]["type"] = "output"
-fluid_elevator_output.fluid_box.pipe_connections[4]["type"] = "output"
-fluid_elevator_output.fluid_box.hide_connection_info = false
-fluid_elevator_output.two_direction_only = false
-
 local subsurface_walls = table.deepcopy(data.raw["simple-entity"]["rock-big"])
 subsurface_walls.name = "subsurface-wall"
 subsurface_walls.resistances = {
@@ -396,7 +374,6 @@ data:extend(
 	},
 	energy_usage = "50kW",
   },
-
   {
 	type = "simple-entity",
 	name = "air-vent",
@@ -577,10 +554,149 @@ data:extend(
 	radius_visualisation_picture = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].radius_visualisation_picture),
   },
   
+  {
+	type = "pump",
+	name = "fluid-elevator-input",
+	icon = "__Subsurface__/graphics/icons/fluid_elevator_mk1_icon.png",
+	icon_size = 32, icon_mipmaps = 1,
+	flags = {"placeable-neutral", "player-creation"},
+	minable = {mining_time = 0.2, result = "fluid-elevator"},
+	max_health = 180,
+	--corpse = "pump-remnants",
+	--dying_explosion = "pump-explosion",
+	collision_box = {{-0.29, -0.29}, {0.29, 0.29}},
+	selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+	working_sound = table.deepcopy(data.raw.pump.pump.working_sound),
+	--damaged_trigger_effect = hit_effects.entity(),
+	resistances = {
+	  {type = "fire", percent = 80},
+	  {type = "impact", percent = 30}
+	},
+	fluid_box = {
+	  height = 4,
+	  pipe_covers = pipecoverspictures(),
+	  pipe_connections = {
+		{position = {0, -1}, type="input"},
+	  }
+	},
+	energy_source = {
+	  type = "electric",
+	  usage_priority = "secondary-input",
+	  drain = "500W"
+	},
+	energy_usage = "14.5kW",
+	pumping_speed = 100,
+	vehicle_impact_sound = table.deepcopy(data.raw.pump.pump.vehicle_impact_sound),
+	open_sound = table.deepcopy(data.raw.pump.pump.open_sound),
+	close_sound = table.deepcopy(data.raw.pump.pump.close_sound),
+	animations = {
+	  north = {
+		filename = "__Subsurface__/graphics/entities/fluid-elevator/up.png",
+		width = 46,
+		height = 52,
+		frame_count = 8,
+		shift = {0.09375, 0.03125},
+		animation_speed = 0.5
+	  },
+	  east = {
+		filename = "__Subsurface__/graphics/entities/fluid-elevator/right.png",
+		width = 51,
+		height = 56,
+		frame_count = 8,
+		shift = {0.265625, -0.21875},
+		animation_speed = 0.5
+	  },
+	  south = {
+		filename = "__Subsurface__/graphics/entities/fluid-elevator/down.png",
+		width = 61,
+		height = 58,
+		frame_count = 8,
+		shift = {0.421875, -0.125},
+		animation_speed = 0.5
+	  },
+	  west = {
+		filename = "__Subsurface__/graphics/entities/fluid-elevator/left.png",
+		width = 56,
+		height = 44,
+		frame_count = 8,
+		shift = {0.3125, 0.0625},
+		animation_speed = 0.5
+	  }
+	},
+  },
+  {
+	type = "pump",
+	name = "fluid-elevator-output",
+	icon = "__Subsurface__/graphics/icons/fluid_elevator_mk1_icon.png",
+	icon_size = 32, icon_mipmaps = 1,
+	flags = {"placeable-neutral", "player-creation"},
+	minable = {mining_time = 0.2, result = "fluid-elevator"},
+	max_health = 180,
+	--corpse = "pump-remnants",
+	--dying_explosion = "pump-explosion",
+	collision_box = {{-0.29, -0.29}, {0.29, 0.29}},
+	selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+	working_sound = table.deepcopy(data.raw.pump.pump.working_sound),
+	--damaged_trigger_effect = hit_effects.entity(),
+	resistances = {
+	  {type = "fire", percent = 80},
+	  {type = "impact", percent = 30}
+	},
+	fluid_box = {
+	  height = 4,
+	  pipe_covers = pipecoverspictures(),
+	  pipe_connections = {
+		{position = {0, -1}, type="output"},
+	  }
+	},
+	energy_source = {
+	  type = "electric",
+	  usage_priority = "secondary-input",
+	  drain = "500W"
+	},
+	energy_usage = "14.5kW",
+	pumping_speed = 100,
+	vehicle_impact_sound = table.deepcopy(data.raw.pump.pump.vehicle_impact_sound),
+	open_sound = table.deepcopy(data.raw.pump.pump.open_sound),
+	close_sound = table.deepcopy(data.raw.pump.pump.close_sound),
+	animations = {
+	  north = {
+		filename = "__Subsurface__/graphics/entities/fluid-elevator/up.png",
+		width = 46,
+		height = 52,
+		frame_count = 8,
+		shift = {0.09375, 0.03125},
+		animation_speed = 0.5
+	  },
+	  east = {
+		filename = "__Subsurface__/graphics/entities/fluid-elevator/right.png",
+		width = 51,
+		height = 56,
+		frame_count = 8,
+		shift = {0.265625, -0.21875},
+		animation_speed = 0.5
+	  },
+	  south = {
+		filename = "__Subsurface__/graphics/entities/fluid-elevator/down.png",
+		width = 61,
+		height = 58,
+		frame_count = 8,
+		shift = {0.421875, -0.125},
+		animation_speed = 0.5
+	  },
+	  west = {
+		filename = "__Subsurface__/graphics/entities/fluid-elevator/left.png",
+		width = 56,
+		height = 44,
+		frame_count = 8,
+		shift = {0.3125, 0.0625},
+		animation_speed = 0.5
+	  }
+	},
+  },
+  
   item_elevator_input,
   item_elevator_output,
-  fluid_elevator_input,
-  fluid_elevator_output,
   subsurface_walls,
   rock_explosives
 })

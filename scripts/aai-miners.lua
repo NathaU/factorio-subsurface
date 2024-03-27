@@ -7,8 +7,7 @@ miner_names = {
 non_ai_miner_names = {["vehicle-miner"]=1, ["vehicle-miner-mk2"]=1, ["vehicle-miner-mk3"]=1, ["vehicle-miner-mk4"]=1, ["vehicle-miner-mk5"]=1}
 
 -- AAI miner gui
-script.on_event({defines.events.on_player_cursor_stack_changed, defines.events.on_player_changed_surface}, function(event)
-	local player = game.get_player(event.player_index)
+function aai_cursor_stack_changed(player)
 	local surface = player.surface
 	if player.gui.left.aai_gui ~= nil then player.gui.left.aai_gui.destroy() end
 	if player.cursor_stack and player.cursor_stack.valid_for_read and player.cursor_stack.name == "unit-remote-control" and is_subsurface(surface) then
@@ -41,7 +40,7 @@ script.on_event({defines.events.on_player_cursor_stack_changed, defines.events.o
 			end
 		end
 	end
-end)
+end
 
 script.on_event(defines.events.on_gui_selection_state_changed, function(event)
 	if event.element.name == "miner_path" then
