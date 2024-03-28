@@ -1,0 +1,10 @@
+{
+	"item": [
+		["fluid-elevator-input", "fluid-elevator"],
+		["item-elevator-input", "item-elevator"]
+	],
+	"recipe": [
+		["fluid-elevator-input", "fluid-elevator"],
+		["item-elevator-input", "item-elevator"]
+	]
+}
