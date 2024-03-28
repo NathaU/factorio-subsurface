@@ -35,24 +35,28 @@ data:extend(
 	type = "recipe",
 	name = "fluid-elevator",
 	enabled = false,
+	energy_required = 2,
 	ingredients =
 	{
 	  {"pipe", 10},
 	  {"pump", 2},
 	},
-	result = "fluid-elevator"
+	result = "fluid-elevator",
+	result_count = 2
   },
   {
 	type = "recipe",
 	name = "item-elevator",
 	enabled = false,
+	energy_required = 2,
 	ingredients =
 	{
-	  {"underground-belt", 4},
+	  {"underground-belt", 2},
 	  {"iron-gear-wheel", 10},
 	  {"electronic-circuit", 10},
 	},
-	result = "item-elevator"
+	result = "item-elevator",
+	result_count = 2
   },
   {
 	type = "recipe",
