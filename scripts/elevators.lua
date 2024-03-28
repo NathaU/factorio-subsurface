@@ -84,16 +84,14 @@ function elevator_on_cursor_stack_changed(player)
 					end
 				end
 			end
-			if get_subsurface(player.surface, false) then
-				for _,e in ipairs(get_subsurface(player.surface, false).find_entities_filtered{name=player.cursor_stack.name.."-input"}) do
-					local already_linked = false
-					for i,v in ipairs(global[link_key]) do
-						if v[1] == e or v[2] == e then already_linked = true end
-					end
-					if not already_linked then
-						global.placement_indicators[player.index] = global.placement_indicators[player.index] or {}
-						table.insert(global.placement_indicators[player.index], rendering.draw_circle{color={0.5, 0.5, 0.5, 0.1}, surface=player.surface, target=e.position, radius=0.3, players={player}})
-					end
+			for _,e in ipairs(get_subsurface(player.surface).find_entities_filtered{name=player.cursor_stack.name.."-input"}) do
+				local already_linked = false
+				for i,v in ipairs(global[link_key]) do
+					if v[1] == e or v[2] == e then already_linked = true end
+				end
+				if not already_linked then
+					global.placement_indicators[player.index] = global.placement_indicators[player.index] or {}
+					table.insert(global.placement_indicators[player.index], rendering.draw_circle{color={0.5, 0.5, 0.5, 0.1}, surface=player.surface, target=e.position, radius=0.3, players={player}})
 				end
 			end
 		end
@@ -129,8 +127,8 @@ function elevator_built(entity, link_key)
 			end
 		end
 	end
-	if not done and get_subsurface(entity.surface, false) then
-		for _,e in ipairs(get_subsurface(entity.surface, false).find_entities_filtered{name=entity.name}) do
+	if not done then
+		for _,e in ipairs(get_subsurface(entity.surface).find_entities_filtered{name=entity.name}) do
 			if e.position.x == entity.position.x and e.position.y == entity.position.y then -- switch to output and link
 				local new_endpoint = switch_elevator(entity)
 				table.insert(global[link_key], {e, new_endpoint})
@@ -144,7 +142,7 @@ function elevator_selected(player, entity, link_key)
 	global.selection_indicators[player.index] = global.selection_indicators[player.index] or {}
 	for i,v in ipairs(global[link_key]) do
 		if v[1] == entity then
-			if get_subsurface(v[1].surface, false) == v[2].surface then -- selected entity is input and on top surface
+			if get_subsurface(v[1].surface) == v[2].surface then -- selected entity is input and on top surface
 				table.insert(global.selection_indicators[player.index], rendering.draw_sprite{sprite="utility/indication_line", surface=entity.surface, target=entity, target_offset={0, -0.3}, players={player}})
 				table.insert(global.selection_indicators[player.index], rendering.draw_sprite{sprite="utility/indication_arrow", surface=entity.surface, target=entity, orientation=0.5, players={player}})
 			else -- selected entity is input and on bottom surface
@@ -152,7 +150,7 @@ function elevator_selected(player, entity, link_key)
 				table.insert(global.selection_indicators[player.index], rendering.draw_sprite{sprite="utility/indication_arrow", surface=entity.surface, target=entity, players={player}})
 			end
 		elseif v[2] == entity then
-			if get_subsurface(v[2].surface, false) == v[1].surface then -- selected entity is output and on top surface
+			if get_subsurface(v[2].surface) == v[1].surface then -- selected entity is output and on top surface
 				table.insert(global.selection_indicators[player.index], rendering.draw_sprite{sprite="utility/indication_line", surface=entity.surface, target=entity, target_offset={0, -0.3}, players={player}})
 				table.insert(global.selection_indicators[player.index], rendering.draw_sprite{sprite="utility/indication_arrow", surface=entity.surface, target=entity, players={player}})
 			else -- selected entity is output and on bottom surface
