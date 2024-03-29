@@ -434,7 +434,6 @@ script.on_event(defines.events.on_resource_depleted, function(event)
 			-- oversurface entity placing
 			local entrance_car = drill.surface.create_entity{name="tunnel-entrance", position={pos.x+0.5, pos.y+0.5}, force=drill.force} -- because Factorio sets the entity at -0.5, -0.5
 			local entrance_pole = drill.surface.create_entity{name="tunnel-entrance-cable", position=pos, force=drill.force}
-			drill.surface.set_tiles({{name="concrete", position={pos.x, pos.y}}, {name="concrete", position={pos.x+1, pos.y}}, {name="concrete", position={pos.x+1, pos.y+1}}, {name="concrete", position={pos.x, pos.y+1}}})
 			
 			-- subsurface entity placing
 			local subsurface = get_subsurface(drill.surface)
