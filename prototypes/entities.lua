@@ -12,6 +12,7 @@ item_elevator_output.name = "item-elevator-output"
 item_elevator_output.inventory_size = 1
 item_elevator_output.minable.result = "item-elevator"
 item_elevator_output.fast_replaceable_group = nil
+item_elevator_output.create_ghost_on_death = false
 
 local subsurface_walls = table.deepcopy(data.raw["simple-entity"]["rock-big"])
 subsurface_walls.name = "subsurface-wall"
@@ -316,6 +317,7 @@ data:extend(
 	circuit_wire_max_distance = default_circuit_wire_max_distance,
   },
   {
+	-- this dummy is needed to allow placement everywhere, not only over resources
 	type = "assembling-machine",
 	name = "surface-drill-placer",
 	icon = "__base__/graphics/icons/burner-mining-drill.png",
@@ -634,6 +636,7 @@ data:extend(
 	max_health = 180,
 	--corpse = "pump-remnants",
 	--dying_explosion = "pump-explosion",
+	create_ghost_on_death = false,
 	collision_box = {{-0.29, -0.29}, {0.29, 0.29}},
 	selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	working_sound = table.deepcopy(data.raw.pump.pump.working_sound),
