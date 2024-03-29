@@ -65,35 +65,45 @@ function handle_elevators(tick)
 	end
 end
 
+function show_placement_indicators(player, elevator_name, link_key)
+	if get_oversurface(player.surface) then
+		for _,e in ipairs(get_oversurface(player.surface).find_entities_filtered{name=elevator_name.."-input"}) do
+			local already_linked = false
+			for i,v in ipairs(global[link_key]) do
+				if v[1] == e or v[2] == e then already_linked = true end
+			end
+			if not already_linked then
+				global.placement_indicators[player.index] = global.placement_indicators[player.index] or {}
+				table.insert(global.placement_indicators[player.index], rendering.draw_circle{color={0.5, 0.5, 0.5, 0.1}, surface=player.surface, target=e.position, radius=0.3, players={player}})
+			end
+		end
+	end
+	for _,e in ipairs(get_subsurface(player.surface).find_entities_filtered{name=elevator_name.."-input"}) do
+		local already_linked = false
+		for i,v in ipairs(global[link_key]) do
+			if v[1] == e or v[2] == e then already_linked = true end
+		end
+		if not already_linked then
+			global.placement_indicators[player.index] = global.placement_indicators[player.index] or {}
+			table.insert(global.placement_indicators[player.index], rendering.draw_circle{color={0.5, 0.5, 0.5, 0.1}, surface=player.surface, target=e.position, radius=0.3, players={player}})
+		end
+	end
+end
+
 function elevator_on_cursor_stack_changed(player)
 	if player.cursor_stack.valid_for_read then
 		local link_key = false
-		if player.cursor_stack.name == "fluid-elevator" then link_key = "fluid_elevators"
-		elseif player.cursor_stack.name == "item-elevator" then link_key = "item_elevators" end
-		
-		if link_key then
-			if get_oversurface(player.surface) then
-				for _,e in ipairs(get_oversurface(player.surface).find_entities_filtered{name=player.cursor_stack.name.."-input"}) do
-					local already_linked = false
-					for i,v in ipairs(global[link_key]) do
-						if v[1] == e or v[2] == e then already_linked = true end
-					end
-					if not already_linked then
-						global.placement_indicators[player.index] = global.placement_indicators[player.index] or {}
-						table.insert(global.placement_indicators[player.index], rendering.draw_circle{color={0.5, 0.5, 0.5, 0.1}, surface=player.surface, target=e.position, radius=0.3, players={player}})
-					end
-				end
+		if player.cursor_stack.name == "fluid-elevator" then show_placement_indicators(player, "fluid-elevator", "fluid_elevators")
+		elseif player.cursor_stack.name == "item-elevator" then show_placement_indicators(player, "item-elevator", "item_elevators")
+		elseif player.is_cursor_blueprint() and player.get_blueprint_entities() then
+			local item = false
+			local fluid = false
+			for _,e in ipairs(player.get_blueprint_entities()) do
+				if e.name == "fluid-elevator-input" then fluid = true end
+				if e.name == "item-elevator-input" then item = true end
 			end
-			for _,e in ipairs(get_subsurface(player.surface).find_entities_filtered{name=player.cursor_stack.name.."-input"}) do
-				local already_linked = false
-				for i,v in ipairs(global[link_key]) do
-					if v[1] == e or v[2] == e then already_linked = true end
-				end
-				if not already_linked then
-					global.placement_indicators[player.index] = global.placement_indicators[player.index] or {}
-					table.insert(global.placement_indicators[player.index], rendering.draw_circle{color={0.5, 0.5, 0.5, 0.1}, surface=player.surface, target=e.position, radius=0.3, players={player}})
-				end
-			end
+			if fluid then show_placement_indicators(player, "fluid-elevator", "fluid_elevators") end
+			if item then show_placement_indicators(player, "item-elevator", "item_elevators") end
 		end
 	end
 end
