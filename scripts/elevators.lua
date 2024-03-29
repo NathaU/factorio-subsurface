@@ -115,13 +115,20 @@ function elevator_rotated(entity, previous_direction)
 	end
 end
 
-function elevator_built(entity, link_key)
+function elevator_built(entity, link_key, tags)
 	local done = false -- priority is connecting to oversurface
 	if get_oversurface(entity.surface) then
 		for _,e in ipairs(get_oversurface(entity.surface).find_entities_filtered{name=entity.name}) do
 			if e.position.x == entity.position.x and e.position.y == entity.position.y then -- switch to output and link
-				local new_endpoint = switch_elevator(entity)
-				table.insert(global[link_key], {e, new_endpoint})
+				local inp = e
+				local out = entity
+				if tags and tags.type == 1 then -- the built one has to be input, so switch the other one
+					inp = entity
+					out = switch_elevator(e)
+				else
+					out = switch_elevator(entity)
+				end
+				table.insert(global[link_key], {inp, out})
 				done = true
 				break
 			end
@@ -130,8 +137,15 @@ function elevator_built(entity, link_key)
 	if not done then
 		for _,e in ipairs(get_subsurface(entity.surface).find_entities_filtered{name=entity.name}) do
 			if e.position.x == entity.position.x and e.position.y == entity.position.y then -- switch to output and link
-				local new_endpoint = switch_elevator(entity)
-				table.insert(global[link_key], {e, new_endpoint})
+				local inp = e
+				local out = entity
+				if tags and tags.type == 1 then -- the built one has to be input, so switch the other one
+					inp = entity
+					out = switch_elevator(e)
+				else
+					out = switch_elevator(entity)
+				end
+				table.insert(global[link_key], {inp, out})
 				break
 			end
 		end

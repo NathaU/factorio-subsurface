@@ -31,6 +31,7 @@ data:extend(
 	place_result = "prospector",
 	stack_size = 50
   },
+  
   {
 	type = "item",
 	name = "item-elevator",
@@ -44,6 +45,17 @@ data:extend(
   },
   {
 	type = "item",
+	name = "item-elevator-dummy",
+	icon = "__Subsurface__/graphics/icons/items-elevator-icon.png",
+	icon_size = 32, icon_mipmaps = 1,
+	flags = {"hidden", "hide-from-bonus-gui"},
+	subgroup = "inter-surface-transport",
+	order = "c-b",
+	place_result = "item-elevator-output",
+	stack_size = 10
+  },
+  {
+	type = "item",
 	name = "fluid-elevator",
 	localised_name = {"item-name.fluid-elevator"},
 	icon = "__Subsurface__/graphics/icons/fluid_elevator_mk1_icon.png",
@@ -53,6 +65,18 @@ data:extend(
 	place_result = "fluid-elevator-input",
 	stack_size = 10
   },
+  {
+	type = "item",
+	name = "fluid-elevator-dummy",
+	icon = "__Subsurface__/graphics/icons/fluid_elevator_mk1_icon.png",
+	icon_size = 32, icon_mipmaps = 1,
+	flags = {"hidden", "hide-from-bonus-gui"},
+	subgroup = "inter-surface-transport",
+	order = "c-b",
+	place_result = "fluid-elevator-output",
+	stack_size = 10
+  },
+  
   {
 	type = "item",
 	name = "air-vent",
