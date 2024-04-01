@@ -28,13 +28,14 @@ function switch_elevator(entity) -- switch between input and output
 end
 
 function is_linked(entity)
-	if elevator_name == "item-elevator" then
+	if entity.name == "item-elevator" then
 		return entity.linked_belt_neighbour ~= nil
 	else
 		for i,v in ipairs(global.fluid_elevators) do
 			if v[1] == entity or v[2] == entity then return true end
 		end
 	end
+	return false
 end
 
 function handle_elevators(tick)
@@ -64,14 +65,16 @@ function show_placement_indicators(player, elevator_name)
 		for _,e in ipairs(get_oversurface(player.surface).find_entities_filtered{name=elevator_name}) do
 			if not is_linked(e) then
 				global.placement_indicators[player.index] = global.placement_indicators[player.index] or {}
-				table.insert(global.placement_indicators[player.index], rendering.draw_circle{color={0.5, 0.5, 0.5, 0.1}, surface=player.surface, target=e.position, radius=0.3, players={player}})
+				if elevator_name == "item-elevator" then table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-3", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}})
+				else table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-4", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}}) end
 			end
 		end
 	end
 	for _,e in ipairs(get_subsurface(player.surface).find_entities_filtered{name=elevator_name}) do
 		if not is_linked(e) then
 			global.placement_indicators[player.index] = global.placement_indicators[player.index] or {}
-			table.insert(global.placement_indicators[player.index], rendering.draw_circle{color={0.5, 0.5, 0.5, 0.1}, surface=player.surface, target=e.position, radius=0.3, players={player}})
+			if elevator_name == "item-elevator" then table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-1", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}})
+			else table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-2", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}}) end
 		end
 	end
 end

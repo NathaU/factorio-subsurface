@@ -21,5 +21,30 @@ data:extend({
   {
 	type = "resource-category",
 	name = "subsurface-hole"
-  }
+  },
+  
+  {
+	type = "sprite",
+	name = "placement-indicator-1",
+	filename = "__Subsurface__/graphics/indicator-1.png",
+	width = 85, height = 85
+  },
+  {
+	type = "sprite",
+	name = "placement-indicator-2",
+	filename = "__Subsurface__/graphics/indicator-2.png",
+	width = 85, height = 85
+  },
+  {
+	type = "sprite",
+	name = "placement-indicator-3",
+	filename = "__Subsurface__/graphics/indicator-3.png",
+	width = 85, height = 85
+  },
+  {
+	type = "sprite",
+	name = "placement-indicator-4",
+	filename = "__Subsurface__/graphics/indicator-4.png",
+	width = 85, height = 85
+  },
 })
