@@ -1,18 +1,10 @@
 require "util"
 require "circuit-connector-generated-definitions"
 
-local item_elevator_input = table.deepcopy(data.raw.container["steel-chest"])
-item_elevator_input.name = "item-elevator-input"
-item_elevator_input.inventory_size = 1
-item_elevator_input.minable.result = "item-elevator"
-item_elevator_input.fast_replaceable_group = nil
-
-local item_elevator_output = table.deepcopy(data.raw.container["steel-chest"])
-item_elevator_output.name = "item-elevator-output"
-item_elevator_output.inventory_size = 1
-item_elevator_output.minable.result = "item-elevator"
-item_elevator_output.fast_replaceable_group = nil
-item_elevator_output.create_ghost_on_death = false
+local item_elevator = table.deepcopy(data.raw["linked-belt"]["linked-belt"])
+item_elevator.name = "item-elevator"
+item_elevator.minable.result = "item-elevator"
+item_elevator.fast_replaceable_group = nil
 
 local subsurface_walls = table.deepcopy(data.raw["simple-entity"]["rock-big"])
 subsurface_walls.name = "subsurface-wall"
@@ -698,8 +690,7 @@ data:extend(
 	},
   },
   
-  item_elevator_input,
-  item_elevator_output,
+  item_elevator,
   subsurface_walls,
   rock_explosives
 })

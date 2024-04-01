@@ -1,4 +1,8 @@
 {
+	"entity": [
+		["item-elevator-input", "item-elevator"],
+		["item-elevator-output", "item-elevator"]
+	],
 	"item": [
 		["fluid-elevator-input", "fluid-elevator"],
 		["item-elevator-input", "item-elevator"]

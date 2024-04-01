@@ -19,7 +19,6 @@ function setup_globals()
 	global.subsurfaces = global.subsurfaces or {}
 	global.pole_links = global.pole_links or {}
 	global.car_links = global.car_links or {}
-	global.item_elevators = global.item_elevators or {}
 	global.fluid_elevators = global.fluid_elevators or {}
 	global.air_vents = global.air_vents or {}
 	global.air_vent_lights = global.air_vent_lights or {}
@@ -324,8 +323,8 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		end
 	elseif entity.name == "prospector" then
 		table.insert(global.prospectors, entity)
-	elseif entity.name == "item-elevator-input" then elevator_built(entity, "item_elevators", event.tags)
-	elseif entity.name == "fluid-elevator-input" then elevator_built(entity, "fluid_elevators", event.tags)
+	elseif entity.name == "item-elevator" then elevator_built(entity)
+	elseif entity.name == "fluid-elevator-input" then elevator_built(entity, event.tags)
 	elseif entity.name == "air-vent" or entity.name == "active-air-vent" then
 		build_safe(event, function()
 			table.insert(global.air_vents, entity)
@@ -357,10 +356,7 @@ script.on_event(defines.events.on_player_configured_blueprint, function(event)
 			elseif e.name == "fluid-elevator-output" then
 				e.name = "fluid-elevator-input"
 				e.tags = {type=0}
-			elseif e.name == "item-elevator-output" then
-				e.name = "item-elevator-input"
-				e.tags = {type=0}
-			elseif e.name == "fluid-elevator-input" or e.name == "item-elevator-input" then
+			elseif e.name == "fluid-elevator-input" then
 				e.tags = {type=1}
 			end
 		end
@@ -384,10 +380,8 @@ script.on_event(defines.events.on_selected_entity_changed, function(event)
 		rendering.destroy(r)
 	end
 	if player.selected then
-		if player.selected.name == "fluid-elevator-input" or player.selected.name == "fluid-elevator-output" then
-			elevator_selected(player, player.selected, "fluid_elevators")
-		elseif player.selected.name == "item-elevator-input" or player.selected.name == "item-elevator-output" then
-			elevator_selected(player, player.selected, "item_elevators")
+		if player.selected.name == "item-elevator" or player.selected.name == "fluid-elevator-input" or player.selected.name == "fluid-elevator-output" then
+			elevator_selected(player, player.selected)
 		end
 	end
 end)
@@ -414,13 +408,10 @@ script.on_event(defines.events.on_entity_died, function(event)
 	elseif entity.name == "fluid-elevator-output" then
 		local ghost = entity.surface.create_entity{name="entity-ghost", position=entity.position, direction=entity.direction, force=entity.force, inner_name="fluid-elevator-input", expires=true}
 		ghost.tags = {type=0}
-	elseif entity.name == "item-elevator-output" then
-		local ghost = entity.surface.create_entity{name="entity-ghost", position=entity.position, direction=entity.direction, force=entity.force, inner_name="item-elevator-input", expires=true}
-		ghost.tags = {type=0}
 	end
 end)
 script.on_event(defines.events.on_post_entity_died, function(event)
-	if event.prototype.name == "fluid-elevator-input" or event.prototype.name == "item-elevator-input" then
+	if event.prototype.name == "fluid-elevator-input" then
 		event.ghost.tags = {type=1}
 	end
 end)
@@ -528,5 +519,11 @@ end)
 
 script.on_event("subsurface-rotate", function(event)
 	local player = game.get_player(event.player_index)
-	if player.selected then elevator_rotated(player.selected, player.selected.direction) end
+	if player.selected then
+		for _,r in ipairs(global.selection_indicators[event.player_index] or {}) do
+			rendering.destroy(r)
+		end
+		elevator_rotated(player.selected, player.selected.direction)
+		if player.selected then elevator_selected(player, player.selected) end
+	end
 end)
