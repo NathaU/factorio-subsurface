@@ -40,18 +40,7 @@ data:extend(
 	icon_size = 32, icon_mipmaps = 1,
 	subgroup = "inter-surface-transport",
 	order = "c-a",
-	place_result = "item-elevator-input",
-	stack_size = 10
-  },
-  {
-	type = "item",
-	name = "item-elevator-dummy",
-	icon = "__Subsurface__/graphics/icons/items-elevator-icon.png",
-	icon_size = 32, icon_mipmaps = 1,
-	flags = {"hidden", "hide-from-bonus-gui"},
-	subgroup = "inter-surface-transport",
-	order = "c-b",
-	place_result = "item-elevator-output",
+	place_result = "item-elevator",
 	stack_size = 10
   },
   {
