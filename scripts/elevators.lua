@@ -105,7 +105,7 @@ function elevator_rotated(entity, previous_direction)
 				global.fluid_elevators[i] = {switch_elevator(v[2]), switch_elevator(v[1])}
 			end
 		end
-	elseif (entity.name == "item-elevator" or entity.ghost_name == "item-elevator") and entity.linked_belt_neighbour then
+	elseif (entity.name == "item-elevator" or (entity.name == "entity-ghost" and entity.ghost_name == "item-elevator")) and entity.linked_belt_neighbour then
 		local neighbour = entity.linked_belt_neighbour
 		entity.disconnect_linked_belts()
 		switch_elevator(entity)
