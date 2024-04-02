@@ -644,11 +644,7 @@ data:extend(
 		{position = {0, -1}, type="output"},
 	  }
 	},
-	energy_source = {
-	  type = "electric",
-	  usage_priority = "secondary-input",
-	  drain = "500W"
-	},
+	energy_source = {type = "void"},
 	energy_usage = "14.5kW",
 	pumping_speed = 100,
 	vehicle_impact_sound = table.deepcopy(data.raw.pump.pump.vehicle_impact_sound),
