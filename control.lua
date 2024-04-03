@@ -32,7 +32,7 @@ end
 
 script.on_init(function()
 	setup_globals()
-	for _,surface in pairs(game.surfaces) do manipulate_autoplace_controls(surface) end
+	if not settings.global["disable-autoplace-manipulation"].value then for _,surface in pairs(game.surfaces) do manipulate_autoplace_controls(surface) end end
 end)
 script.on_configuration_changed(setup_globals)
 
