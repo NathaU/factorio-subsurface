@@ -334,8 +334,8 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 			end
 		end, false)
 	elseif entity.name == "wooden-support" then
-		global.support_lamps[entity.unit_number] = rendering.draw_light{surface=entity.surface, target=entity, target_offset={0, -2}, sprite="utility/light_medium", scale=1.5}
 		script.register_on_entity_destroyed(entity)
+		global.support_lamps[entity.unit_number] = entity.surface.create_entity{name="support-lamp", position=entity.position}
 	end
 end)
 
@@ -492,8 +492,8 @@ script.on_event(defines.events.on_entity_destroyed, function(event)
 		rendering.destroy(global.air_vent_lights[event.registration_number])
 		global.air_vent_lights[event.registration_number] = nil
 	elseif global.support_lamps[event.unit_number] then
-		rendering.destroy(global.support_lamps[event.unit_number])
-	end
+		global.support_lamps[event.unit_number].destroy()
+ 	end
 end)
 
 script.on_event(defines.events.on_script_trigger_effect, function(event)
