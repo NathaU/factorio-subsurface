@@ -36,3 +36,11 @@ for _,s in pairs(game.surfaces) do
 		end
 	end
 end
+
+-- Support lamps
+for _,s in pairs(game.surfaces) do
+	for _,support in ipairs(s.find_entities_filtered{name="wooden-support"}) do
+		rendering.destroy(global.support_lamps[support.unit_number])
+		global.support_lamps[support.unit_number] = s.create_entity{name="support-lamp", position=support.position}
+	end
+end

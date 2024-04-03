@@ -547,6 +547,17 @@ data:extend(
 	},
 	radius_visualisation_picture = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].radius_visualisation_picture),
   },
+  {
+	type = "lamp",
+	name = "support-lamp",
+	icon = "__base__/graphics/icons/small-lamp.png",
+	icon_size = 64, icon_mipmaps = 4,
+	picture_on = blank_image,
+	picture_off = blank_image,
+	energy_source = {type = "electric", usage_priority = "lamp"},
+	energy_usage_per_tick = "2KW",
+	light = {intensity = 0.7, size = 15, color = {r=1.0, g=1.0, b=0.75}}
+  },
   
   {
 	type = "pump",
