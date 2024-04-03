@@ -20,4 +20,10 @@ data:extend({
 	default_value = 20,
 	minimum_value = 1
   },
+  {
+	type = "bool-setting",
+	setting_type = "runtime-global",
+	name = "disable-autoplace-manipulation",
+	default_value = false
+  },
 })
