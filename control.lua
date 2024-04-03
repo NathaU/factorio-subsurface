@@ -423,13 +423,13 @@ script.on_event(defines.events.on_resource_depleted, function(event)
 			local pos = drill.position
 			
 			-- oversurface entity placing
-			local entrance_car = drill.surface.create_entity{name="tunnel-entrance", position={pos.x+0.5, pos.y+0.5}, force=drill.force} -- because Factorio sets the entity at -0.5, -0.5
+			local entrance_car = drill.surface.create_entity{name="tunnel-entrance", position=pos, force=drill.force} -- because Factorio sets the entity at -0.5, -0.5
 			local entrance_pole = drill.surface.create_entity{name="tunnel-entrance-cable", position=pos, force=drill.force}
 			
 			-- subsurface entity placing
 			local subsurface = get_subsurface(drill.surface)
-			clear_subsurface(subsurface, {x=drill.position.x+0.5, y=drill.position.y+0.5}, 4, 1.5)
-			local exit_car = subsurface.create_entity{name="tunnel-exit", position={pos.x+0.5, pos.y+0.5}, force=drill.force} -- because Factorio sets the entity at -0.5, -0.5
+			clear_subsurface(subsurface, pos, 4, 1.5)
+			local exit_car = subsurface.create_entity{name="tunnel-exit", position=pos, force=drill.force} -- because Factorio sets the entity at -0.5, -0.5
 			local exit_pole = subsurface.create_entity{name="tunnel-exit-cable", position=pos, force=drill.force}
 			
 			entrance_pole.connect_neighbour(exit_pole)
@@ -445,8 +445,6 @@ script.on_event(defines.events.on_resource_depleted, function(event)
 			script.register_on_entity_destroyed(exit_pole)
 			script.register_on_entity_destroyed(entrance_car)
 			script.register_on_entity_destroyed(exit_car)
-			
-			drill.destroy()
 		end
 	end
 end)

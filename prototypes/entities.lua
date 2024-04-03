@@ -56,11 +56,9 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/Tunnels-icon.png",
 	icon_size = 32,
 	max_health = 250,
-	corpse = "big-remnants",
+	flags = {"placeable-off-grid"},
 	collision_box = {{0, 0}, {0, 0}},
 	selection_box = {{-1.2, -1.2}, {1.2, 1.2}},
-	render_layer = "object",
-	order="zzz",
 	pictures = {
 	  filename = "__Subsurface__/graphics/entities/entrance.png",
 	  priority = "extra-high",
@@ -79,8 +77,7 @@ data:extend(
 		scale = 0.5
 	  }
 	},
-	connection_points =
-	{
+	connection_points = {
 	  {
 		shadow =
 		{
@@ -96,74 +93,55 @@ data:extend(
 		}
 	  }
 	},
-	radius_visualisation_picture =
-	{
-	  filename = "__base__/graphics/entity/small-electric-pole/electric-pole-radius-visualization.png",
-	  width = 12,
-	  height = 12,
-	  priority = "extra-high-no-scale"
-	},
-	resistances =
-	{
+	resistances = {
 	  {type = "physical", percent = 100},
 	  {type = "impact", percent = 100},
 	  {type = "explosion", percent = 100},
 	  {type = "fire", percent = 100},
 	  {type = "laser", percent = 100}
 	},
+	open_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].open_sound),
+	close_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].close_sound),
 	circuit_wire_max_distance = 7.5,
 	maximum_wire_distance = 5,
-	supply_area_distance = 2,
+	supply_area_distance = 0,
   },
   {
-	  type = "car",
-	  name = "tunnel-entrance",
-	  icon = "__Subsurface__/graphics/icons/Tunnels-icon.png",
-	  icon_size = 32,
-	  collision_box = {{-1.4, -0.8}, {1.4, 1}},
-	  selection_box = {{0, 0}, {0, 0}},
-	  has_belt_immunity = true,
-	  animation = {
-		layers = {
-		  {
-			animation_speed = 1,
-			direction_count = 1,
-			filename = "__core__/graphics/empty.png",
-			frame_count = 1,
-			height = 1,
-			width = 1
-		  },
-		}
-	  },
-	  braking_power = "200kW",
-	  burner = {
-		effectivity = 1,
-		fuel_category = "chemical",
-		fuel_inventory_size = 0,
-		render_no_power_icon = false
-	  },
-	  consumption = "150kW",
-	  effectivity = 0.5,
-	  energy_per_hit_point = 1,
-	  flags = {"placeable-neutral", "placeable-off-grid"},
-	  friction = 0.9,
-	  inventory_size = 0,
-	  max_health = 45000,
-	  open_sound = {
-		filename = "__base__/sound/car-door-open.ogg",
-		volume = 0.7
-	  },
-	  close_sound = {
-		filename = "__base__/sound/car-door-close.ogg",
-		volume = 0.7
-	  },
-	  render_layer = "object",
-	  rotation_speed = 0.00,
-	  order = "zz",
-	  selectable_in_game = false,
-	  weight = 700,
-	  minimap_representation = blank_image,
-	  selected_minimap_representation = blank_image,
+	type = "car",
+	name = "tunnel-entrance",
+	icon = "__Subsurface__/graphics/icons/Tunnels-icon.png",
+	icon_size = 32,
+	flags = {"placeable-neutral", "placeable-off-grid"},
+	collision_box = {{-1.4, -0.8}, {1.4, 1}},
+	selection_box = {{0, 0}, {0, 0}},
+	animation = {
+	  layers = {
+		{
+		  animation_speed = 1,
+		  direction_count = 1,
+		  filename = "__core__/graphics/empty.png",
+		  frame_count = 1,
+		  height = 1,
+		  width = 1
+		},
+	  }
+	},
+	braking_power = "200kW",
+	energy_source = {type = "void"},
+	consumption = "150kW",
+	effectivity = 0.5,
+	energy_per_hit_point = 1,
+	friction = 0.9,
+	inventory_size = 0,
+	rotation_speed = 0.00,
+	selectable_in_game = false,
+	weight = 700,
+	minimap_representation = {
+	  filename = "__Subsurface__/graphics/icons/marker-entrance.png",
+	  flags = {"icon"},
+	  width = 32, height = 32
+	},
+	selected_minimap_representation = blank_image,
   },
   {
 	type = "electric-pole",
@@ -171,11 +149,9 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/Tunnels-icon.png",
 	icon_size = 32,
 	max_health = 250,
-	corpse = "big-remnants",
+	flags = {"placeable-off-grid"},
 	collision_box = {{0, 0}, {0, 0}},
 	selection_box = {{-1.2, -1.2}, {1.2, 1.2}},
-	render_layer = "object",
-	order="zzz",
 	pictures = {
 	  filename = "__Subsurface__/graphics/entities/exit.png",
 	  priority = "extra-high",
@@ -194,8 +170,7 @@ data:extend(
 		scale = 0.5
 	  }
 	},
-	connection_points =
-	{
+	connection_points = {
 	  {
 		shadow =
 		{
@@ -211,75 +186,57 @@ data:extend(
 		}
 	  }
 	},
-	radius_visualisation_picture =
-	{
-	  filename = "__base__/graphics/entity/small-electric-pole/electric-pole-radius-visualization.png",
-	  width = 12,
-	  height = 12,
-	  priority = "extra-high-no-scale"
-	},
-	resistances =
-	{
+	resistances = {
 	  {type = "physical", percent = 100},
 	  {type = "impact", percent = 100},
 	  {type = "explosion", percent = 100},
 	  {type = "fire", percent = 100},
 	  {type = "laser", percent = 100}
 	},
+	open_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].open_sound),
+	close_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].close_sound),
 	circuit_wire_max_distance = 7.5,
 	maximum_wire_distance = 5,
-	supply_area_distance = 2,
+	supply_area_distance = 0,
   },
   {
-	  type = "car",
-	  name = "tunnel-exit",
-	  icon = "__Subsurface__/graphics/icons/Tunnels-icon.png",
-	  icon_size = 32,
-	  collision_box = {{-1, 0}, {1, 0.7}},
-	  selection_box = {{0, 0}, {0, 0}},
-	  has_belt_immunity = true,
-	  animation = {
-		layers = {
-		  {
-			animation_speed = 1,
-			direction_count = 1,
-			filename = "__core__/graphics/empty.png",
-			frame_count = 1,
-			height = 1,
-			width = 1
-		  },
-		}
-	  },
-	  braking_power = "200kW",
-	  burner = {
-		effectivity = 1,
-		fuel_category = "chemical",
-		fuel_inventory_size = 0,
-		render_no_power_icon = false
-	  },
-	  consumption = "150kW",
-	  effectivity = 0.5,
-	  energy_per_hit_point = 1,
-	  flags = {"placeable-neutral", "placeable-off-grid"},
-	  friction = 0.9,
-	  inventory_size = 0,
-	  max_health = 45000,
-	  open_sound = {
-		filename = "__base__/sound/car-door-open.ogg",
-		volume = 0.7
-	  },
-	  close_sound = {
-		filename = "__base__/sound/car-door-close.ogg",
-		volume = 0.7
-	  },
-	  render_layer = "object",
-	  rotation_speed = 0.00,
-	  order = "zz",
-	  selectable_in_game = false,
-	  weight = 700,
-	  minimap_representation = blank_image,
-	  selected_minimap_representation = blank_image,
+	type = "car",
+	name = "tunnel-exit",
+	icon = "__Subsurface__/graphics/icons/Tunnels-icon.png",
+	icon_size = 32,
+	flags = {"placeable-neutral", "placeable-off-grid"},
+	collision_box = {{-1, 0}, {1, 0.7}},
+	selection_box = {{0, 0}, {0, 0}},
+	animation = {
+	  layers = {
+		{
+		  animation_speed = 1,
+		  direction_count = 1,
+		  filename = "__core__/graphics/empty.png",
+		  frame_count = 1,
+		  height = 1,
+		  width = 1
+		},
+	  }
+	},
+	braking_power = "200kW",
+	energy_source = {type = "void"},
+	consumption = "150kW",
+	effectivity = 0.5,
+	energy_per_hit_point = 1,
+	friction = 0.9,
+	inventory_size = 0,
+	rotation_speed = 0.00,
+	selectable_in_game = false,
+	weight = 700,
+	minimap_representation = {
+	  filename = "__Subsurface__/graphics/icons/marker-exit.png",
+	  flags = {"icon"},
+	  width = 32, height = 32
+	},
+	selected_minimap_representation = blank_image,
   },
+  
   {
 	type = "mining-drill",
 	name = "surface-drill",
