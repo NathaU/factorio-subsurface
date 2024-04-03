@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.7
+Date: 2024-04-03
+  Features:
+    - Added setting that disables manipulation of existing autoplace settings. Need to be set before generation
+  Changes:
+    - Item and fluid elevator are now one item and require setup in both places
+    - Item elevator now behaves like an underground belt, all connections need checkup after update!
+    - Decreased size of fluid elevator to 1x1, so pipe connections have to be rebuilt
+    - Lamps of supports glow only when there is enough electricity
+  Bugfixes:
+    - Fixed bug that players still stuck in entrances
+---------------------------------------------------------------------------------------------------
 Version: 1.0.6
 Date: 2024-03-26
   Features:
