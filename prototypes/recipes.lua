@@ -13,6 +13,7 @@ data:extend(
 	type = "recipe",
 	name = "surface-drill",
 	enabled = false,
+	energy_required = 10,
 	ingredients =
 	{
 	  {"electric-mining-drill", 5},
