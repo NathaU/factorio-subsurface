@@ -19,6 +19,7 @@ end
 -- this is for top surfaces (depth 0). It directly manipulates the surface's map_gen_settings
 function manipulate_autoplace_controls(surface)
 	local mgs = surface.map_gen_settings
+	setmetatable(mgs.autoplace_controls, {__index = function(t, k) return {size = 0, frequency = 0, richness = 0} end})
 	
 	if surface.name == "nauvis" then
 		mgs.autoplace_controls["uranium-ore"].size = 0
@@ -34,6 +35,8 @@ end
 -- depth is always >= 1
 function make_autoplace_controls(topname, depth)
 	local res_table = {}
+	setmetatable(res_table, {__index = function(t, k) return {size = 0, frequency = 0, richness = 0} end})
+	
 	for resource,control in pairs(game.get_surface(topname).map_gen_settings.autoplace_controls) do -- alter all resources that occur on the topsurface
 		res_table[resource] = {
 			frequency = control.frequency * (1 + depth*0.2),
@@ -55,6 +58,11 @@ function make_autoplace_controls(topname, depth)
 	for interface,contents in ipairs(remote.interfaces) do
 		if contents["subsurface_make_autoplace_controls"] then res_table = remote.call(interface, "subsurface_make_autoplace_controls", res_table, topname, depth) end
 	end
+	
+	for p,a in pairs(res_table) do
+		if not game.autoplace_control_prototypes[p] then res_table[p] = nil end
+	end
+	res_table["trees"] = nil
 	
 	return res_table
 end
