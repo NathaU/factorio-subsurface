@@ -49,6 +49,8 @@ function make_autoplace_controls(topname, depth)
 		end
 	end
 	
+	res_table["stone"].size = 0
+	
 	-- specific changes
 	if topname == "nauvis" then
 		res_table["uranium-ore"] = {frequency = 1.5*depth, size = 1.5*depth, richness = 2*depth}
@@ -58,6 +60,11 @@ function make_autoplace_controls(topname, depth)
 	for interface,contents in ipairs(remote.interfaces) do
 		if contents["subsurface_make_autoplace_controls"] then res_table = remote.call(interface, "subsurface_make_autoplace_controls", res_table, topname, depth) end
 	end
+	
+	setmetatable(res_table, {})
+	
+	if game.autoplace_control_prototypes["omnite"] and not res_table["omnite"] then res_table["omnite"] = {size = 1, frequency = 1, richness = 1} end
+	if game.autoplace_control_prototypes["infinite-omnite"] and not res_table["infinite-omnite"] then res_table["infinite-omnite"] = {size = 1, frequency = 1, richness = 1} end
 	
 	for p,a in pairs(res_table) do
 		if not game.autoplace_control_prototypes[p] then res_table[p] = nil end
