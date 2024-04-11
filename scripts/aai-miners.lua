@@ -97,7 +97,7 @@ function handle_miners(tick)
 				local miner_collision_box = miner.prototype.collision_box
 				local center_big_excavation = move_towards_continuous(miner.position, orientation, -miner_collision_box.left_top.y)
 				local center_small_excavation = move_towards_continuous(center_big_excavation, orientation, 1.5)
-				local speed_test_position = move_towards_continuous(center_small_excavation, orientation, 1.8)
+				local speed_test_position = move_towards_continuous(center_small_excavation, orientation, 1.6)
 				
 				local walls_dug = clear_subsurface(subsurface, center_small_excavation, 1, nil)
 				walls_dug = walls_dug + clear_subsurface(subsurface, center_big_excavation, 3, nil)
@@ -115,11 +115,10 @@ function handle_miners(tick)
 					subsurface.create_trivial_smoke{name="fire-smoke-without-glow", position=speed_test_position}
 				end
 
-				local speed_test_tile = subsurface.get_tile(speed_test_position.x, speed_test_position.y)
-				if miner.speed > 0 and speed_test_tile.name == "out-of-map" then
-					miner.friction_modifier = 50
-				else
+				if miner.speed > 0 and subsurface.find_entity("subsurface-wall", speed_test_position) then
 					miner.friction_modifier = 10
+				else
+					miner.friction_modifier = 1
 				end
 			end
 		end
