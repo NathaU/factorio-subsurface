@@ -4,6 +4,11 @@ miner_names = {
 	"vehicle-miner-0-_-ghost", "vehicle-miner-mk2-0-_-ghost", "vehicle-miner-mk3-0-_-ghost", "vehicle-miner-mk4-0-_-ghost", "vehicle-miner-mk5-0-_-ghost",
 	"vehicle-miner-0-_-solid", "vehicle-miner-mk2-0-_-solid", "vehicle-miner-mk3-0-_-solid", "vehicle-miner-mk4-0-_-solid", "vehicle-miner-mk5-0-_-solid"
 }
+ai_miner_names = {
+	"vehicle-miner-0", "vehicle-miner-mk2-0", "vehicle-miner-mk3-0", "vehicle-miner-mk4-0", "vehicle-miner-mk5-0",
+	"vehicle-miner-0-_-ghost", "vehicle-miner-mk2-0-_-ghost", "vehicle-miner-mk3-0-_-ghost", "vehicle-miner-mk4-0-_-ghost", "vehicle-miner-mk5-0-_-ghost",
+	"vehicle-miner-0-_-solid", "vehicle-miner-mk2-0-_-solid", "vehicle-miner-mk3-0-_-solid", "vehicle-miner-mk4-0-_-solid", "vehicle-miner-mk5-0-_-solid"
+}
 non_ai_miner_names = {["vehicle-miner"]=1, ["vehicle-miner-mk2"]=1, ["vehicle-miner-mk3"]=1, ["vehicle-miner-mk4"]=1, ["vehicle-miner-mk5"]=1}
 
 -- AAI miner gui
@@ -11,7 +16,7 @@ function aai_cursor_stack_changed(player)
 	local surface = player.surface
 	if player.gui.left.aai_gui ~= nil then player.gui.left.aai_gui.destroy() end
 	if player.cursor_stack and player.cursor_stack.valid_for_read and player.cursor_stack.name == "unit-remote-control" and is_subsurface(surface) then
-		local miners = surface.find_entities_filtered{name=miner_names, force=player.force}
+		local miners = surface.find_entities_filtered{name=ai_miner_names, force=player.force}
 		if #miners > 0 then
 			
 			local paths = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=surface.index, force_name=player.force.name})
