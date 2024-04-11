@@ -120,7 +120,7 @@ function elevator_built(entity, tags)
 	for i=1,2,1 do
 		if iter[i] then
 			local e = iter[i].find_entity(entity.name, entity.position)
-			if e then
+			if e and not is_linked(e) then
 				if entity.name == "fluid-elevator-input" then
 					local inp = e
 					local out = entity
@@ -133,7 +133,7 @@ function elevator_built(entity, tags)
 					table.insert(global.fluid_elevators, {inp, out})
 				else
 					if not entity.linked_belt_neighbour then
-						entity.linked_belt_type = "output"
+						if e.linked_belt_type == "input" then entity.linked_belt_type = "output" end
 						entity.connect_linked_belts(e)
 					end
 				end
