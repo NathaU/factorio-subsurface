@@ -79,6 +79,11 @@ function get_oversurface(subsurface)
 	end
 	return nil
 end
+function get_top_surface(subsurface)
+	local _, _, topname, depth = string.find(subsurface.name, "(.+)_subsurface_([0-9]+)$")
+	if topname == nil then return subsurface -- surface is not a subsurface
+	else return game.get_surface(topname) end
+end
 function get_subsurface_depth(surface)
 	if type(surface) == "table" then surface = surface.name end
 	local _, _, _, depth = string.find(surface, "(.+)_subsurface_([0-9]+)$")
@@ -139,7 +144,7 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 			elseif math.abs((x-pos.x)^2 + (y-pos.y)^2) < (radius+1)^2 and not wall then
 				local wall = surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
 				-- now, if wall is outside map border, make it unminable
-				if (remote.interfaces["space-exploration"] and math.sqrt(x*x + y*y) > remote.call("space-exploration", "get_zone_from_surface_index", {surface_index = get_oversurface(surface).index}).radius - 5)
+				if (remote.interfaces["space-exploration"] and math.sqrt(x*x + y*y) > remote.call("space-exploration", "get_zone_from_surface_index", {surface_index = get_top_surface(surface).index}).radius - 5)
 				or math.abs(x) + 1 > surface.map_gen_settings.width / 2 or math.abs(y) + 1 > surface.map_gen_settings.height / 2 then
 					wall.minable = false
 				end
