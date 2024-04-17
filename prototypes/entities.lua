@@ -1,6 +1,8 @@
 require "util"
 require "circuit-connector-generated-definitions"
 
+local blank_image = {filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1}
+
 local item_elevator = table.deepcopy(data.raw["linked-belt"]["linked-belt"])
 item_elevator.name = "item-elevator"
 item_elevator.minable.result = "item-elevator"
@@ -34,12 +36,48 @@ rock_explosives.animation.filename = "__Subsurface__/graphics/entities/rock-expl
 rock_explosives.animation.hr_version.filename = "__Subsurface__/graphics/entities/hr-rock-explosives.png"
 table.insert(rock_explosives.action[1].action_delivery.target_effects, {type = "script", effect_id = "rock-explosives"})
 
-local blank_image = {
-	filename = "__core__/graphics/empty.png",
-	priority = "high",
-	width = 1,
-	height = 1
-}
+
+local cave_sealing = table.deepcopy(data.raw.projectile["cliff-explosives"])
+cave_sealing.name = "cave-sealing"
+cave_sealing.animation = blank_image
+cave_sealing.action[1].action_delivery.target_effects = {{type = "script", effect_id = "cave-sealing"},
+{
+	type = "play-sound",
+	sound = table.deepcopy(data.raw.tile["stone-path"].build_sound.large)
+}}
+
+for i=0,3,1 do
+	local sealed_entrance = table.deepcopy(data.raw["simple-entity"]["rock-big"])
+	sealed_entrance.name = "tunnel-entrance-sealed-"..i
+	sealed_entrance.resistances = {
+		{type = "physical", percent = 100},
+		{type = "impact", percent = 100},
+		{type = "explosion", percent = 100},
+		{type = "fire", percent = 100},
+		{type = "laser", percent = 100}
+	}
+	sealed_entrance.flags = {"placeable-neutral", "not-deconstructable", "hidden", "placeable-off-grid"}
+	sealed_entrance.count_as_rock_for_filtered_deconstruction = false
+	sealed_entrance.minable = nil
+	sealed_entrance.selection_box = {{0, 0}, {0, 0}}
+	sealed_entrance.collision_box = {{-1.4, -0.8}, {1.4, 1}}
+	if i == 3 then
+		sealed_entrance.collision_mask = {}
+		sealed_entrance.render_layer = "ground-patch"
+	end
+	sealed_entrance.pictures = {
+	  sheet = {
+		filename = "__Subsurface__/graphics/entrance-sealed-"..i..".png",
+		width = 100, height = 71,
+		hr_version = {
+		  filename = "__Subsurface__/graphics/hr-entrance-sealed-"..i..".png",
+		  width = 189, height = 134,
+		  scale = 0.5
+		}
+	  }
+	}
+	data:extend({sealed_entrance})
+end
 
 local ccd = circuit_connector_definitions.create(universal_connector_template, {
 	{ variation = 17, main_offset = util.by_pixel(-36, 17), shadow_offset = util.by_pixel(12.5, 4), show_shadow = false }, -- N
@@ -50,6 +88,11 @@ local ccd = circuit_connector_definitions.create(universal_connector_template, {
 
 data:extend(
 {
+  item_elevator,
+  subsurface_walls,
+  rock_explosives,
+  cave_sealing,
+  
   {
 	type = "electric-pole",
 	name = "tunnel-entrance-cable",
@@ -652,11 +695,7 @@ data:extend(
 		animation_speed = 0.5
 	  }
 	},
-  },
-  
-  item_elevator,
-  subsurface_walls,
-  rock_explosives
+  }
 })
 
 data.raw["mining-drill"]["surface-drill"].animations.north.layers[1].scale = 2

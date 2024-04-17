@@ -510,6 +510,35 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 				surface.pollute(pos, 1)
 			end
 		end
+	elseif event.effect_id == "cave-sealing" then
+		local surface = game.get_surface(event.surface_index)
+		if surface.find_entity("tunnel-entrance", event.target_position) then
+			local entrance = surface.find_entity("tunnel-entrance", event.target_position)
+			surface.create_entity{name="tunnel-entrance-sealed-0", position=entrance.position, force=game.forces.neutral}
+			entrance.destroy()
+			for x, y in iarea(get_area(event.target_position, 0.2)) do
+				get_subsurface(surface).create_entity{name="subsurface-wall", position={x, y}, force=game.forces.neutral}
+			end
+		elseif surface.find_entity("tunnel-entrance-sealed-0", event.target_position) then
+			local entrance = surface.find_entity("tunnel-entrance-sealed-0", event.target_position)
+			surface.create_entity{name="tunnel-entrance-sealed-1", position=entrance.position, force=game.forces.neutral}
+			entrance.destroy()
+		elseif surface.find_entity("tunnel-entrance-sealed-1", event.target_position) then
+			local entrance = surface.find_entity("tunnel-entrance-sealed-1", event.target_position)
+			surface.create_entity{name="tunnel-entrance-sealed-2", position=entrance.position, force=game.forces.neutral}
+			entrance.destroy()
+		elseif surface.find_entity("tunnel-entrance-sealed-2", event.target_position) then
+			local entrance = surface.find_entity("tunnel-entrance-sealed-2", event.target_position)
+			surface.create_entity{name="tunnel-entrance-sealed-3", position=entrance.position, force=game.forces.neutral}
+			entrance.destroy()
+		else
+			for x,y in iarea(get_area(event.target_position, 0.2)) do
+				if not surface.find_entity("subsurface-wall", {x, y}) then
+					if is_subsurface(surface) then surface.set_tiles({{name = "out-of-map", position = {x, y}}}) end
+					surface.create_entity{name="subsurface-wall", position={x, y}, force=game.forces.neutral}
+				end
+			end
+		end
 	end
 end)
 
