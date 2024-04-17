@@ -94,6 +94,17 @@ data:extend(
 	},
 	result = "rock-explosives"
   },
+  {
+	type = "recipe",
+	name = "cave-sealing",
+	enabled = false,
+	energy_required = 20,
+	ingredients =
+	{
+	  {"stone", 200},
+	},
+	result = "cave-sealing"
+  },
   
   {
 	type = "recipe",
