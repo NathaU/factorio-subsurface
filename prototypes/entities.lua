@@ -314,6 +314,7 @@ data:extend(
 	name = "surface-drill-placer",
 	icon = "__base__/graphics/icons/burner-mining-drill.png",
 	icon_size = 64, icon_mipmaps = 4,
+	minable = {hardness = 0.2, mining_time = 2, result = "surface-drill"},
 	flags = {"placeable-player", "player-creation"},
 	max_health = 300,
 	collision_box = {{-2.1, -2.2}, {2.2, 2.2}},
