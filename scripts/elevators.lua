@@ -80,8 +80,7 @@ function show_placement_indicators(player, elevator_name)
 end
 
 function elevator_on_cursor_stack_changed(player)
-	if player.cursor_stack.valid_for_read then
-		local link_key = false
+	if player.cursor_stack and player.cursor_stack.valid_for_read then
 		if player.cursor_stack.name == "fluid-elevator" then show_placement_indicators(player, "fluid-elevator-input")
 		elseif player.cursor_stack.name == "item-elevator" then show_placement_indicators(player, "item-elevator")
 		elseif player.is_cursor_blueprint() and player.get_blueprint_entities() then
