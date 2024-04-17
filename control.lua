@@ -261,6 +261,18 @@ script.on_event(defines.events.on_tick, function(event)
 	if remote.interfaces["aai-programmable-vehicles"] and event.tick % 10 == 0 then handle_miners(event.tick) end
 end)
 
+function cancel_placement(entity, player_index, text)
+	if player_index then
+		local player = game.get_player(player_index)
+		if text then player.create_local_flying_text{text={text}, position=entity.position} end
+		player.play_sound{path="utility/cannot_build", position=entity.position}
+		player.mine_entity(entity, true)
+	else -- robot built it
+		entity.surface.play_sound{path="utility/cannot_build", position=entity.position}
+		entity.order_deconstruction(entity.force)
+	end
+end
+
 -- build entity only if it is safe in subsurface
 function build_safe(event, func, check_for_entities)
 	if check_for_entities == nil then check_for_entities = true end
@@ -278,22 +290,7 @@ function build_safe(event, func, check_for_entities)
 	if check_for_entities and subsurface.count_entities_filtered{area=area} > 0 then safe_position = false end
 	
 	if safe_position then func()
-	elseif event["player_index"] then
-		local p = game.get_player(event.player_index)
-		p.create_local_flying_text{text={"subsurface.cannot-place-here"}, position=entity.position}
-		p.mine_entity(entity, true)
-	else -- robot built it
-		local it = entity.surface.create_entity{
-			name = "item-on-ground",
-			position = entity.position,
-			force = entity.force,
-			stack = {name=entity.name, count=1}
-		}
-		if it ~= nil then it.order_deconstruction(entity.force) end -- if it is nil, then the item is now on a belt
-		for _,p in ipairs(entity.surface.find_entities_filtered{type="character", position=entity.position, radius=50}) do
-			if p.player then p.player.create_local_flying_text{text={"subsurface.cannot-place-here"}, position=entity.position} end
-		end
-		entity.destroy()
+	else cancel_placement(entity, event.player_index, "subsurface.cannot-place-here")
 	end
 	
 end
@@ -312,22 +309,9 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 			local real_drill = entity.surface.create_entity{name="surface-drill", position=entity.position, direction=entity.direction, force=entity.force, player=(event.player_index or nil)}
 			entity.destroy()
 			get_subsurface(real_drill.surface).request_to_generate_chunks(real_drill.position, 3)
-		else
-			if event.player_index then
-				local p = game.get_player(event.player_index)
-				p.create_local_flying_text{text={text}, position=entity.position}
-				entity.surface.spill_item_stack(p.position, {name="surface-drill", count=1}, true, entity.force, false)
-				entity.destroy()
-			else -- robot built it
-				entity.surface.spill_item_stack(entity.position, {name="surface-drill", count=1}, true, entity.force, false)
-				for _,p in ipairs(entity.surface.find_entities_filtered{type="character", position=entity.position, radius=50}) do
-					if p.player then p.player.create_local_flying_text{text={text}, position=entity.position} end
-				end
-				entity.destroy()
-			end
+		else cancel_placement(entity, event.player_index, text)
 		end
-	elseif entity.name == "prospector" then
-		table.insert(global.prospectors, entity)
+	elseif entity.name == "prospector" then table.insert(global.prospectors, entity)
 	elseif entity.name == "item-elevator" then elevator_built(entity)
 	elseif entity.name == "fluid-elevator-input" then elevator_built(entity, event.tags)
 	elseif entity.name == "air-vent" or entity.name == "active-air-vent" then
@@ -341,6 +325,13 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 	elseif entity.name == "wooden-support" then
 		script.register_on_entity_destroyed(entity)
 		global.support_lamps[entity.unit_number] = entity.surface.create_entity{name="support-lamp", position=entity.position}
+	elseif is_subsurface(entity.surface)
+	and (entity.type == "electric-pole"
+	or entity.type == "rocket-silo"
+	or entity.name == "rsc-silo-stage1"
+	or entity.name == "rsc-silo-stage1-sesprs"
+	or entity.name == "rsc-silo-stage1-serlp")
+	then cancel_placement(entity, event.player_index) -- prevent some entities from being placed in subsurfaces
 	end
 end)
 
