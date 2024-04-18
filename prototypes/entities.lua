@@ -40,11 +40,10 @@ table.insert(rock_explosives.action[1].action_delivery.target_effects, {type = "
 local cave_sealing = table.deepcopy(data.raw.projectile["cliff-explosives"])
 cave_sealing.name = "cave-sealing"
 cave_sealing.animation = blank_image
-cave_sealing.action[1].action_delivery.target_effects = {{type = "script", effect_id = "cave-sealing"},
-{
-	type = "play-sound",
-	sound = table.deepcopy(data.raw.tile["stone-path"].build_sound.large)
-}}
+cave_sealing.action[1].action_delivery.target_effects = {
+	{type = "script", effect_id = "cave-sealing"},
+	{type = "play-sound", sound = table.deepcopy(data.raw.tile["stone-path"].build_sound.large)}
+}
 
 for i=0,3,1 do
 	local sealed_entrance = table.deepcopy(data.raw["simple-entity"]["rock-big"])
@@ -62,7 +61,7 @@ for i=0,3,1 do
 	sealed_entrance.selection_box = {{0, 0}, {0, 0}}
 	sealed_entrance.collision_box = {{-1.4, -0.8}, {1.4, 1}}
 	if i == 3 then
-		sealed_entrance.collision_mask = {}
+		sealed_entrance.collision_mask = {"water-tile"}
 		sealed_entrance.render_layer = "ground-patch"
 	end
 	sealed_entrance.pictures = {

@@ -503,29 +503,28 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 		end
 	elseif event.effect_id == "cave-sealing" then
 		local surface = game.get_surface(event.surface_index)
-		if surface.find_entity("tunnel-entrance", event.target_position) then
-			local entrance = surface.find_entity("tunnel-entrance", event.target_position)
-			surface.create_entity{name="tunnel-entrance-sealed-0", position=entrance.position, force=game.forces.neutral}
-			entrance.destroy()
-			for x, y in iarea(get_area(event.target_position, 0.2)) do
-				get_subsurface(surface).create_entity{name="subsurface-wall", position={x, y}, force=game.forces.neutral}
+		
+		-- first, try to seal tunnel entrances
+		local entrance = surface.find_entities_filtered{name={"tunnel-entrance", "tunnel-entrance-sealed-0", "tunnel-entrance-sealed-1", "tunnel-entrance-sealed-2"}, position=event.target_position, radius=3}[1]
+		if entrance then
+			local next_stage = {["tunnel-entrance"] = "tunnel-entrance-sealed-0", ["tunnel-entrance-sealed-0"] = "tunnel-entrance-sealed-1", ["tunnel-entrance-sealed-1"] = "tunnel-entrance-sealed-2", ["tunnel-entrance-sealed-2"] = "tunnel-entrance-sealed-3"}
+			surface.create_entity{name=next_stage[entrance.name], position=entrance.position, force=game.forces.neutral}
+			
+			if entrance.name == "tunnel-entrance" then
+				for x, y in iarea(get_area(event.target_position, 0.2)) do
+					get_subsurface(surface).create_entity{name="subsurface-wall", position={x, y}, force=game.forces.neutral}
+				end
 			end
-		elseif surface.find_entity("tunnel-entrance-sealed-0", event.target_position) then
-			local entrance = surface.find_entity("tunnel-entrance-sealed-0", event.target_position)
-			surface.create_entity{name="tunnel-entrance-sealed-1", position=entrance.position, force=game.forces.neutral}
+			
 			entrance.destroy()
-		elseif surface.find_entity("tunnel-entrance-sealed-1", event.target_position) then
-			local entrance = surface.find_entity("tunnel-entrance-sealed-1", event.target_position)
-			surface.create_entity{name="tunnel-entrance-sealed-2", position=entrance.position, force=game.forces.neutral}
-			entrance.destroy()
-		elseif surface.find_entity("tunnel-entrance-sealed-2", event.target_position) then
-			local entrance = surface.find_entity("tunnel-entrance-sealed-2", event.target_position)
-			surface.create_entity{name="tunnel-entrance-sealed-3", position=entrance.position, force=game.forces.neutral}
-			entrance.destroy()
-		else
+		elseif is_subsurface(surface) then -- place walls: first, set out-of-map tiles, then place walls on those spots that have at least one adjacent ground tile 
 			for x,y in iarea(get_area(event.target_position, 0.2)) do
-				if not surface.find_entity("subsurface-wall", {x, y}) then
-					if is_subsurface(surface) then surface.set_tiles({{name = "out-of-map", position = {x, y}}}) end
+				surface.set_tiles({{position={x, y}, name="out-of-map"}})
+			end
+			for x,y in iarea(get_area(event.target_position, 2)) do
+				if surface.get_tile(x, y).name == "out-of-map"
+				and (surface.get_tile(x+1, y).name ~= "out-of-map" or surface.get_tile(x-1, y).name ~= "out-of-map" or surface.get_tile(x, y+1).name ~= "out-of-map" or surface.get_tile(x, y-1).name ~= "out-of-map")
+				and not surface.find_entity("subsurface-wall", {x, y}) then
 					surface.create_entity{name="subsurface-wall", position={x, y}, force=game.forces.neutral}
 				end
 			end
