@@ -1,4 +1,19 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.8
+Date: 2024-04-18
+  Features:
+    - Cave sealing
+  Changes:
+    - Surface drill can be reused
+    - Entrances and exits show an indicator in minimap
+  Bugfixes:
+    - Works now with mods that alter autoplace control prototypes (like Omnimatter)
+    - Fixed that AAI miners got damaged or even destroyed
+    - Fixed crash when using Unit Remote Controller with non-AI miners on the surface
+    - Fixed crash when player changed cursor stack while in spectator mode
+    - Fixed crash when connecting to an existing output item elevator
+    - Fixed crash when drilling for second underground layer finishes with SpaceExploration active
+---------------------------------------------------------------------------------------------------
 Version: 1.0.7
 Date: 2024-04-03
   Features:
