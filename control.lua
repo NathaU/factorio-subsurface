@@ -181,7 +181,7 @@ script.on_event(defines.events.on_tick, function(event)
 					local cx = chunk.x
 					local cy = chunk.y
 					local pollution = subsurface.get_pollution{cx*32, cy*32}
-					if pollution > 0 and --[[expval == 0]]subsurface.count_tiles_filtered{area=chunk.area, name="caveground"} == 0 then
+					if pollution > 0 and subsurface.count_tiles_filtered{area=chunk.area, name="out-of-map"} == 1024 then
 						local north = subsurface.get_pollution{cx*32, (cy-1)*32}
 						local south = subsurface.get_pollution{cx*32, (cy+1)*32}
 						local east = subsurface.get_pollution{(cx+1)*32, cy*32}
@@ -277,7 +277,7 @@ end
 function build_safe(event, func, check_for_entities)
 	if check_for_entities == nil then check_for_entities = true end
 	
-	-- first, check if the given area is uncovered (caveground tiles) and has no entities in it
+	-- first, check if the given area is uncovered (ground tiles) and has no entities in it
 	local entity = event.created_entity
 	local subsurface = get_subsurface(entity.surface)
 	local area = entity.bounding_box
@@ -285,7 +285,7 @@ function build_safe(event, func, check_for_entities)
 	if not is_subsurface(subsurface) then safe_position = false end
 	if not subsurface.is_chunk_generated{entity.position.x / 32, entity.position.y / 32} then safe_position = false end
 	for _,t in ipairs(subsurface.find_tiles_filtered{area=area}) do
-		if t.name ~= "caveground" then safe_position = false end
+		if t.name == "out-of-map" then safe_position = false end
 	end
 	if check_for_entities and subsurface.count_entities_filtered{area=area} > 0 then safe_position = false end
 	
