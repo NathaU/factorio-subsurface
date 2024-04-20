@@ -371,7 +371,7 @@ data:extend(
   {
 	type = "simple-entity",
 	name = "air-vent",
-	flags = {"placeable-neutral", "not-on-map"},
+	flags = {"placeable-neutral", "not-on-map", "player-creation"},
 	collision_mask = { "item-layer", "object-layer", "player-layer", "water-tile"},
 	icon = "__Subsurface__/graphics/icons/air_vent_11_icon.png",
 	icon_size = 32, icon_mipmaps = 1,
