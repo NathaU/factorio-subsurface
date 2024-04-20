@@ -19,6 +19,7 @@ end
 -- this is for top surfaces (depth 0). It directly manipulates the surface's map_gen_settings
 function manipulate_autoplace_controls(surface)
 	local mgs = surface.map_gen_settings
+	if not mgs or not mgs.autoplace_controls then return end
 	setmetatable(mgs.autoplace_controls, {__index = function(t, k) return {size = 0, frequency = 0, richness = 0} end})
 	
 	if surface.name == "nauvis" then
