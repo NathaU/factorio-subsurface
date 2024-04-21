@@ -3,7 +3,7 @@ function is_item_elevator(name)
 end
 
 function get_elevator_names()
-	local tbl = {"fluid-elevator-input"}
+	local tbl = {"fluid-elevator-input", "heat-elevator"}
 	local i = 1
 	while game.entity_prototypes["item-elevator-"..i] do
 		table.insert(tbl, "item-elevator-"..i)
@@ -44,6 +44,10 @@ end
 function is_linked(entity)
 	if is_item_elevator(entity.name) then
 		return entity.linked_belt_neighbour ~= nil
+	elseif entity.name == "heat-elevator" then
+		for i,v in ipairs(global.heat_elevators) do
+			if v[1] == entity or v[2] == entity then return true end
+		end
 	else
 		for i,v in ipairs(global.fluid_elevators) do
 			if v[1] == entity or v[2] == entity then return true end
@@ -72,6 +76,28 @@ function handle_elevators(tick)
 			end
 		end
 	end
+	
+	-- heat elevators
+	if tick % 30 == 0 then
+		for i,elevators in ipairs(global.heat_elevators) do  -- average heat between input and output
+			if not(elevators[1].valid and elevators[2].valid) then table.remove(global.heat_elevators, i)
+			else
+				
+				local t1 = elevators[1].temperature
+				local t2 = elevators[2].temperature
+				if math.abs(t1 - t2) > 5 then -- difference need to be greater that 5 degree, which is equivalent to 5 heat pipes between them
+					local transfer = math.min(math.abs(t1 - t2) - 5, 100) -- max transfer is 100°C (1GW is 500MJ per 0.5s)
+					if t1 > t2 then
+						elevators[1].temperature = t1 - transfer
+						elevators[2].temperature = t2 + transfer
+					else
+						elevators[1].temperature = t1 + transfer
+						elevators[2].temperature = t2 - transfer
+					end
+				end
+			end
+		end
+	end
 end
 
 function show_placement_indicators(player, elevator_name)
@@ -80,7 +106,8 @@ function show_placement_indicators(player, elevator_name)
 			if not is_linked(e) then
 				global.placement_indicators[player.index] = global.placement_indicators[player.index] or {}
 				if elevator_name == "item-elevator" then table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-3", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}})
-				else table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-4", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}}) end
+				elseif elevator_name == "fluid-elevator" then table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-4", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}})
+				else table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-6", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}}) end
 			end
 		end
 	end
@@ -88,24 +115,29 @@ function show_placement_indicators(player, elevator_name)
 		if not is_linked(e) then
 			global.placement_indicators[player.index] = global.placement_indicators[player.index] or {}
 			if elevator_name == "item-elevator" then table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-1", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}})
-			else table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-2", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}}) end
+			elseif elevator_name == "fluid-elevator" then table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-2", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}})
+			else table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-5", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}}) end
 		end
 	end
 end
 
 function elevator_on_cursor_stack_changed(player)
 	if player.cursor_stack and player.cursor_stack.valid_for_read then
-		if player.cursor_stack.name == "fluid-elevator" then show_placement_indicators(player, "fluid-elevator-input")
+		if player.cursor_stack.name == "fluid-elevator" then show_placement_indicators(player, "fluid-elevator")
 		elseif is_item_elevator(player.cursor_stack.name) then show_placement_indicators(player, "item-elevator")
+		elseif player.cursor_stack.name == "heat-elevator" then show_placement_indicators(player, "heat-elevator")
 		elseif player.is_cursor_blueprint() and player.get_blueprint_entities() then
 			local item = false
 			local fluid = false
+			local heat = false
 			for _,e in ipairs(player.get_blueprint_entities()) do
-				if e.name == "fluid-elevator-input" then fluid = true end
-				if is_item_elevator(e.name) then item = true end
+				if e.name == "fluid-elevator-input" then fluid = true
+				elseif is_item_elevator(e.name) then item = true
+				elseif e.name == "heat-elevator" then heat = true end
 			end
-			if fluid then show_placement_indicators(player, "fluid-elevator-input") end
+			if fluid then show_placement_indicators(player, "fluid-elevator") end
 			if item then show_placement_indicators(player, "item-elevator") end
+			if heat then show_placement_indicators(player, "heat-elevator") end
 		end
 	end
 end
@@ -144,6 +176,13 @@ function elevator_built(entity, tags)
 						out = switch_elevator(entity)
 					end
 					table.insert(global.fluid_elevators, {inp, out})
+				elseif entity.name == "heat-elevator" then
+					local top,bottom = entity,e
+					if i == 1 then
+						top = e
+						bottom = entity
+					end
+					table.insert(global.heat_elevators, {top, bottom})
 				else
 					if not entity.linked_belt_neighbour then
 						if e.linked_belt_type == "input" then entity.linked_belt_type = "output" end
@@ -183,6 +222,14 @@ function elevator_selected(player, entity)
 					offs = 0.3
 					orien = 0.5
 				end
+			end
+		end
+	elseif entity.name == "heat-elevator" then
+		for i,v in ipairs(global.heat_elevators) do
+			if v[1] == entity then -- selected entity is on top surface
+				table.insert(global.selection_indicators[player.index], rendering.draw_sprite{sprite="utility/indication_arrow", surface=entity.surface, target=entity, orientation=0.5, players={player}})
+			elseif v[2] == entity then
+				table.insert(global.selection_indicators[player.index], rendering.draw_sprite{sprite="utility/indication_arrow", surface=entity.surface, target=entity, orientation=0, players={player}})
 			end
 		end
 	end

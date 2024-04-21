@@ -45,6 +45,18 @@ data:extend(
 	result = "fluid-elevator",
 	result_count = 2
   },
+  {
+	type = "recipe",
+	name = "heat-elevator",
+	enabled = false,
+	energy_required = 2,
+	ingredients =
+	{
+	  {"heat-pipe", 10},
+	},
+	result = "heat-elevator",
+	result_count = 2
+  },
   
   {
 	type = "recipe",

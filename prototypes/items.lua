@@ -54,6 +54,25 @@ data:extend(
 	place_result = "fluid-elevator-output",
 	stack_size = 10
   },
+  {
+	type = "item",
+	name = "heat-elevator",
+	icons = {
+	  {
+		icon = data.raw.item["heat-pipe"].icon,
+		icon_size = data.raw.item["heat-pipe"].icon_size,
+		icon_mipmaps = data.raw.item["heat-pipe"].icon_mipmaps
+	  },
+	  {
+		icon = "__Subsurface__/graphics/icons/elevator.png",
+		icon_size = 32,
+	  }
+	},
+	subgroup = "inter-surface-transport",
+	order = "c-c",
+	place_result = "heat-elevator",
+	stack_size = 10
+  },
   
   {
 	type = "item",
