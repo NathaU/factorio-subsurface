@@ -29,7 +29,6 @@ data:extend(
 	icon_size = 32,
 	effects =
 	{
-	  {type = "unlock-recipe", recipe = "item-elevator"},
 	  {type = "unlock-recipe", recipe = "fluid-elevator"},
 	},
 	prerequisites = {"surface-drilling"},

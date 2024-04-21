@@ -45,20 +45,7 @@ data:extend(
 	result = "fluid-elevator",
 	result_count = 2
   },
-  {
-	type = "recipe",
-	name = "item-elevator",
-	enabled = false,
-	energy_required = 2,
-	ingredients =
-	{
-	  {"underground-belt", 2},
-	  {"iron-gear-wheel", 10},
-	  {"electronic-circuit", 10},
-	},
-	result = "item-elevator",
-	result_count = 2
-  },
+  
   {
 	type = "recipe",
 	name = "air-vent",

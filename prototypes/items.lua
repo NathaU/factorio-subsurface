@@ -34,17 +34,6 @@ data:extend(
   
   {
 	type = "item",
-	name = "item-elevator",
-	localised_name = {"item-name.item-elevator"},
-	icon = "__Subsurface__/graphics/icons/items-elevator-icon.png",
-	icon_size = 32, icon_mipmaps = 1,
-	subgroup = "inter-surface-transport",
-	order = "c-a",
-	place_result = "item-elevator",
-	stack_size = 10
-  },
-  {
-	type = "item",
 	name = "fluid-elevator",
 	localised_name = {"item-name.fluid-elevator"},
 	icon = "__Subsurface__/graphics/icons/fluid_elevator_mk1_icon.png",

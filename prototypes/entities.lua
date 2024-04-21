@@ -3,11 +3,6 @@ require "circuit-connector-generated-definitions"
 
 local blank_image = {filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1}
 
-local item_elevator = table.deepcopy(data.raw["linked-belt"]["linked-belt"])
-item_elevator.name = "item-elevator"
-item_elevator.minable.result = "item-elevator"
-item_elevator.fast_replaceable_group = nil
-
 local subsurface_walls = table.deepcopy(data.raw["simple-entity"]["rock-big"])
 subsurface_walls.name = "subsurface-wall"
 subsurface_walls.resistances = {
@@ -87,7 +82,6 @@ local ccd = circuit_connector_definitions.create(universal_connector_template, {
 
 data:extend(
 {
-  item_elevator,
   subsurface_walls,
   rock_explosives,
   cave_sealing,
