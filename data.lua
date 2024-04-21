@@ -47,4 +47,16 @@ data:extend({
 	filename = "__Subsurface__/graphics/indicator-4.png",
 	width = 85, height = 85
   },
+  {
+	type = "sprite",
+	name = "placement-indicator-5",
+	filename = "__Subsurface__/graphics/indicator-5.png",
+	width = 85, height = 85
+  },
+  {
+	type = "sprite",
+	name = "placement-indicator-6",
+	filename = "__Subsurface__/graphics/indicator-6.png",
+	width = 85, height = 85
+  },
 })

@@ -689,6 +689,47 @@ data:extend(
 		animation_speed = 0.5
 	  }
 	},
+  },
+  
+  {
+	type = "heat-interface",
+	name = "heat-elevator",
+	icons = {
+	  {
+		icon = data.raw["heat-pipe"]["heat-pipe"].icon,
+		icon_size = data.raw["heat-pipe"]["heat-pipe"].icon_size,
+		icon_mipmaps = data.raw["heat-pipe"]["heat-pipe"].icon_mipmaps
+	  },
+	  {
+		icon = "__Subsurface__/graphics/icons/elevator.png",
+		icon_size = 32,
+	  }
+	},
+	flags = {"placeable-neutral", "player-creation"},
+	minable = {mining_time = 0.5, result = "heat-elevator"},
+	max_health = 200,
+	corpse = "heat-pipe-remnants",
+	dying_explosion = "heat-pipe-explosion",
+	collision_box = {{-0.4, -0.4}, {0.4, 0.4}},
+	selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
+	resistances = table.deepcopy(data.raw["heat-pipe"]["heat-pipe"].resistances),
+	heat_buffer =
+	{
+	  max_temperature = 1000,
+	  specific_heat = "5MJ",
+	  max_transfer = "1GW",
+	  default_temperature = 15,
+	  min_working_temperature = 15,
+	  connections =
+	  {
+		{position = {0, 0}, direction = defines.direction.north},
+		{position = {0, 0}, direction = defines.direction.east},
+		{position = {0, 0}, direction = defines.direction.south},
+		{position = {0, 0}, direction = defines.direction.west}
+	  }
+	},
+	picture = table.deepcopy(data.raw["heat-interface"]["heat-interface"].picture),
+	working_sound = table.deepcopy(data.raw["heat-pipe"]["heat-pipe"].working_sound),
   }
 })
 

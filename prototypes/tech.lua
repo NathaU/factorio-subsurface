@@ -30,6 +30,7 @@ data:extend(
 	effects =
 	{
 	  {type = "unlock-recipe", recipe = "fluid-elevator"},
+	  {type = "unlock-recipe", recipe = "heat-elevator"},
 	},
 	prerequisites = {"surface-drilling"},
 	unit = {
