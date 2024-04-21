@@ -1,5 +1,19 @@
+function is_item_elevator(name)
+	return string.sub(name, 1, 13) == "item-elevator"
+end
+
+function get_elevator_names()
+	local tbl = {"fluid-elevator-input"}
+	local i = 1
+	while game.entity_prototypes["item-elevator-"..i] do
+		table.insert(tbl, "item-elevator-"..i)
+		i = i + 1
+	end
+	return tbl
+end
+
 function switch_elevator(entity) -- switch between input and output
-	if entity.name == "item-elevator" or (entity.name == "entity-ghost" and entity.ghost_name == "item-elevator") then
+	if is_item_elevator(entity.name) or (entity.name == "entity-ghost" and is_item_elevator(entity.ghost_name)) then
 		if entity.linked_belt_type == "input" then
 			entity.linked_belt_type = "output"
 		else
@@ -28,7 +42,7 @@ function switch_elevator(entity) -- switch between input and output
 end
 
 function is_linked(entity)
-	if entity.name == "item-elevator" then
+	if is_item_elevator(entity.name) then
 		return entity.linked_belt_neighbour ~= nil
 	else
 		for i,v in ipairs(global.fluid_elevators) do
@@ -62,7 +76,7 @@ end
 
 function show_placement_indicators(player, elevator_name)
 	if get_oversurface(player.surface) then
-		for _,e in ipairs(get_oversurface(player.surface).find_entities_filtered{name=elevator_name}) do
+		for _,e in ipairs(get_oversurface(player.surface).find_entities_filtered{name=get_elevator_names()}) do
 			if not is_linked(e) then
 				global.placement_indicators[player.index] = global.placement_indicators[player.index] or {}
 				if elevator_name == "item-elevator" then table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-3", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}})
@@ -70,7 +84,7 @@ function show_placement_indicators(player, elevator_name)
 			end
 		end
 	end
-	for _,e in ipairs(get_subsurface(player.surface).find_entities_filtered{name=elevator_name}) do
+	for _,e in ipairs(get_subsurface(player.surface).find_entities_filtered{name=get_elevator_names()}) do
 		if not is_linked(e) then
 			global.placement_indicators[player.index] = global.placement_indicators[player.index] or {}
 			if elevator_name == "item-elevator" then table.insert(global.placement_indicators[player.index], rendering.draw_sprite{sprite="placement-indicator-1", surface=player.surface, x_scale=0.3, y_scale=0.3, target=e.position, players={player}})
@@ -82,13 +96,13 @@ end
 function elevator_on_cursor_stack_changed(player)
 	if player.cursor_stack and player.cursor_stack.valid_for_read then
 		if player.cursor_stack.name == "fluid-elevator" then show_placement_indicators(player, "fluid-elevator-input")
-		elseif player.cursor_stack.name == "item-elevator" then show_placement_indicators(player, "item-elevator")
+		elseif is_item_elevator(player.cursor_stack.name) then show_placement_indicators(player, "item-elevator")
 		elseif player.is_cursor_blueprint() and player.get_blueprint_entities() then
 			local item = false
 			local fluid = false
 			for _,e in ipairs(player.get_blueprint_entities()) do
 				if e.name == "fluid-elevator-input" then fluid = true end
-				if e.name == "item-elevator" then item = true end
+				if is_item_elevator(e.name) then item = true end
 			end
 			if fluid then show_placement_indicators(player, "fluid-elevator-input") end
 			if item then show_placement_indicators(player, "item-elevator") end
@@ -104,7 +118,7 @@ function elevator_rotated(entity, previous_direction)
 				global.fluid_elevators[i] = {switch_elevator(v[2]), switch_elevator(v[1])}
 			end
 		end
-	elseif (entity.name == "item-elevator" or (entity.name == "entity-ghost" and entity.ghost_name == "item-elevator")) and entity.linked_belt_neighbour then
+	elseif (is_item_elevator(entity.name) or (entity.name == "entity-ghost" and is_item_elevator(entity.ghost_name))) and entity.linked_belt_neighbour then
 		local neighbour = entity.linked_belt_neighbour
 		entity.disconnect_linked_belts()
 		switch_elevator(entity)
@@ -118,7 +132,7 @@ function elevator_built(entity, tags)
 	local iter = {get_oversurface(entity.surface), get_subsurface(entity.surface)}
 	for i=1,2,1 do
 		if iter[i] then
-			local e = iter[i].find_entity(entity.name, entity.position)
+			local e = iter[i].find_entities_filtered{name=get_elevator_names(), position=entity.position}[1]
 			if e and not is_linked(e) then
 				if entity.name == "fluid-elevator-input" then
 					local inp = e
@@ -146,7 +160,7 @@ function elevator_selected(player, entity)
 	global.selection_indicators[player.index] = global.selection_indicators[player.index] or {}
 	local offs = 0 -- line offset, when 0 then don't show indicators
 	local orien = 0 -- arrow orientation (0 is arrow pointing north)
-	if entity.name == "item-elevator" and entity.linked_belt_neighbour and entity.linked_belt_neighbour.name == "item-elevator" then
+	if is_item_elevator(entity.name) and entity.linked_belt_neighbour and is_item_elevator(entity.linked_belt_neighbour.name) then
 		if entity.linked_belt_neighbour.surface == get_subsurface(entity.surface) then -- selected entity is top
 			offs = -0.3
 			if entity.linked_belt_type == "input" then orien = 0.5 end
