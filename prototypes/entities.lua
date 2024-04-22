@@ -162,6 +162,13 @@ data:extend(
 		},
 	  }
 	},
+	resistances = {
+	  {type = "physical", percent = 100},
+	  {type = "impact", percent = 100},
+	  {type = "explosion", percent = 100},
+	  {type = "fire", percent = 100},
+	  {type = "laser", percent = 100}
+	},
 	braking_power = "200kW",
 	energy_source = {type = "void"},
 	consumption = "150kW",
@@ -254,6 +261,13 @@ data:extend(
 		  width = 1
 		},
 	  }
+	},
+	resistances = {
+	  {type = "physical", percent = 100},
+	  {type = "impact", percent = 100},
+	  {type = "explosion", percent = 100},
+	  {type = "fire", percent = 100},
+	  {type = "laser", percent = 100}
 	},
 	braking_power = "200kW",
 	energy_source = {type = "void"},
