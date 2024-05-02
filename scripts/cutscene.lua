@@ -19,5 +19,9 @@ script.on_event(defines.events.on_cutscene_waypoint_reached, function(event)
 			start.y = start.y + 2
 		end
 		player.set_controller{type=defines.controllers.cutscene, waypoints={{position=player.position, transition_time=30, time_to_wait=0}}, start_position=start}
+		if remote.interfaces["jetpack"] then
+			if is_subsurface(player.surface) then remote.call("jetpack", "block_jetpack", {character=player.cutscene_character})
+			else remote.call("jetpack", "unblock_jetpack", {character=player.cutscene_character}) end
+		end
 	end
 end)
