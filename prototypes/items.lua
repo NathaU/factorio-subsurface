@@ -96,44 +96,6 @@ data:extend(
   },
   {
 	type = "capsule",
-	name = "rock-explosives",
-	icon = "__Subsurface__/graphics/icons/rock-explosives.png",
-	icon_size = 64, icon_mipmaps = 4,
-	flags = {"hide-from-bonus-gui"},
-	capsule_action =
-	{
-	  type = "throw",
-	  attack_parameters =
-	  {
-		type = "projectile",
-		activation_type = "throw",
-		ammo_category = "grenade",
-		cooldown = 30,
-		projectile_creation_distance = 0.6,
-		range = 10,
-		ammo_type =
-		{
-		  category = "grenade",
-		  target_type = "direction",
-		  action =
-		  {
-			type = "direct",
-			action_delivery =
-			{
-			  type = "projectile",
-			  projectile = "rock-explosives",
-			  starting_speed = 0.3
-			}
-		  }
-		}
-	  }
-	},
-	subgroup = "terrain",
-	order = "d[rock-explosives]z",
-	stack_size = 10
-  },
-  {
-	type = "capsule",
 	name = "cave-sealing",
 	icon = "__base__/graphics/icons/rock-big.png",
 	icon_size = 64, icon_mipmaps = 4,

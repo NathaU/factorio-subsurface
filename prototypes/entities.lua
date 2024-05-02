@@ -3,35 +3,6 @@ require "circuit-connector-generated-definitions"
 
 local blank_image = {filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1}
 
-local subsurface_walls = table.deepcopy(data.raw["simple-entity"]["rock-big"])
-subsurface_walls.name = "subsurface-wall"
-subsurface_walls.resistances = {
-	{type = "physical", percent = 100},
-	{type = "impact", percent = 100},
-	{type = "explosion", percent = 100},
-	{type = "fire", percent = 100},
-	{type = "laser", percent = 100}
-}
-subsurface_walls.flags = {"placeable-neutral", "not-on-map", "not-deconstructable"}
-subsurface_walls.count_as_rock_for_filtered_deconstruction = false
-subsurface_walls.minable = {
-	mining_particle = "stone-particle",
-	mining_time = 1,
-	results = {{name = "stone", amount_min = 10, amount_max = 30}}
-}
-subsurface_walls.selection_box = {{-0.9, -0.9}, {0.9, 0.9}}
-subsurface_walls.collision_box = {{-0.9, -0.9}, {0.9, 0.9}}
-for _,p in ipairs(data.raw["simple-entity"]["rock-huge"].pictures) do
-	table.insert(subsurface_walls.pictures, p)
-end
-
-local rock_explosives = table.deepcopy(data.raw.projectile["cliff-explosives"])
-rock_explosives.name = "rock-explosives"
-rock_explosives.animation.filename = "__Subsurface__/graphics/entities/rock-explosives.png"
-rock_explosives.animation.hr_version.filename = "__Subsurface__/graphics/entities/hr-rock-explosives.png"
-table.insert(rock_explosives.action[1].action_delivery.target_effects, {type = "script", effect_id = "rock-explosives"})
-
-
 local cave_sealing = table.deepcopy(data.raw.projectile["cliff-explosives"])
 cave_sealing.name = "cave-sealing"
 cave_sealing.animation = blank_image
@@ -80,11 +51,49 @@ local ccd = circuit_connector_definitions.create(universal_connector_template, {
 	{ variation = 17, main_offset = util.by_pixel(-39, 14), shadow_offset = util.by_pixel(4.5, 7), show_shadow = false } -- W
 })
 
+local cliff_pics = table.deepcopy(data.raw["simple-entity"]["rock-big"].pictures)
+for _,p in ipairs(data.raw["simple-entity"]["rock-huge"].pictures) do table.insert(cliff_pics, p) end
+local cliff_collision_box = {{-0.9, -0.9}, {0.9, 0.9}}
+
 data:extend(
 {
-  subsurface_walls,
-  rock_explosives,
   cave_sealing,
+  
+  {
+	type = "cliff",
+	name = "subsurface-wall",
+	flags = {"placeable-neutral", "not-on-map", "placeable-off-grid"},
+	icon = table.deepcopy(data.raw["simple-entity"]["rock-huge"].icon),
+	icon_size = table.deepcopy(data.raw["simple-entity"]["rock-huge"].icon_size),
+	icon_mipmaps = table.deepcopy(data.raw["simple-entity"]["rock-huge"].icon_mipmaps),
+	orientations = {
+	  west_to_east = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  north_to_south = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  east_to_west  = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  south_to_north  = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  west_to_north  = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  north_to_east  = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  east_to_south  = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  south_to_west  = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  west_to_south  = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  north_to_west  = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  east_to_north  = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  south_to_east   = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  west_to_none   = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  none_to_east   = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  north_to_none   = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  none_to_south   = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  east_to_none   = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  none_to_west   = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  south_to_none   = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	  none_to_north    = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
+	},
+	grid_size = {1, 1},
+	grid_offset = {0, 0},
+	cliff_explosive = "cliff-explosives",
+	selection_box = {{-0.9, -0.9}, {0.9, 0.9}},
+	minable = {mining_particle = "stone-particle", mining_time = 1, results = {{name = "stone", amount_min = 10, amount_max = 30}}}
+  },
   
   {
 	type = "electric-pole",
