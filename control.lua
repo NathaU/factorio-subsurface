@@ -467,7 +467,9 @@ script.on_event(defines.events.on_pre_surface_deleted, function(event)
 		game.delete_surface(s) -- delete s
 	end
 	if is_subsurface(game.get_surface(event.surface_index)) then -- remove this surface from list
-		global.subsurfaces[get_oversurface(game.get_surface(event.surface_index)).index] = nil
+		for s,ss in pairs(global.subsurfaces) do
+			if ss.index == event.surface_index then global.subsurfaces[s] = nil end
+		end
 	end
 end)
 
