@@ -84,17 +84,6 @@ data:extend(
   },
   {
 	type = "recipe",
-	name = "rock-explosives",
-	enabled = false,
-	energy_required = 8,
-	ingredients =
-	{
-	  {"cliff-explosives", 10},
-	},
-	result = "rock-explosives"
-  },
-  {
-	type = "recipe",
 	name = "cave-sealing",
 	enabled = false,
 	energy_required = 20,

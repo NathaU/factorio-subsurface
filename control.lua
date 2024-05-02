@@ -492,16 +492,11 @@ script.on_event(defines.events.on_entity_destroyed, function(event)
 end)
 
 script.on_event(defines.events.on_script_trigger_effect, function(event)
-	if event.effect_id == "rock-explosives" then
+	if event.effect_id == "cliff-explosives" then
 		local surface = game.get_surface(event.surface_index)
-		for _,wall in ipairs(surface.find_entities_filtered{position=event.target_position, radius=3, name="subsurface-wall"}) do
-			if wall.valid then
-				local pos = wall.position
-				clear_subsurface(surface, pos, 1)
-				surface.spill_item_stack(pos, {name="stone", count=20}, true, game.forces.neutral)
-				surface.pollute(pos, 1)
-			end
-		end
+		clear_subsurface(surface, event.target_position, 2.5)
+		surface.spill_item_stack(event.target_position, {name="stone", count=20}, true, game.forces.neutral)
+		surface.pollute(event.target_position, 10)
 	elseif event.effect_id == "cave-sealing" then
 		local surface = game.get_surface(event.surface_index)
 		

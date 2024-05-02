@@ -12,6 +12,4 @@ if settings.startup["pollution-trains"].value then
 	end
 end
 
-if data.raw.technology["cliff-explosives"] then
-	table.insert(data.raw.technology["cliff-explosives"].effects, {type = "unlock-recipe", recipe = "rock-explosives"})
-end
+table.insert(data.raw.projectile["cliff-explosives"].action[1].action_delivery.target_effects, {type = "script", effect_id = "cliff-explosives"})
