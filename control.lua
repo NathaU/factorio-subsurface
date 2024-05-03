@@ -101,12 +101,6 @@ function is_subsurface(surface)
 	else return false end
 end
 
-function is_inside_map_limits(surface, x, y)
-	if (remote.interfaces["space-exploration"] and math.sqrt(x*x + y*y) < remote.call("space-exploration", "get_zone_from_surface_index", {surface_index = get_top_surface(surface).index}).radius - 3)
-	or (math.abs(x) < surface.map_gen_settings.width / 2 and math.abs(y) < surface.map_gen_settings.height / 2) then
-		return true
-	else return false end
-end
 function clear_subsurface(surface, pos, radius, clearing_radius)
 	if not is_subsurface(surface) then return 0 end
 	local new_tiles = {}
@@ -122,30 +116,28 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 		end
 	end
 	
-	for x, y in iarea(area) do -- first, replace all out-of-map tiles that are inside the map limits with caveground
-		if (x-pos.x)^2 + (y-pos.y)^2 < radius^2 and is_inside_map_limits(surface, x, y) then
-			if surface.get_tile(x, y).name == "out-of-map" then
-				table.insert(new_tiles, {name = "caveground", position = {x, y}})
-				table.insert(new_resource_positions, {x, y})
-			end
+	for x, y in iarea(area) do -- first, replace all out-of-map tiles with their hidden tile (which means that it is inside map limits)
+		if (x-pos.x)^2 + (y-pos.y)^2 < radius^2 and surface.get_hidden_tile({x, y}) then
 			local wall = surface.find_entity("subsurface-wall", {x, y})
 			if wall then
 				wall.destroy()
 				walls_destroyed = walls_destroyed + 1
 			end
+			table.insert(new_tiles, {name = surface.get_hidden_tile({x, y}), position = {x, y}})
+			table.insert(new_resource_positions, {x, y})
+			surface.set_hidden_tile({x, y}, nil)
 		end
 	end
-	
 	surface.set_tiles(new_tiles)
 	place_resources(surface, new_resource_positions)
 	
 	for x, y in iarea(area) do -- second, place a wall where at least one out-of-map is adjacent
-		if surface.get_tile(x, y).name == "out-of-map" and not surface.find_entity("subsurface-wall", {x, y}) and not surface.find_entity("subsurface-wall-map-border", {x, y}) then
+		if surface.get_tile(x, y).valid and surface.get_tile(x, y).name == "out-of-map" and not surface.find_entity("subsurface-wall", {x, y}) and not surface.find_entity("subsurface-wall-map-border", {x, y}) then
 			if (surface.get_tile(x+1, y).valid and surface.get_tile(x+1, y).name ~= "out-of-map")
 			or (surface.get_tile(x-1, y).valid and surface.get_tile(x-1, y).name ~= "out-of-map")
 			or (surface.get_tile(x, y+1).valid and surface.get_tile(x, y+1).name ~= "out-of-map")
 			or (surface.get_tile(x, y-1).valid and surface.get_tile(x, y-1).name ~= "out-of-map") then
-				if is_inside_map_limits(surface, x, y) then
+				if surface.get_hidden_tile({x, y}) then
 					surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
 				else
 					surface.create_entity{name = "subsurface-wall-map-border", position = {x, y}, force=game.forces.neutral}
@@ -445,12 +437,13 @@ script.on_event(defines.events.on_resource_depleted, function(event)
 	end
 end)
 
--- DO NOT clear surfaces here because this could destroy subsurface walls on chunk borders!
 script.on_event(defines.events.on_chunk_generated, function(event)
 	if is_subsurface(event.surface) then
 		local newTiles = {}
 		for x, y in iarea(event.area) do
 			table.insert(newTiles, {name = "out-of-map", position = {x, y}})
+			local tile = event.surface.get_tile(x, y)
+			if tile.valid and tile.name ~= "out-of-map" then event.surface.set_hidden_tile({x, y}, tile.name) end
 		end
 		event.surface.set_tiles(newTiles)
 	end
@@ -515,9 +508,13 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 			
 			entrance.destroy()
 		elseif is_subsurface(surface) then -- place walls: first, set out-of-map tiles, then place walls on those spots that have at least one adjacent ground tile 
+			local new_tiles = {}
 			for x,y in iarea(get_area(event.target_position, 0.2)) do
-				surface.set_tiles({{position={x, y}, name="out-of-map"}})
+				table.insert(new_tiles, {position={x, y}, name="out-of-map"})
+				local tile = surface.get_tile(x ,y)
+				if tile.name ~= "out-of-map" then surface.set_hidden_tile({x, y}, tile.hidden_tile or tile.name) end
 			end
+			surface.set_tiles(new_tiles)
 			for x,y in iarea(get_area(event.target_position, 2)) do
 				if surface.get_tile(x, y).name == "out-of-map"
 				and (surface.get_tile(x+1, y).name ~= "out-of-map" or surface.get_tile(x-1, y).name ~= "out-of-map" or surface.get_tile(x, y+1).name ~= "out-of-map" or surface.get_tile(x, y-1).name ~= "out-of-map")
