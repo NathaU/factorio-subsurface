@@ -102,11 +102,18 @@ function is_subsurface(surface)
 	else return false end
 end
 
+function is_inside_map_limits(surface, x, y)
+	if (remote.interfaces["space-exploration"] and math.sqrt(x*x + y*y) < remote.call("space-exploration", "get_zone_from_surface_index", {surface_index = get_top_surface(surface).index}).radius - 3)
+	or (math.abs(x) < surface.map_gen_settings.width / 2 and math.abs(y) < surface.map_gen_settings.height / 2) then
+		return true
+	else return false end
+end
 function clear_subsurface(surface, pos, radius, clearing_radius)
-	if not is_subsurface(surface) then return end
+	if not is_subsurface(surface) then return 0 end
 	local new_tiles = {}
-	local new_tile_positions = {}
+	local new_resource_positions = {}
 	local walls_destroyed = 0
+	local area = get_area(pos, radius)
 
 	if clearing_radius and clearing_radius < radius then -- destroy all entities in this radius except players
 		local clearing_subsurface_area = get_area(pos, clearing_radius)
@@ -116,46 +123,38 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 		end
 	end
 	
-	for x, y in iarea(get_area(pos, radius)) do
-		if surface.get_tile(x, y).valid and surface.get_tile(x, y).name == "out-of-map" then
-			local wall = surface.find_entity("subsurface-wall", {x, y})
-			if (x-pos.x)^2 + (y-pos.y)^2 < radius^2 then
-				
-				if wall then
-					wall.destroy()
-					walls_destroyed = walls_destroyed + 1
-				end
-				
+	for x, y in iarea(area) do -- first, replace all out-of-map tiles that are inside the map limits with caveground
+		if (x-pos.x)^2 + (y-pos.y)^2 < radius^2 and is_inside_map_limits(surface, x, y) then
+			if surface.get_tile(x, y).name == "out-of-map" then
 				table.insert(new_tiles, {name = "caveground", position = {x, y}})
-				table.insert(new_tile_positions, {x, y})
-				
-				-- add all surrounding chunks to exposed_chunks list, if not already present
-				local cx = math.floor(x / 32)
-				local cy = math.floor(y / 32)
-				if global.exposed_chunks[surface.index][cx] == nil then global.exposed_chunks[surface.index][cx] = {} end
-				if global.exposed_chunks[surface.index][cx - 1] == nil then global.exposed_chunks[surface.index][cx - 1] = {} end
-				if global.exposed_chunks[surface.index][cx + 1] == nil then global.exposed_chunks[surface.index][cx + 1] = {} end
-				global.exposed_chunks[surface.index][cx][cy] = 1 -- this chunk is exposed
-				-- surrounding chunks are set to 0 if not already exposed
-				global.exposed_chunks[surface.index][cx - 1][cy] = global.exposed_chunks[surface.index][cx - 1][cy] or 0
-				global.exposed_chunks[surface.index][cx + 1][cy] = global.exposed_chunks[surface.index][cx + 1][cy] or 0
-				global.exposed_chunks[surface.index][cx][cy - 1] = global.exposed_chunks[surface.index][cx][cy - 1] or 0
-				global.exposed_chunks[surface.index][cx][cy + 1] = global.exposed_chunks[surface.index][cx][cy + 1] or 0
-				
-			elseif math.abs((x-pos.x)^2 + (y-pos.y)^2) < (radius+1)^2 and not wall then
-				wall = surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
-				-- now, if wall is outside map border, replace with border wall
-				if (remote.interfaces["space-exploration"] and math.sqrt(x*x + y*y) > remote.call("space-exploration", "get_zone_from_surface_index", {surface_index = get_top_surface(surface).index}).radius - 5)
-				or math.abs(x) + 1 > surface.map_gen_settings.width / 2 or math.abs(y) + 1 > surface.map_gen_settings.height / 2 then
-					wall.destroy()
+				table.insert(new_resource_positions, {x, y})
+			end
+			local wall = surface.find_entity("subsurface-wall", {x, y})
+			if wall then
+				wall.destroy()
+				walls_destroyed = walls_destroyed + 1
+			end
+		end
+	end
+	
+	surface.set_tiles(new_tiles)
+	place_resources(surface, new_resource_positions)
+	
+	for x, y in iarea(area) do -- second, place a wall where at least one out-of-map is adjacent
+		if surface.get_tile(x, y).name == "out-of-map" and not surface.find_entity("subsurface-wall", {x, y}) and not surface.find_entity("subsurface-wall-map-border", {x, y}) then
+			if (surface.get_tile(x+1, y).valid and surface.get_tile(x+1, y).name ~= "out-of-map")
+			or (surface.get_tile(x-1, y).valid and surface.get_tile(x-1, y).name ~= "out-of-map")
+			or (surface.get_tile(x, y+1).valid and surface.get_tile(x, y+1).name ~= "out-of-map")
+			or (surface.get_tile(x, y-1).valid and surface.get_tile(x, y-1).name ~= "out-of-map") then
+				if is_inside_map_limits(surface, x, y) then
+					surface.create_entity{name = "subsurface-wall", position = {x, y}, force=game.forces.neutral}
+				else
 					surface.create_entity{name = "subsurface-wall-map-border", position = {x, y}, force=game.forces.neutral}
 				end
 			end
 		end
 	end
 	
-	surface.set_tiles(new_tiles)
-	place_resources(surface, new_tile_positions)
 	return walls_destroyed
 end
 
