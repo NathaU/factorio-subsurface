@@ -94,6 +94,25 @@ data:extend(
 	selection_box = {{-0.9, -0.9}, {0.9, 0.9}},
 	minable = {mining_particle = "stone-particle", mining_time = 1, results = {{name = "stone", amount_min = 10, amount_max = 30}}}
   },
+  {
+	type = "simple-entity",
+	name = "subsurface-wall-map-border",
+	localised_name = {"entity-name.subsurface-wall"},
+	icon = table.deepcopy(data.raw["simple-entity"]["rock-huge"].icon),
+	icon_size = table.deepcopy(data.raw["simple-entity"]["rock-huge"].icon_size),
+	icon_mipmaps = table.deepcopy(data.raw["simple-entity"]["rock-huge"].icon_mipmaps),
+	flags = {"placeable-neutral", "not-on-map", "placeable-off-grid", "not-deconstructable"},
+	resistances = {
+	  {type = "physical", percent = 100},
+	  {type = "impact", percent = 100},
+	  {type = "explosion", percent = 100},
+	  {type = "fire", percent = 100},
+	  {type = "laser", percent = 100}
+	},
+	count_as_rock_for_filtered_deconstruction = true,
+	collision_box = {{-0.9, -0.9}, {0.9, 0.9}},
+	pictures = cliff_pics
+  },
   
   {
 	type = "electric-pole",
