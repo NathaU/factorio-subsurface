@@ -33,7 +33,7 @@ end
 
 script.on_init(function()
 	setup_globals()
-	if not settings.global["disable-autoplace-manipulation"].value then for _,surface in pairs(game.surfaces) do manipulate_autoplace_controls(surface) end end
+	for _,s in pairs(game.surfaces) do manipulate_autoplace_controls(s) end
 end)
 script.on_configuration_changed(setup_globals)
 
@@ -60,7 +60,6 @@ function get_subsurface(surface, create)
 			mgs.default_enable_all_autoplace_controls = false
 			mgs.starting_points = nil
 			mgs.starting_area = nil
-			mgs.seed = mgs.seed + 1
 			
 			subsurface = game.create_surface(subsurface_name, mgs)
 			
