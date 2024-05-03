@@ -1,76 +1,73 @@
 function place_resources(surface, pos_arr)
 	local resources = {}
-	local res = {}
-	for k,v in pairs(surface.map_gen_settings.autoplace_controls) do
-		resources["entity:"..k..":richness"] = k
-		table.insert(res, "entity:"..k..":richness")
+	local properties = {}
+	for proto,_ in pairs(surface.map_gen_settings.autoplace_controls) do
+		if proto ~= "enemy-base" and proto ~= "trees" then
+			table.insert(resources, proto)
+			table.insert(properties, "entity:"..proto..":richness")
+			table.insert(properties, "entity:"..proto..":probability")
+		end
 	end
 	
-	local calcresult = surface.calculate_tile_properties(res, pos_arr)
-	for r,arr in pairs(calcresult) do
-		for i,v in ipairs(arr) do
-			if v > 0 then
-				if #surface.find_entities_filtered{type="resource", position={pos_arr[i][1]+0.5, pos_arr[i][2]+0.5}} == 0 then surface.create_entity{name=resources[r], position=pos_arr[i], force=game.forces.neutral, amount=math.ceil(v)} end
+	local calcresult = surface.calculate_tile_properties(properties, pos_arr)
+	for _,proto in ipairs(resources) do
+		for i,pos in ipairs(pos_arr) do
+			if calcresult["entity:"..proto..":richness"] and calcresult["entity:"..proto..":richness"][i] > 0 and calcresult["entity:"..proto..":probability"][i] > 0 and surface.count_entities_filtered{type="resource", position={pos[1]+0.5, pos[2]+0.5}} == 0 then
+				surface.create_entity{name=proto, position=pos, force=game.forces.neutral, amount=math.ceil(calcresult["entity:"..proto..":richness"][i])}
 			end
 		end
 	end
 end
 
--- this is for top surfaces (depth 0). It directly manipulates the surface's map_gen_settings
+local meta = {
+	__index = function(self, key) return {size = 0, frequency = 0, richness = 0} end,
+	__newindex = function(self, key, value)
+		if game.autoplace_control_prototypes[key] then rawset(self, key, value) end
+	end,
+}
+
+-- This is for top surfaces. It directly manipulates the map_gen_settings table
+-- It is either called upon game start, mod installation or newly created surfaces which aren't subsurfaces
 function manipulate_autoplace_controls(surface)
 	local mgs = surface.map_gen_settings
 	if not mgs or not mgs.autoplace_controls then return end
-	setmetatable(mgs.autoplace_controls, {__index = function(t, k) return {size = 0, frequency = 0, richness = 0} end})
+	setmetatable(mgs.autoplace_controls, meta)
 	
-	if surface.name == "nauvis" then
-		mgs.autoplace_controls["uranium-ore"].size = 0
-		mgs.autoplace_controls["stone"].richness = mgs.autoplace_controls["stone"].richness * 0.7
-		if game.active_mods["bztitanium"] then mgs.autoplace_controls["titanium-ore"].size = 0 end
+	-- first, half all resource richness
+	for proto,control in pairs(mgs.autoplace_controls) do
+		if proto ~= "trees" and proto ~= "enemy-base" then
+			mgs.autoplace_controls[proto].richness = control.richness / 2
+		end
+	end
+	mgs.autoplace_controls["stone"].richness = mgs.autoplace_controls["stone"].richness / 4
+	
+	-- second, half all existing resources (only if the mod was added to an existing game)
+	for _,res in ipairs(surface.find_entities_filtered{type = "resource"}) do
+		res.amount = math.ceil(res.amount / 2)
 	end
 	
 	surface.map_gen_settings = mgs
 end
 
--- this is for subsurfaces, it returns a freshly new autoplace_controls array
--- ensure that all resources really exist!
+-- This is for subsurfaces, it returns a freshly new autoplace_controls array
 -- depth is always >= 1
 function make_autoplace_controls(topname, depth)
 	local res_table = {}
-	setmetatable(res_table, {__index = function(t, k) return {size = 0, frequency = 0, richness = 0} end})
+	setmetatable(res_table, meta)
 	
-	for resource,control in pairs(game.get_surface(topname).map_gen_settings.autoplace_controls) do -- alter all resources that occur on the topsurface
-		res_table[resource] = {
-			frequency = control.frequency * (1 + depth*0.2),
-			size = control.size * (1 + depth*0.2),
-			richness = control.richness * (1 + depth*0.2)
-		}
-		if resource == "crude-oil" or resource == "adamo-carbon natural-gas" or resource == "mineral-water" then
-			res_table[resource].size = res_table[resource].size * 0.1
-			res_table[resource].frequency = res_table[resource].frequency * 0.1
+	-- mirror top surface resource patches only in 1st subsurface
+	if depth == 1 then
+		for res,control in pairs(game.get_surface(topname).map_gen_settings.autoplace_controls or {}) do -- alter all resources that occur on the topsurface
+			res_table[res] = {
+				frequency = control.frequency,
+				size = control.size,
+				richness = control.richness
+			}
 		end
 	end
 	
 	res_table["stone"].size = 0
-	
-	-- specific changes
-	if topname == "nauvis" then
-		res_table["uranium-ore"] = {frequency = 1.5*depth, size = 1.5*depth, richness = 2*depth}
-		if game.active_mods["bztitanium"] then res_table["titanium-ore"] = {frequency = 1.5*depth, size = 1.5*depth, richness = 2*depth} end
-	end
-	
-	for interface,contents in ipairs(remote.interfaces) do
-		if contents["subsurface_make_autoplace_controls"] then res_table = remote.call(interface, "subsurface_make_autoplace_controls", res_table, topname, depth) end
-	end
-	
-	setmetatable(res_table, {})
-	
-	if game.autoplace_control_prototypes["omnite"] and not res_table["omnite"] then res_table["omnite"] = {size = 1, frequency = 1, richness = 1} end
-	if game.autoplace_control_prototypes["infinite-omnite"] and not res_table["infinite-omnite"] then res_table["infinite-omnite"] = {size = 1, frequency = 1, richness = 1} end
-	
-	for p,a in pairs(res_table) do
-		if not game.autoplace_control_prototypes[p] then res_table[p] = nil end
-	end
-	res_table["trees"] = nil
+	res_table["trees"].size = 0
 	
 	return res_table
 end
