@@ -59,7 +59,7 @@ script.on_event(defines.events.on_gui_selection_state_changed, function(event)
 end)
 
 function handle_miners(tick)
-	for _,subsurface in ipairs(global.subsurfaces) do
+	for _,subsurface in pairs(global.subsurfaces) do
 		for _,miner in ipairs(subsurface.find_entities_filtered{name=miner_names}) do
 			
 			if not non_ai_miner_names[miner.name] then -- navigation part
