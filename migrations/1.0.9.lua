@@ -6,9 +6,21 @@ end
 for _,s in pairs(game.surfaces) do
 	if is_subsurface(s) then
 		local top = get_oversurface(s)
-		local mgs = s.map_gen_settings
-		mgs.seed = top.map_gen_settings.seed
-		mgs.autoplace_controls = make_autoplace_controls(top.name, get_subsurface_depth(s))
+		local mgs = {
+			seed = top.map_gen_settings.seed,
+			width = top.map_gen_settings.width,
+			height = top.map_gen_settings.height,
+			autoplace_controls = make_autoplace_controls(top.name, get_subsurface_depth(s)),
+			autoplace_settings = {
+			  tile = {treat_missing_as_default = false, settings = {
+				["caveground"] = {},
+				["out-of-map"] = {},
+			  }},
+			},
+			property_expression_names = {
+				["tile:caveground:probability"] = 0, -- basic floor
+			}
+		}
 		s.map_gen_settings = mgs
 		
 		local new_tiles = {}
