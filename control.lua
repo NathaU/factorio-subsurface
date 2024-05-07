@@ -55,11 +55,21 @@ function get_subsurface(surface, create)
 		local subsurface = game.get_surface(subsurface_name)
 		if not subsurface then
 			
-			local mgs = surface.map_gen_settings
-			mgs.autoplace_controls = make_autoplace_controls(topname, depth)
-			mgs.default_enable_all_autoplace_controls = false
-			mgs.starting_points = nil
-			mgs.starting_area = nil
+			local mgs = {
+				seed = surface.map_gen_settings.seed,
+				width = surface.map_gen_settings.width,
+				height = surface.map_gen_settings.height,
+				autoplace_controls = make_autoplace_controls(topname, depth),
+				autoplace_settings = {
+				  tile = {treat_missing_as_default = false, settings = {
+					["caveground"] = {},
+					["out-of-map"] = {},
+				  }},
+				},
+				property_expression_names = {
+					["tile:caveground:probability"] = 0, -- basic floor
+				}
+			}
 			
 			subsurface = game.create_surface(subsurface_name, mgs)
 			

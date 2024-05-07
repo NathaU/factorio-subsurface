@@ -1,3 +1,4 @@
+noise = require("noise")
 require("prototypes.entities")
 require("prototypes.items")
 require("prototypes.items-groups")
