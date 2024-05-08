@@ -33,9 +33,31 @@ end
 
 script.on_init(function()
 	setup_globals()
+	if not game.tile_prototypes["caveground"] then
+		game.print("[color=yellow]Subsurface:[/color] Due to that large amount of mods and the tile limit of 256 it was not possible to load stony ground tiles. Subsurfaces will work but won't look like intended.")
+	end
 	for _,s in pairs(game.surfaces) do manipulate_autoplace_controls(s) end
 end)
-script.on_configuration_changed(setup_globals)
+script.on_configuration_changed(function(config)
+	setup_globals()
+	local found = false
+	local substitute = (game.tile_prototypes["mineral-brown-dirt-2"] or game.tile_prototypes["grass-4"]).name
+	for _,s in pairs(global.subsurfaces) do
+		local new_tiles = {}
+		for _,t in ipairs(s.find_tiles_filtered{name="grass-1"}) do
+			table.insert(new_tiles, {name=substitute, position=t.position})
+			found = true
+		end
+		s.set_tiles(new_tiles)
+		for _,t in ipairs(s.find_tiles_filtered{name="out-of-map", has_hidden_tile=true}) do
+			if t.hidden_tile == "grass-1" then
+				s.set_hidden_tile(t.position, substitute)
+				found = true
+			end
+		end
+	end
+	if found then game.print("[font=default-large-bold][color=yellow]Subsurface: At least one tile generated in subsurfaces was removed from the game due to your mod configuration changes and the tile limit of 256. It has been replaced with dirt-like tiles.[/color][/font]") end
+end)
 
 function get_subsurface(surface, create)
 	if create == nil then create = true end
@@ -61,13 +83,23 @@ function get_subsurface(surface, create)
 				height = surface.map_gen_settings.height,
 				autoplace_controls = make_autoplace_controls(topname, depth),
 				autoplace_settings = {
+				  decorative = {treat_missing_as_default = false, settings = {
+					["rock-small"] = {},
+					["rock-tiny"] = {}
+				  }},
 				  tile = {treat_missing_as_default = false, settings = {
 					["caveground"] = {},
+					["mineral-brown-dirt-2"] = {},
+					["grass-4"] = {},
 					["out-of-map"] = {},
 				  }},
 				},
-				property_expression_names = {
+				property_expression_names = { -- priority is from top to bottom
 					["tile:caveground:probability"] = 0, -- basic floor
+					["tile:mineral-brown-dirt-2:probability"] = 0, -- alternative if alienbiomes is active
+					["tile:grass-4:probability"] = 0, -- 2nd alternative
+					["decorative:rock-small:probability"] = 0.1,
+					["decorative:rock-tiny:probability"] = 0.7,
 				}
 			}
 			
