@@ -1,4 +1,18 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.9
+Date: 2024-05-08
+  Features:
+    - Added item elevator for each belt tier
+    - Heat elevator
+    - resources are now mirrored to the first level (this is likely to be changed in the future)
+  Changes:
+    - Removed rock explosives, subsurface walls are now destroyable like cliffs
+  Bugfixes:
+    - Fixed crash when other mods create surfaces without map gen settings
+    - Fixed that repair packs couldn't be used on air vents
+    - Fixed bug that AAI miners didn't work on other planet's subsurfaces
+    - Fixed crash when deleting subsurfaces that itself have subsurfaces
+---------------------------------------------------------------------------------------------------
 Version: 1.0.8
 Date: 2024-04-18
   Features:
