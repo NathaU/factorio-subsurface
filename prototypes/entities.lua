@@ -318,8 +318,16 @@ data:extend(
   {
 	type = "mining-drill",
 	name = "surface-drill",
-	icon = "__base__/graphics/icons/burner-mining-drill.png",
-	icon_size = 64, icon_mipmaps = 4,
+	icons = {
+	  {
+		icon = "__base__/graphics/icons/burner-mining-drill.png",
+		icon_size = 64, icon_mipmaps = 4
+	  },
+	  {
+		icon = "__Subsurface__/graphics/icons/elevator.png",
+		icon_size = 32,
+	  }
+	},
 	flags = {"placeable-player", "player-creation"},
 	resource_categories = {"subsurface-hole"},
 	minable = {hardness = 0.2, mining_time = 2, result = "surface-drill"},
@@ -347,8 +355,16 @@ data:extend(
 	-- this dummy is needed to allow placement everywhere, not only over resources
 	type = "assembling-machine",
 	name = "surface-drill-placer",
-	icon = "__base__/graphics/icons/burner-mining-drill.png",
-	icon_size = 64, icon_mipmaps = 4,
+	icons = {
+	  {
+		icon = "__base__/graphics/icons/burner-mining-drill.png",
+		icon_size = 64, icon_mipmaps = 4
+	  },
+	  {
+		icon = "__Subsurface__/graphics/icons/elevator.png",
+		icon_size = 32,
+	  }
+	},
 	minable = {hardness = 0.2, mining_time = 2, result = "surface-drill"},
 	flags = {"placeable-player", "player-creation"},
 	max_health = 300,
