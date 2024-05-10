@@ -3,8 +3,16 @@ data:extend(
   {
 	type = "item",
 	name = "surface-drill",
-	icon = "__base__/graphics/icons/burner-mining-drill.png",
-	icon_size = 64, icon_mipmaps = 4,
+	icons = {
+	  {
+		icon = "__base__/graphics/icons/burner-mining-drill.png",
+		icon_size = 64, icon_mipmaps = 4
+	  },
+	  {
+		icon = "__Subsurface__/graphics/icons/elevator.png",
+		icon_size = 32,
+	  }
+	},
 	subgroup = "extraction-machine",
 	order = "ca",
 	place_result = "surface-drill-placer",
@@ -13,8 +21,16 @@ data:extend(
   {
 	type = "item",
 	name = "surface-drill-dummy",
-	icon = "__base__/graphics/icons/burner-mining-drill.png",
-	icon_size = 64, icon_mipmaps = 4,
+	icons = {
+	  {
+		icon = "__base__/graphics/icons/burner-mining-drill.png",
+		icon_size = 64, icon_mipmaps = 4
+	  },
+	  {
+		icon = "__Subsurface__/graphics/icons/elevator.png",
+		icon_size = 32,
+	  }
+	},
 	flags = {"hidden", "hide-from-bonus-gui"},
 	subgroup = "extraction-machine",
 	order = "cb",
