@@ -304,6 +304,8 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 			text = "subsurface.limit-reached"
 		elseif entity.surface.count_entities_filtered{name={"tunnel-entrance", "tunnel-exit"}, position=entity.position, radius=7} > 0 then
 			text = "subsurface.cannot-place-here"
+		elseif string.find(entity.surface.name, "[Ff]actory[- ]floor") or 0 > 1 then -- prevent placement in factorissimo
+			text = "subsurface.only-allowed-on-terrain"
 		end
 		
 		if text == "" then
