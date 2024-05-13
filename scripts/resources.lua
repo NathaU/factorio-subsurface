@@ -1,7 +1,7 @@
 function place_resources(surface, pos_arr)
 	local resources = {}
 	local properties = {}
-	for proto,_ in pairs(surface.map_gen_settings.autoplace_controls) do
+	for proto,_ in pairs(surface.map_gen_settings.autoplace_controls or {}) do
 		if proto ~= "enemy-base" and proto ~= "trees" then
 			table.insert(resources, proto)
 			table.insert(properties, "entity:"..proto..":richness")
@@ -84,7 +84,7 @@ function prospect_resources(prospector)
 	
 	local resources = {}
 	local res = {}
-	for k,v in pairs(subsurface.map_gen_settings.autoplace_controls) do
+	for k,v in pairs(subsurface.map_gen_settings.autoplace_controls or {}) do
 		resources["entity:"..k..":richness"] = k
 		table.insert(res, "entity:"..k..":richness")
 	end
