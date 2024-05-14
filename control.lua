@@ -532,8 +532,10 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 				and (surface.get_tile(x+1, y).name ~= "out-of-map" or surface.get_tile(x-1, y).name ~= "out-of-map" or surface.get_tile(x, y+1).name ~= "out-of-map" or surface.get_tile(x, y-1).name ~= "out-of-map")
 				and not surface.find_entity("subsurface-wall", {x, y}) then
 					surface.create_entity{name="subsurface-wall", position={x, y}, force=game.forces.neutral}
+					for i=1,100,1 do surface.create_trivial_smoke{name="subsurface-smoke", position={x + (math.random(-20, 20) / 20), y + (math.random(-21, 19) / 20)}} end
 				end
 			end
+			surface.pollute(event.target_position, 5)
 		end
 	end
 end)
