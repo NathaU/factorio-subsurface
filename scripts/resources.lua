@@ -29,6 +29,7 @@ local meta = {
 -- This is for top surfaces. It directly manipulates the map_gen_settings table
 -- It is either called upon game start, mod installation or newly created surfaces which aren't subsurfaces
 function manipulate_autoplace_controls(surface)
+	if settings.global["disable-autoplace-manipulation"].value then return end
 	local mgs = surface.map_gen_settings
 	if not mgs or not mgs.autoplace_controls then return end
 	setmetatable(mgs.autoplace_controls, meta)
@@ -52,6 +53,7 @@ end
 -- This is for subsurfaces, it returns a freshly new autoplace_controls array
 -- depth is always >= 1
 function make_autoplace_controls(topname, depth)
+	if settings.global["disable-autoplace-manipulation"].value then return {} end
 	local res_table = {}
 	setmetatable(res_table, meta)
 	
