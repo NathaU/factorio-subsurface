@@ -1,3 +1,4 @@
+require "util"
 noise = require("noise")
 require("prototypes.entities")
 require("prototypes.items")
@@ -6,7 +7,16 @@ require("prototypes.recipes")
 require("prototypes.tech")
 require("prototypes.tiles")
 
+local smoke = table.deepcopy(data.raw["trivial-smoke"]["smoke-building"])
+smoke.name = "subsurface-smoke"
+smoke.duration = 120
+smoke.render_layer = "smoke"
+smoke.fade_away_duration = 120
+smoke.color = {0.25, 0.25, 0.25, 0.375}
+
 data:extend({
+  smoke,
+  
   {
 	type = "custom-input",
 	name = "subsurface-position",

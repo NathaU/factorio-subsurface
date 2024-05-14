@@ -1,4 +1,3 @@
-require "util"
 require "circuit-connector-generated-definitions"
 
 local blank_image = {filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1}
