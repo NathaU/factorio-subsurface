@@ -37,6 +37,12 @@ script.on_init(function()
 		game.print("[color=yellow]Subsurface:[/color] Due to that large amount of mods and the tile limit of 256 it was not possible to load stony ground tiles. Subsurfaces will work but won't look like intended.")
 	end
 	for _,s in pairs(game.surfaces) do manipulate_autoplace_controls(s) end
+	
+	if remote.interfaces["space-exploration"] then
+		script.on_event("se-remote-view", function(event)
+			on_remote_view_started(game.get_player(event.player_index))
+		end)
+	end
 end)
 script.on_configuration_changed(function(config)
 	setup_globals()
@@ -57,6 +63,14 @@ script.on_configuration_changed(function(config)
 		end
 	end
 	if found then game.print("[font=default-large-bold][color=yellow]Subsurface: At least one tile generated in subsurfaces was removed from the game due to your mod configuration changes and the tile limit of 256. It has been replaced with dirt-like tiles.[/color][/font]") end
+end)
+
+script.on_load(function()
+	if remote.interfaces["space-exploration"] then
+		script.on_event("se-remote-view", function(event)
+			on_remote_view_started(game.get_player(event.player_index))
+		end)
+	end
 end)
 
 function get_subsurface(surface, create)
@@ -589,3 +603,24 @@ script.on_event("subsurface-rotate", function(event)
 		if player.selected then elevator_selected(player, player.selected) end
 	end
 end)
+
+script.on_event(defines.events.on_lua_shortcut, function(event)
+	if event.prototype_name == "se-remote-view" then
+		on_remote_view_started(game.get_player(event.player_index))
+	end
+end)
+script.on_event(defines.events.on_gui_click, function(event)
+	if not (event.element and event.element.valid) then return end
+	if event.element.name == "se-overhead_satellite" then
+		on_remote_view_started(game.get_player(event.player_index))
+	end
+end)
+
+function on_remote_view_started(player)
+	if remote.call("space-exploration", "remote_view_is_active", {player=player}) then
+		local character = remote.call("space-exploration", "get_player_character", {player=player})
+		if is_subsurface(character.surface) then
+			remote.call("space-exploration", "remote_view_start", {player=player, zone_name = get_top_surface(character.surface).name, position=character.position})
+		end
+	end
+end
