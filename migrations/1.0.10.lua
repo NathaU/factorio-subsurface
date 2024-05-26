@@ -1,5 +1,6 @@
 for _,s in pairs(global.subsurfaces) do
 	local mgs = s.map_gen_settings
+	mgs.autoplace_settings.tile = mgs.autoplace_settings.tile or {treat_missing_as_default = false}
 	mgs.autoplace_settings.tile.settings = {
 		["caveground"] = {},
 		["mineral-brown-dirt-2"] = {},
