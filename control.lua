@@ -378,9 +378,8 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 	elseif is_subsurface(entity.surface)
 	and (entity.type == "electric-pole"
 	or entity.type == "rocket-silo"
-	or entity.name == "rsc-silo-stage1"
-	or entity.name == "rsc-silo-stage1-sesprs"
-	or entity.name == "rsc-silo-stage1-serlp")
+	or entity.name == "rsc-silo-stage1" or entity.name == "rsc-silo-stage1-sesprs" or entity.name == "rsc-silo-stage1-serlp"
+	or entity.type == "artillery-turret" or entity.type == "artillery-wagon")
 	then cancel_placement(entity, event.player_index) -- prevent some entities from being placed in subsurfaces
 	end
 end)
