@@ -46,6 +46,13 @@ script.on_init(function()
 end)
 script.on_configuration_changed(function(config)
 	setup_globals()
+	
+	if config.mod_changes and config.mod_changes["BlackMap-continued"] and not config.mod_changes["BlackMap-continued"].old_version then
+		for _,s in pairs(global.subsurfaces) do
+			remote.call("blackmap", "register", s)
+		end
+	end
+	
 	local found = false
 	local substitute = (game.tile_prototypes["mineral-brown-dirt-2"] or game.tile_prototypes["grass-4"]).name
 	for _,s in pairs(global.subsurfaces) do
@@ -122,6 +129,8 @@ function get_subsurface(surface, create)
 			subsurface.daytime = 0.5
 			subsurface.freeze_daytime = true
 			subsurface.show_clouds = false
+			
+			if remote.interfaces["blackmap"] then remote.call("blackmap", "register", subsurface) end
 		end
 		global.subsurfaces[surface.index] = subsurface
 		global.exposed_chunks[subsurface.index] = global.exposed_chunks[subsurface.index] or {}
