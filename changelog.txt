@@ -1,4 +1,17 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.10
+Date: 2024-06-03
+  Features:
+    - Enemies burrow down randomly
+    - Support for BlackMap mod
+  Changes:
+    - Surface drill can't be placed in Factorissimo factories
+    - Artillery can't be placed in subsurfaces
+  Bugfixes:
+    - Fixed crash when creating or prospecting subsurfaces without autoplaced resources
+    - Handle the case when mods exceed tile limit of 256
+    - When starting SE remote view while in subsurface it shows the corresponding planet
+---------------------------------------------------------------------------------------------------
 Version: 1.0.9
 Date: 2024-05-08
   Features:
