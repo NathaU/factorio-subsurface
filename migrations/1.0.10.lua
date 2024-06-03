@@ -17,3 +17,8 @@ for _,s in pairs(global.subsurfaces) do
 	
 	s.map_gen_settings = mgs
 end
+
+for _,h in ipairs(global.heat_elevators or {}) do
+	h[1].operable = false
+	h[2].operable = false
+end

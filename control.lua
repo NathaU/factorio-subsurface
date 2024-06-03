@@ -384,7 +384,9 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 	elseif entity.name == "prospector" then table.insert(global.prospectors, entity)
 	elseif string.sub(entity.name, 1, 13) == "item-elevator" then elevator_built(entity)
 	elseif entity.name == "fluid-elevator-input" then elevator_built(entity, event.tags)
-	elseif entity.name == "heat-elevator" then elevator_built(entity, event.tags)
+	elseif entity.name == "heat-elevator" then
+		elevator_built(entity, event.tags)
+		entity.operable = false
 	elseif entity.name == "air-vent" or entity.name == "active-air-vent" then
 		build_safe(event, function()
 			table.insert(global.air_vents, entity)
