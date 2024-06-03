@@ -54,9 +54,15 @@ local cliff_pics = table.deepcopy(data.raw["simple-entity"]["rock-big"].pictures
 for _,p in ipairs(data.raw["simple-entity"]["rock-huge"].pictures) do table.insert(cliff_pics, p) end
 local cliff_collision_box = {{-0.9, -0.9}, {0.9, 0.9}}
 
+local drill_remnants = table.deepcopy(data.raw.corpse["burner-mining-drill-remnants"])
+drill_remnants.name = "surface-drill-remnants"
+drill_remnants.animation[1].scale = 2
+drill_remnants.animation[1].hr_version.scale = 1
+
 data:extend(
 {
   cave_sealing,
+  drill_remnants,
   
   {
 	type = "cliff",
@@ -367,6 +373,7 @@ data:extend(
 	minable = {hardness = 0.2, mining_time = 2, result = "surface-drill"},
 	flags = {"placeable-player", "player-creation"},
 	max_health = 300,
+	corpse = "surface-drill-remnants",
 	collision_box = {{-2.1, -2.2}, {2.2, 2.2}},
 	selection_box = {{-2.2, -2.2}, {2.2, 2.2}},
 	animation = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].animations),
