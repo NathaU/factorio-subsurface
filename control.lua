@@ -6,6 +6,7 @@ require "scripts.cutscene"
 require "scripts.aai-miners"
 require "scripts.resources"
 require "scripts.elevators"
+require "scripts.enemies"
 
 max_pollution_move_active = 128 -- the max amount of pollution that can be moved per 64 ticks from one surface to the above
 max_pollution_move_passive = 64
@@ -29,6 +30,8 @@ function setup_globals()
 	global.support_lamps = global.support_lamps or {}
 	global.placement_indicators = global.placement_indicators or {}
 	global.selection_indicators = global.selection_indicators or {}
+	global.next_burrowing = global.next_burrowing or game.map_settings.enemy_expansion.max_expansion_cooldown
+	if not global.enemies_above_exposed_underground then init_enemies_global() end
 end
 
 script.on_init(function()
@@ -102,6 +105,7 @@ function get_subsurface(surface, create)
 				seed = surface.map_gen_settings.seed,
 				width = surface.map_gen_settings.width,
 				height = surface.map_gen_settings.height,
+				peaceful_mode = surface.map_gen_settings.peaceful_mode,
 				autoplace_controls = make_autoplace_controls(topname, depth),
 				autoplace_settings = {
 				  decorative = {treat_missing_as_default = false, settings = {
@@ -131,6 +135,9 @@ function get_subsurface(surface, create)
 			subsurface.show_clouds = false
 			
 			if remote.interfaces["blackmap"] then remote.call("blackmap", "register", subsurface) end
+			
+			global.enemies_above_exposed_underground[surface.index] = {}
+			
 		end
 		global.subsurfaces[surface.index] = subsurface
 		global.exposed_chunks[subsurface.index] = global.exposed_chunks[subsurface.index] or {}
@@ -210,6 +217,8 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 			end
 		end
 	end
+	
+	find_enemies_above(surface, pos, radius)
 	
 	return walls_destroyed
 end
@@ -316,6 +325,8 @@ script.on_event(defines.events.on_tick, function(event)
 	
 	-- handle miners
 	if remote.interfaces["aai-programmable-vehicles"] and event.tick % 10 == 0 then handle_miners(event.tick) end
+	
+	if event.tick % 20 == 0 and not settings.global["disable-autoplace-manipulation"].value and game.map_settings.enemy_expansion.enabled then handle_enemies(event.tick) end
 end)
 
 function cancel_placement(entity, player_index, text)
