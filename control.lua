@@ -471,7 +471,8 @@ script.on_event(defines.events.on_entity_died, function(event)
 		local placer_dummy = entity.surface.create_entity{name="surface-drill-placer", position=entity.position, direction=entity.direction, force=entity.force}
 		entity.destroy()
 		placer_dummy.surface.create_entity{name="massive-explosion", position=placer_dummy.position}
-		placer_dummy.die(event.force, event.cause)
+		if event.cause then placer_dummy.die(event.force, event.cause)
+		else placer_dummy.die(event.force) end
 	elseif entity.name == "fluid-elevator-output" then
 		local ghost = entity.surface.create_entity{name="entity-ghost", position=entity.position, direction=entity.direction, force=entity.force, inner_name="fluid-elevator-input", expires=true}
 		ghost.tags = {type=0}
