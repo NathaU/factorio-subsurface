@@ -70,4 +70,20 @@ data:extend({
 	filename = "__Subsurface__/graphics/indicator-6.png",
 	width = 85, height = 85
   },
+  
+  {
+	type = "noise-expression",
+	name = "random-value-0-1",
+	expression = noise.to_noise_expression{
+	  type = "function-application",
+	  function_name = "random-penalty",
+	  arguments = {
+		x = noise.var("x"),
+		y = noise.var("y"),
+		source = noise.to_noise_expression(100),
+		amplitude = noise.to_noise_expression(100),
+		seed = noise.var("map_seed")
+	  }
+	} / 100
+  },
 })

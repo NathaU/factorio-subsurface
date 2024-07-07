@@ -125,6 +125,8 @@ function get_subsurface(surface, create)
 					["tile:grass-4:probability"] = 0, -- 2nd alternative
 					["decorative:rock-small:probability"] = 0.1,
 					["decorative:rock-tiny:probability"] = 0.7,
+					
+					["probability"] = "random-value-0-1",
 				}
 			}
 			
