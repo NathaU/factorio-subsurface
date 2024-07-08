@@ -2,40 +2,44 @@ function handle_enemies(tick)
 	
 	-- randomly burrow enemies to exposed chunks beneath (worms and biters)
 	if tick >= global.next_burrowing then
-		local choice1 = math.random(math.max(table_size(global.subsurfaces), 1))
-		local i = 1
-		for si,ss in pairs(global.subsurfaces) do
-			if i == choice1 and #global.enemies_above_exposed_underground[si] > 0 then
-				local choice2 = math.random(#global.enemies_above_exposed_underground[si])
-				local base = global.enemies_above_exposed_underground[si][choice2]
-				if base.valid then
-					if base.type == "turret" then
-						game.print("t")
-						if ss.can_place_entity{name=base.name, position=base.position} then
-							local new_enemy = base.clone{position=base.position, surface=ss, force=base.force}
-							table.remove(global.enemies_above_exposed_underground[si], choice2)
-							base.destroy()
-							new_enemy.spawn_decorations()
-						end
-					else
-						game.print("u")
-						local enemy = base.units[1]
-						local pos = ss.find_non_colliding_position(enemy.name, enemy.position, 20, 0.1)
-						if pos then
-							local new_enemy = enemy.clone{position=pos, surface=ss, force=enemy.force}
-							if new_enemy then
-								enemy.destroy()
-								ss.build_enemy_base(new_enemy.position, 1)
+		local tries = 5
+		repeat
+			local rnd_surface = math.random(math.max(table_size(global.subsurfaces), 1))
+			local i = 1
+			for si,ss in pairs(global.subsurfaces) do
+				if i == rnd_surface and #global.enemies_above_exposed_underground[si] > 0 then
+					local rnd_base = math.random(#global.enemies_above_exposed_underground[si])
+					local base = global.enemies_above_exposed_underground[si][rnd_base]
+					if base.valid then
+						if base.type == "turret" then
+							if ss.can_place_entity{name=base.name, position=base.position} then
+								local new_enemy = base.clone{position=base.position, surface=ss, force=base.force}
+								table.remove(global.enemies_above_exposed_underground[si], rnd_base)
+								base.destroy()
+								new_enemy.spawn_decorations()
+								tries = 0
+							end
+						elseif #base.units > 0 then
+							local enemy = base.units[1]
+							local pos = ss.find_non_colliding_position(enemy.name, enemy.position, 20, 0.1)
+							if pos then
+								local new_enemy = enemy.clone{position=pos, surface=ss, force=enemy.force}
+								if new_enemy then
+									enemy.destroy()
+									ss.build_enemy_base(new_enemy.position, 1)
+									tries = 0
+								end
 							end
 						end
+					else
+						table.remove(global.enemies_above_exposed_underground[si], rnd_base)
 					end
-				else
-					table.remove(global.enemies_above_exposed_underground[si], choice2)
+					break
 				end
-				break
+				i = i + 1
 			end
-			i = i + 1
-		end
+			tries = tries - 1
+		until(tries <= 0)
 		
 		global.next_burrowing = tick + (math.random(game.map_settings.enemy_expansion.min_expansion_cooldown,  game.map_settings.enemy_expansion.max_expansion_cooldown) / table_size(global.subsurfaces)) -- try again in 4-60 min per surface
 	end
