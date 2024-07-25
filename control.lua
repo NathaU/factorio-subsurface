@@ -32,6 +32,7 @@ function setup_globals()
 	global.selection_indicators = global.selection_indicators or {}
 	global.next_burrowing = global.next_burrowing or game.map_settings.enemy_expansion.max_expansion_cooldown
 	if not global.enemies_above_exposed_underground then init_enemies_global() end
+	global.resources_autoplace_replace = global.resources_autoplace_replace or {}
 end
 
 script.on_init(function()
@@ -56,6 +57,7 @@ script.on_configuration_changed(function(config)
 		end
 	end
 	
+	-- handle too much tiles
 	local found = false
 	local substitute = (game.tile_prototypes["mineral-brown-dirt-2"] or game.tile_prototypes["grass-4"]).name
 	for _,s in pairs(global.subsurfaces) do
@@ -73,6 +75,24 @@ script.on_configuration_changed(function(config)
 		end
 	end
 	if found then game.print("[font=default-large-bold][color=yellow]Subsurface: At least one tile generated in subsurfaces was removed from the game due to your mod configuration changes and the tile limit of 256. It has been replaced with dirt-like tiles.[/color][/font]") end
+	
+	-- handle resources whose autoplace is independent from position
+	global.resources_autoplace_replace = {}
+	for _,prt in pairs(game.entity_prototypes) do
+		if prt.type == "resource" and prt.autoplace_specification and prt.autoplace_specification.probability_expression then
+			local serialized_expression = serpent.line(prt.autoplace_specification.probability_expression)
+			if string.find(serialized_expression, 'variable_name = "x"') == nil and string.find(serialized_expression, 'variable_name = "y"') == nil then
+				global.resources_autoplace_replace[prt.name] = prt.name .. "-probability"
+			end
+		end
+	end
+	for prt,expr in pairs(global.resources_autoplace_replace) do
+		for _,s in pairs(global.subsurfaces) do
+			local mgs = s.map_gen_settings
+			mgs.property_expression_names["probability-" .. prt] = expr
+			s.map_gen_settings = mgs
+		end
+	end
 end)
 
 script.on_load(function()
@@ -129,6 +149,9 @@ function get_subsurface(surface, create)
 					["probability"] = "random-value-0-1",
 				}
 			}
+			for prt,expr in pairs(global.resources_autoplace_replace) do
+				mgs.property_expression_names["probability-" .. prt] = expr
+			end
 			
 			subsurface = game.create_surface(subsurface_name, mgs)
 			

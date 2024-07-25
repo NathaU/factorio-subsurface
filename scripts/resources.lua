@@ -1,19 +1,29 @@
 function place_resources(surface, pos_arr)
 	local resources = {}
-	local properties = {}
+	local properties = {"probability"}
 	for proto,_ in pairs(surface.map_gen_settings.autoplace_controls or {}) do
 		if proto ~= "enemy-base" and proto ~= "trees" then
 			table.insert(resources, proto)
 			table.insert(properties, "entity:"..proto..":richness")
 			table.insert(properties, "entity:"..proto..":probability")
+			table.insert(properties, "probability-" .. proto)
 		end
 	end
 	
-	local calcresult = surface.calculate_tile_properties(properties, pos_arr)
-	for _,proto in ipairs(resources) do
-		for i,pos in ipairs(pos_arr) do
-			if calcresult["entity:"..proto..":richness"] and calcresult["entity:"..proto..":richness"][i] > 0 and calcresult["entity:"..proto..":probability"][i] > 0 and surface.count_entities_filtered{type="resource", position={pos[1]+0.5, pos[2]+0.5}} == 0 then
-				surface.create_entity{name=proto, position=pos, force=game.forces.neutral, amount=math.ceil(calcresult["entity:"..proto..":richness"][i])}
+	local stored_results = {}
+	
+	for _,pos in ipairs(pos_arr) do
+		local chunk_id = spiral({math.floor(pos[1] / 32), math.floor(pos[2] / 32)})
+		if not stored_results[chunk_id] then
+			stored_results[chunk_id] = surface.calculate_tile_properties(properties, get_chunk_positions(pos))
+		end
+		local pos_pos = get_position_index_in_chunk(pos)
+		for _,proto in ipairs(resources) do
+			if stored_results[chunk_id]["entity:"..proto..":richness"]
+			and stored_results[chunk_id]["entity:"..proto..":richness"][pos_pos] > 0
+			and ((stored_results[chunk_id]["probability-"..proto] and stored_results[chunk_id]["probability-"..proto][pos_pos]) or stored_results[chunk_id]["probability"][pos_pos]) <= stored_results[chunk_id]["entity:"..proto..":probability"][pos_pos]
+			and not surface.entity_prototype_collides(proto, pos, false) then
+				surface.create_entity{name=proto, position=pos, force=game.forces.neutral, amount=math.ceil(stored_results[chunk_id]["entity:"..proto..":richness"][pos_pos])}
 			end
 		end
 	end
