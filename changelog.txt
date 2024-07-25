@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.11
+Date: ??
+  Changes:
+    - Disabled functionality of ore prospector
+  Bugfixes:
+    - Heat elevators can't be used for infinite heat anymore
+    - Fixed crash when surface drill dies because of too high pollution
+    - Fixed that some resources of mods are placed everywhere
+    - Fixed crash when biter base had no units
+---------------------------------------------------------------------------------------------------
 Version: 1.0.10
 Date: 2024-06-03
   Features:
