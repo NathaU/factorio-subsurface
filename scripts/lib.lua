@@ -47,8 +47,8 @@ end
 
 function get_area_positions(area)
 	local arr = {}
-	for x=area.left_top.x,area.right_bottom.x,1 do
-		for y=area.left_top.y,area.right_bottom.y,1 do
+	for y=area.left_top.y,area.right_bottom.y,1 do
+		for x=area.left_top.x,area.right_bottom.x,1 do
 			table.insert(arr, {x, y})
 		end
 	end
@@ -64,4 +64,31 @@ function move_towards_continuous(start, factorio_orientation, distance)
 	local rad_factorio_orientation = factorio_orientation * 2 * math.pi
 	local mod = {math.sin(rad_factorio_orientation), -math.cos(rad_factorio_orientation)} -- x, y
 	return {x = start.x + mod[1] * distance, y = start.y + mod[2] * distance}
+end
+
+function get_chunk_positions(poss)
+	pos = math2d.position.ensure_xy(poss)
+	return get_area_positions({left_top={x=math.floor(pos.x/32)*32, y=math.floor(pos.y/32)*32}, right_bottom={x=(math.floor(pos.x/32)*32)+31, y=(math.floor(pos.y/32)*32)+31}})
+end
+
+function get_position_index_in_chunk(pos)
+	local p = {bit32.band(pos.x or pos[1], 0x1F), bit32.band(pos.y or pos[2], 0x1F)}
+	return p[2]*32 + p[1] + 1
+end
+
+function spiral(pos)
+	--https://web.archive.org/web/20141202041502/https://danpearcymaths.wordpress.com/2012/09/30/infinity-programming-in-geogebra-and-failing-miserably/
+	local p = {table.unpack(pos)}
+	local a = math.max(math.abs(p[1]), math.abs(p[2]))
+	local dist = 0
+	
+	local i = 0
+	while p[2] > p[1] or p[2] >= -p[1] do -- rotate by 90° (multiply by -i) until values are in the top triangle
+		p = {-p[2], p[1]}
+		dist = dist + 2*a
+		i = i + 1
+		if i == 5 then break end
+	end
+	dist = dist + a - p[1]
+	return dist + ((a*2)-1)^2
 end
