@@ -82,27 +82,5 @@ script.on_event(defines.events.on_surface_created, function(event)
 end)
 
 function prospect_resources(prospector)
-	local subsurface = get_subsurface(prospector.surface)
 	
-	local resources = {}
-	local res = {}
-	for k,v in pairs(subsurface.map_gen_settings.autoplace_controls or {}) do
-		resources["entity:"..k..":richness"] = k
-		table.insert(res, "entity:"..k..":richness")
-	end
-	
-	local pos = prospector.position
-	local pos_arr = {}
-	for x, y in iarea(get_area(pos, 200)) do
-		if (x-pos.x)^2 + (y-pos.y)^2 < 40000 then table.insert(pos_arr, {x, y}) end
-	end
-	
-	local calcresult = subsurface.calculate_tile_properties(res, pos_arr)
-	for r,arr in pairs(calcresult) do
-		for i,v in ipairs(arr) do
-			if v > 0 then
-				rendering.draw_circle{color={0.5, 0.5, 0.5, 0.1}, target=pos_arr[i], radius=0.3, surface=prospector.surface, time_to_live=36000, forces={prospector.force}, draw_on_ground=true}
-			end
-		end
-	end
 end
