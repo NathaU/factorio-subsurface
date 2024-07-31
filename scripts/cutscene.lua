@@ -25,3 +25,10 @@ script.on_event(defines.events.on_cutscene_waypoint_reached, function(event)
 		end
 	end
 end)
+
+script.on_event("subsurface-driving", function(event)
+	local player = game.get_player(event.player_index)
+	if player.selected and (player.selected.name == "tunnel-entrance-cable" or player.selected.name == "tunnel-exit-cable") and player.controller_type ~= defines.controllers.character and player.controller_type ~= defines.controllers.cutscene and not (remote.interfaces["space-exploration"] and remote.call("space-exploration", "remote_view_is_active", {player=player})) then
+		player.teleport({player.position.x, player.position.y + 1.1}, global.pole_links[player.selected.unit_number].surface)
+	end
+end)

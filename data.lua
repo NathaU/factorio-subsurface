@@ -30,6 +30,13 @@ data:extend({
 	linked_game_control = "rotate"
   },
   {
+	type = "custom-input",
+	name = "subsurface-driving",
+	key_sequence = "",
+	linked_game_control = "toggle-driving"
+  },
+  
+  {
 	type = "resource-category",
 	name = "subsurface-hole"
   },
