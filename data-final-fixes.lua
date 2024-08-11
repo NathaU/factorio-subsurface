@@ -51,3 +51,9 @@ for name,dt in pairs(data.raw["resource"]) do
 		end
 	end
 end
+
+for _,d in pairs(data.raw["electric-pole"]) do
+	if d.name ~= "wooden-support" and data.raw.item[d.name] then
+		data.raw.item[d.name].localised_description =  {"item-description.placement-restriction"}
+	end
+end
