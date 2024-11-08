@@ -63,12 +63,11 @@ for t,_ in pairs(data.raw["transport-belt"]) do
 		energy_required = 2,
 		ingredients =
 		{
-		  {b, 2},
-		  {"iron-gear-wheel", 10},
-		  {"electronic-circuit", 10},
+		  {type="item", name=b, amount=2},
+		  {type="item", name="iron-gear-wheel", amount=10},
+		  {type="item", name="electronic-circuit", amount=10},
 		},
-		result = "item-elevator-" .. i,
-		result_count = 2
+		results = {{type="item", name="item-elevator-" .. i, amount=2}}
 	  },
 	})
 	table.insert(data.raw.technology["inter-surface-transport"].effects, {type = "unlock-recipe", recipe = "item-elevator-" .. i})

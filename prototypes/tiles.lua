@@ -5,45 +5,49 @@ data:extend(
 	name = "caveground",
 	needs_correction = false,
 	mined_sound = { filename = "__base__/sound/deconstruct-bricks.ogg" },
-	collision_mask = {"ground-tile"},
+	collision_mask = {layers={ground_tile=true}},
 	walking_speed_modifier = 1.4,
-	autoplace = {probability_expression = noise.to_noise_expression(-10000)},
+	autoplace = {probability_expression = "-10000"},
 	layer = 61,
-	pollution_absorption_per_second = 0,
+	absorptions_per_second = {pollution = 0},
 	variants =
 	{
-	  main =
+	  material_background =
 	  {
-		{
-		  picture = "__Subsurface__/graphics/terrain/underground-dirt.png",
-		  count = 4,
-		  size = 1
+		picture = "__Subsurface__/graphics/terrain/underground-dirt.png",
+		count = 4,
+		scale = 8
+	  },
+	  transition =
+      {
+        overlay_layout =
+        {
+		  inner_corner =
+		  {
+			spritesheet = "__Subsurface__/graphics/terrain/underground-dirt-inner-corner.png",
+			count = 1
+		  },
+		  outer_corner =
+		  {
+			spritesheet = "__Subsurface__/graphics/terrain/underground-dirt-outer-corner.png",
+			count = 1
+		  },
+		  side =
+		  {
+			spritesheet = "__Subsurface__/graphics/terrain/underground-dirt-side.png",
+			count = 4
+		  },
+		  u_transition =
+		  {
+			spritesheet = "__Subsurface__/graphics/terrain/underground-dirt-u.png",
+			count = 1
+		  },
+		  o_transition =
+		  {
+			spritesheet = "__Subsurface__/graphics/terrain/underground-dirt-o.png",
+			count = 1
+		  }
 		}
-	  },
-	  inner_corner =
-	  {
-		picture = "__Subsurface__/graphics/terrain/underground-dirt-inner-corner.png",
-		count = 1
-	  },
-	  outer_corner =
-	  {
-		picture = "__Subsurface__/graphics/terrain/underground-dirt-outer-corner.png",
-		count = 1
-	  },
-	  side =
-	  {
-		picture = "__Subsurface__/graphics/terrain/underground-dirt-side.png",
-		count = 4
-	  },
-	  u_transition =
-	  {
-		picture = "__Subsurface__/graphics/terrain/underground-dirt-u.png",
-		count = 1
-	  },
-	  o_transition =
-	  {
-		picture = "__Subsurface__/graphics/terrain/underground-dirt-o.png",
-		count = 1
 	  }
 	},
 	walking_sound =

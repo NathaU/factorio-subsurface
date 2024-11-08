@@ -31,7 +31,8 @@ data:extend(
 		icon_size = 32,
 	  }
 	},
-	flags = {"hidden", "hide-from-bonus-gui"},
+	flags = {"hide-from-bonus-gui"},
+	hidden = true,
 	subgroup = "extraction-machine",
 	order = "cb",
 	place_result = "surface-drill",
@@ -64,7 +65,8 @@ data:extend(
 	name = "fluid-elevator-dummy",
 	icon = "__Subsurface__/graphics/icons/fluid_elevator_mk1_icon.png",
 	icon_size = 32, icon_mipmaps = 1,
-	flags = {"hidden", "hide-from-bonus-gui"},
+	flags = {"hide-from-bonus-gui"},
+	hidden = true,
 	subgroup = "inter-surface-transport",
 	order = "c-b",
 	place_result = "fluid-elevator-output",
@@ -113,7 +115,7 @@ data:extend(
   {
 	type = "capsule",
 	name = "cave-sealing",
-	icon = "__base__/graphics/icons/rock-big.png",
+	icon = "__base__/graphics/icons/big-rock.png",
 	icon_size = 64, icon_mipmaps = 4,
 	flags = {"hide-from-bonus-gui"},
 	capsule_action =

@@ -16,9 +16,9 @@ data:extend(
 	energy_required = 10,
 	ingredients =
 	{
-	  {"electric-mining-drill", 5},
+	  {type="item", name="electric-mining-drill", amount=5},
 	},
-	result = "surface-drill"
+	results = {{type="item", name="surface-drill", amount=1}}
   },
   
   {
@@ -27,9 +27,9 @@ data:extend(
 	enabled = false,
 	ingredients =
 	{
-	  {"radar", 5},
+	  {type="item", name="radar", amount=5},
 	},
-	result = "prospector"
+	results = {{type="item", name="prospector", amount=1}}
   },
   
   {
@@ -39,11 +39,10 @@ data:extend(
 	energy_required = 2,
 	ingredients =
 	{
-	  {"pipe", 10},
-	  {"pump", 2},
+	  {type="item", name="pipe", amount=10},
+	  {type="item", name="pump", amount=2},
 	},
-	result = "fluid-elevator",
-	result_count = 2
+	results = {{type="item", name="fluid-elevator", amount=2}}
   },
   {
 	type = "recipe",
@@ -52,10 +51,9 @@ data:extend(
 	energy_required = 2,
 	ingredients =
 	{
-	  {"heat-pipe", 10},
+	  {type="item", name="heat-pipe", amount=10},
 	},
-	result = "heat-elevator",
-	result_count = 2
+	results = {{type="item", name="heat-elevator", amount=2}}
   },
   
   {
@@ -64,10 +62,10 @@ data:extend(
 	enabled = false,
 	ingredients =
 	{
-	  {"iron-plate", 10},
-	  {"steel-plate", 5},
+	  {type="item", name="iron-plate", amount=10},
+	  {type="item", name="steel-plate", amount=5},
 	},
-	result = "air-vent"
+	results = {{type="item", name="air-vent", amount=1}}
   }, 
   {
 	type = "recipe",
@@ -75,12 +73,12 @@ data:extend(
 	enabled = false,
 	ingredients =
 	{
-	  {"plastic-bar", 10},
-	  {"steel-plate", 5},
-	  {"iron-gear-wheel", 5},
-	  {"advanced-circuit", 10},
+	  {type="item", name="plastic-bar", amount=10},
+	  {type="item", name="steel-plate", amount=5},
+	  {type="item", name="iron-gear-wheel", amount=5},
+	  {type="item", name="advanced-circuit", amount=10},
 	},
-	result = "active-air-vent"
+	results = {{type="item", name="active-air-vent", amount=1}}
   },
   {
 	type = "recipe",
@@ -89,9 +87,9 @@ data:extend(
 	energy_required = 20,
 	ingredients =
 	{
-	  {"stone", 200},
+	  {type="item", name="stone", amount=200},
 	},
-	result = "cave-sealing"
+	results = {{type="item", name="cave-sealing", amount=1}}
   },
   
   {
@@ -126,9 +124,9 @@ data:extend(
 	enabled = false,
 	ingredients =
 	{
-	  {"small-electric-pole", 1},
-	  {"small-lamp", 1},
+	  {type="item", name="small-electric-pole", amount=1},
+	  {type="item", name="small-lamp", amount=1},
 	},
-	result = "wooden-support"
+	results = {{type="item", name="wooden-support", amount=1}}
   },
 })
