@@ -11,7 +11,7 @@ cave_sealing.action[1].action_delivery.target_effects = {
 }
 
 for i=0,3,1 do
-	local sealed_entrance = table.deepcopy(data.raw["simple-entity"]["rock-big"])
+	local sealed_entrance = table.deepcopy(data.raw["simple-entity"]["big-rock"])
 	sealed_entrance.name = "tunnel-entrance-sealed-"..i
 	sealed_entrance.resistances = {
 		{type = "physical", percent = 100},
@@ -20,44 +20,40 @@ for i=0,3,1 do
 		{type = "fire", percent = 100},
 		{type = "laser", percent = 100}
 	}
-	sealed_entrance.flags = {"placeable-neutral", "not-deconstructable", "hidden", "placeable-off-grid"}
+	sealed_entrance.flags = {"placeable-neutral", "not-deconstructable", "placeable-off-grid"}
 	sealed_entrance.count_as_rock_for_filtered_deconstruction = false
 	sealed_entrance.minable = nil
+	sealed_entrance.hidden = true
 	sealed_entrance.selection_box = {{0, 0}, {0, 0}}
 	sealed_entrance.collision_box = {{-1.4, -0.8}, {1.4, 1}}
 	if i == 3 then
-		sealed_entrance.collision_mask = {"water-tile"}
+		sealed_entrance.collision_mask = {layers={water_tile=true}}
 		sealed_entrance.render_layer = "ground-patch"
 	end
 	sealed_entrance.pictures = {
 	  sheet = {
 		filename = "__Subsurface__/graphics/entrance-sealed-"..i..".png",
-		width = 100, height = 71,
-		hr_version = {
-		  filename = "__Subsurface__/graphics/hr-entrance-sealed-"..i..".png",
-		  width = 189, height = 134,
-		  scale = 0.5
-		}
+		width = 189, height = 134,
+		scale = 0.5
 	  }
 	}
 	data:extend({sealed_entrance})
 end
 
-local ccd = circuit_connector_definitions.create(universal_connector_template, {
+local ccd = circuit_connector_definitions.create_vector(universal_connector_template, {
 	{ variation = 17, main_offset = util.by_pixel(-36, 17), shadow_offset = util.by_pixel(12.5, 4), show_shadow = false }, -- N
 	{ variation = 17, main_offset = util.by_pixel(-38, 5), shadow_offset = util.by_pixel(7, 1), show_shadow = false }, -- E
 	{ variation = 17, main_offset = util.by_pixel(-37, 9), shadow_offset = util.by_pixel(10, 5), show_shadow = false }, -- S
 	{ variation = 17, main_offset = util.by_pixel(-39, 14), shadow_offset = util.by_pixel(4.5, 7), show_shadow = false } -- W
 })
 
-local cliff_pics = table.deepcopy(data.raw["simple-entity"]["rock-big"].pictures)
-for _,p in ipairs(data.raw["simple-entity"]["rock-huge"].pictures) do table.insert(cliff_pics, p) end
+local cliff_pics = table.deepcopy(data.raw["simple-entity"]["big-rock"].pictures)
+for _,p in ipairs(data.raw["simple-entity"]["huge-rock"].pictures) do table.insert(cliff_pics, p) end
 local cliff_collision_box = {{-0.9, -0.9}, {0.9, 0.9}}
 
 local drill_remnants = table.deepcopy(data.raw.corpse["burner-mining-drill-remnants"])
 drill_remnants.name = "surface-drill-remnants"
-drill_remnants.animation[1].scale = 2
-drill_remnants.animation[1].hr_version.scale = 1
+drill_remnants.animation[1].scale = 1
 
 data:extend(
 {
@@ -68,9 +64,9 @@ data:extend(
 	type = "cliff",
 	name = "subsurface-wall",
 	flags = {"placeable-neutral", "not-on-map", "placeable-off-grid"},
-	icon = table.deepcopy(data.raw["simple-entity"]["rock-huge"].icon),
-	icon_size = table.deepcopy(data.raw["simple-entity"]["rock-huge"].icon_size),
-	icon_mipmaps = table.deepcopy(data.raw["simple-entity"]["rock-huge"].icon_mipmaps),
+	icon = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon),
+	icon_size = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon_size),
+	icon_mipmaps = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon_mipmaps),
 	orientations = {
 	  west_to_east = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
 	  north_to_south = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
@@ -97,15 +93,15 @@ data:extend(
 	grid_offset = {0, 0},
 	cliff_explosive = "cliff-explosives",
 	selection_box = {{-0.9, -0.9}, {0.9, 0.9}},
-	minable = {mining_particle = "stone-particle", mining_time = 1, results = {{name = "stone", amount_min = 10, amount_max = 30}}}
+	minable = {mining_particle = "stone-particle", mining_time = 1, results = {{type="item", name="stone", amount_min=10, amount_max=30}}}
   },
   {
 	type = "simple-entity",
 	name = "subsurface-wall-map-border",
 	localised_name = {"entity-name.subsurface-wall"},
-	icon = table.deepcopy(data.raw["simple-entity"]["rock-huge"].icon),
-	icon_size = table.deepcopy(data.raw["simple-entity"]["rock-huge"].icon_size),
-	icon_mipmaps = table.deepcopy(data.raw["simple-entity"]["rock-huge"].icon_mipmaps),
+	icon = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon),
+	icon_size = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon_size),
+	icon_mipmaps = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon_mipmaps),
 	flags = {"placeable-neutral", "not-on-map", "placeable-off-grid", "not-deconstructable"},
 	resistances = {
 	  {type = "physical", percent = 100},
@@ -131,20 +127,11 @@ data:extend(
 	pictures = {
 	  filename = "__Subsurface__/graphics/entities/entrance.png",
 	  priority = "extra-high",
-	  width = 100,
-	  height = 71,
+	  width = 189,
+	  height = 134,
 	  direction_count = 1,
-	  --shift = util.by_pixel(1, -51),
-	  hr_version =
-	  {
-		filename = "__Subsurface__/graphics/entities/entrance-hr.png",
-		priority = "extra-high",
-		width = 189,
-		height = 134,
-		direction_count = 1,
-		--shift = util.by_pixel(0, -51),
-		scale = 0.5
-	  }
+	  --shift = util.by_pixel(0, -51),
+	  scale = 0.5
 	},
 	connection_points = {
 	  {
@@ -231,20 +218,11 @@ data:extend(
 	pictures = {
 	  filename = "__Subsurface__/graphics/entities/exit.png",
 	  priority = "extra-high",
-	  width = 70,
-	  height = 150,
+	  width = 125,
+	  height = 268,
 	  direction_count = 1,
 	  shift = util.by_pixel(0, -32),
-	  hr_version =
-	  {
-		filename = "__Subsurface__/graphics/entities/exit-hr.png",
-		priority = "extra-high",
-		width = 125,
-		height = 268,
-		direction_count = 1,
-		shift = util.by_pixel(0, -32),
-		scale = 0.5
-	  }
+	  scale = 0.5
 	},
 	connection_points = {
 	  {
@@ -343,7 +321,7 @@ data:extend(
 	selection_box = {{-2.2, -2.2}, {2.2, 2.2}},
 	damaged_trigger_effect = data.raw["mining-drill"]["burner-mining-drill"].damaged_trigger_effect,
 	mining_speed = 0.1,
-	energy_source = {type = "electric", usage_priority = "secondary-input", emissions_per_minute = 5},
+	energy_source = {type = "electric", usage_priority = "secondary-input", emissions_per_minute = {pollution = 5}},
 	energy_usage = "2MW",
 	open_sound = data.raw["mining-drill"]["burner-mining-drill"].open_sound,
 	close_sound = data.raw["mining-drill"]["burner-mining-drill"].close_sound,
@@ -351,9 +329,8 @@ data:extend(
 	working_sound = data.raw["mining-drill"]["burner-mining-drill"].working_sound,
 	resource_searching_radius = 0.49,
 	vector_to_place_result = {-1, -2.6},
-	animations = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].animations),
-	circuit_wire_connection_points = ccd.points,
-	circuit_connector_sprites = ccd.sprites,
+	graphics_set = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].graphics_set),
+	circuit_connector = ccd,
 	circuit_wire_max_distance = default_circuit_wire_max_distance,
   },
   {
@@ -376,8 +353,8 @@ data:extend(
 	corpse = "surface-drill-remnants",
 	collision_box = {{-2.1, -2.2}, {2.2, 2.2}},
 	selection_box = {{-2.2, -2.2}, {2.2, 2.2}},
-	animation = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].animations),
-	energy_source = {type = "electric", usage_priority = "secondary-input", emissions_per_minute = 5},
+	graphics_set = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].graphics_set),
+	energy_source = {type = "electric", usage_priority = "secondary-input", emissions_per_minute = {pollution = 5}},
 	energy_usage = "2MW",
 	crafting_speed = 1,
 	crafting_categories = {"crafting"},
@@ -406,8 +383,7 @@ data:extend(
 	ingredient_count = 0,
 	collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
 	selection_box = {{-1, -1}, {1, 1}},
-	animation =
-	{
+	graphics_set = {animation = {
 	  filename = "__Subsurface__/graphics/entities/air_vent22_sheet.png",
 	  priority="high",
 	  width = 96,
@@ -416,7 +392,7 @@ data:extend(
 	  line_length = 4,
 	  shift = {0.45,-0.1},
 	  animation_speed = 2,
-	},
+	}},
 	crafting_speed = 1,
 	energy_source =
 	{
@@ -430,7 +406,7 @@ data:extend(
 	type = "simple-entity",
 	name = "air-vent",
 	flags = {"placeable-neutral", "not-on-map", "player-creation"},
-	collision_mask = { "item-layer", "object-layer", "player-layer", "water-tile"},
+	collision_mask = {layers={item=true, object=true, player=true, water_tile=true}},
 	icon = "__Subsurface__/graphics/icons/air_vent_11_icon.png",
 	icon_size = 32, icon_mipmaps = 1,
 	minable = {mining_time = 1, result = "air-vent"},
@@ -470,54 +446,29 @@ data:extend(
 	  usage_priority = "secondary-input"
 	},
 	energy_usage = "1MW",
-	animation =
-	{
-	  layers =
+	graphics_set = {animation = {layers = {
 	  {
-		{
-		  filename = "__Subsurface__/graphics/entities/prospector.png",
-		  priority = "low",
-		  width = 98,
-		  height = 128,
-		  frame_count = 64,
-		  line_length = 8,
-		  shift = util.by_pixel(1, -16),
-		  hr_version =
-		  {
-			filename = "__Subsurface__/graphics/entities/hr-prospector.png",
-			priority = "low",
-			width = 196,
-			height = 254,
-			frame_count = 64,
-			line_length = 8,
-			shift = util.by_pixel(1, -16),
-			scale = 0.5
-		  }
-		},
-		{
-		  filename = "__Subsurface__/graphics/entities/prospector-shadow.png",
-		  priority = "low",
-		  width = 172,
-		  height = 94,
-		  frame_count = 64,
-		  line_length = 8,
-		  shift = util.by_pixel(39,3),
-		  draw_as_shadow = true,
-		  hr_version =
-		  {
-			filename = "__Subsurface__/graphics/entities/hr-prospector-shadow.png",
-			priority = "low",
-			width = 343,
-			height = 186,
-			frame_count = 64,
-			line_length = 8,
-			shift = util.by_pixel(39.25,3),
-			draw_as_shadow = true,
-			scale = 0.5
-		  }
-		}
+		filename = "__Subsurface__/graphics/entities/prospector.png",
+		priority = "low",
+		width = 196,
+		height = 254,
+		frame_count = 64,
+		line_length = 8,
+		shift = util.by_pixel(1, -16),
+		scale = 0.5
+	  },
+	  {
+		filename = "__Subsurface__/graphics/entities/prospector-shadow.png",
+		priority = "low",
+		width = 343,
+		height = 186,
+		frame_count = 64,
+		line_length = 8,
+		shift = util.by_pixel(39.25,3),
+		draw_as_shadow = true,
+		scale = 0.5
 	  }
-	},
+	}}},
 	working_sound = table.deepcopy(data.raw.radar.radar.working_sound),
 	crafting_speed = 1,
 	crafting_categories = {"prospecting"},
@@ -613,7 +564,7 @@ data:extend(
 	picture_on = blank_image,
 	picture_off = blank_image,
 	energy_source = {type = "electric", usage_priority = "lamp"},
-	energy_usage_per_tick = "2KW",
+	energy_usage_per_tick = "2kW",
 	light = {intensity = 0.7, size = 15, color = {r=1.0, g=1.0, b=0.75}}
   },
   
@@ -637,9 +588,11 @@ data:extend(
 	},
 	fluid_box = {
 	  height = 4,
+	  volume = 4,
 	  pipe_covers = pipecoverspictures(),
 	  pipe_connections = {
-		{position = {0, -1}, type="input"},
+		{flow_direction = "input", connection_type = "normal", position = {0, 0}, direction = defines.direction.north},
+		{flow_direction = "output", connection_type = "linked", linked_connection_id = 68752},
 	  }
 	},
 	energy_source = {
@@ -708,9 +661,11 @@ data:extend(
 	},
 	fluid_box = {
 	  height = 4,
+	  volume = 4,
 	  pipe_covers = pipecoverspictures(),
 	  pipe_connections = {
-		{position = {0, -1}, type="output"},
+		{flow_direction = "output", connection_type = "normal", position = {0, 0}, direction = defines.direction.north},
+		{flow_direction = "input", connection_type = "linked", linked_connection_id = 68752},
 	  }
 	},
 	energy_source = {type = "void"},
@@ -797,41 +752,23 @@ data:extend(
   }
 })
 
-data.raw["mining-drill"]["surface-drill"].animations.north.layers[1].scale = 2
-data.raw["mining-drill"]["surface-drill"].animations.north.layers[1].hr_version.scale = 1
-data.raw["mining-drill"]["surface-drill"].animations.north.layers[2].scale = 2
-data.raw["mining-drill"]["surface-drill"].animations.north.layers[2].hr_version.scale = 1
-data.raw["mining-drill"]["surface-drill"].animations.west.layers[1].scale = 2
-data.raw["mining-drill"]["surface-drill"].animations.west.layers[1].hr_version.scale = 1
-data.raw["mining-drill"]["surface-drill"].animations.west.layers[2].scale = 2
-data.raw["mining-drill"]["surface-drill"].animations.west.layers[2].hr_version.scale = 1
-data.raw["mining-drill"]["surface-drill"].animations.south.layers[1].scale = 2
-data.raw["mining-drill"]["surface-drill"].animations.south.layers[1].hr_version.scale = 1
-data.raw["mining-drill"]["surface-drill"].animations.south.layers[2].scale = 2
-data.raw["mining-drill"]["surface-drill"].animations.south.layers[2].hr_version.scale = 1
-data.raw["mining-drill"]["surface-drill"].animations.east.layers[1].scale = 2
-data.raw["mining-drill"]["surface-drill"].animations.east.layers[1].hr_version.scale = 1
-data.raw["mining-drill"]["surface-drill"].animations.east.layers[2].scale = 2
-data.raw["mining-drill"]["surface-drill"].animations.east.layers[2].hr_version.scale = 1
+data.raw["mining-drill"]["surface-drill"].graphics_set.animation.north.layers[1].scale = 1
+data.raw["mining-drill"]["surface-drill"].graphics_set.animation.north.layers[2].scale = 1
+data.raw["mining-drill"]["surface-drill"].graphics_set.animation.west.layers[1].scale = 1
+data.raw["mining-drill"]["surface-drill"].graphics_set.animation.west.layers[2].scale = 1
+data.raw["mining-drill"]["surface-drill"].graphics_set.animation.south.layers[1].scale = 1
+data.raw["mining-drill"]["surface-drill"].graphics_set.animation.south.layers[2].scale = 1
+data.raw["mining-drill"]["surface-drill"].graphics_set.animation.east.layers[1].scale = 1
+data.raw["mining-drill"]["surface-drill"].graphics_set.animation.east.layers[2].scale = 1
 
-data.raw["assembling-machine"]["surface-drill-placer"].animation.north.layers[1].scale = 2
-data.raw["assembling-machine"]["surface-drill-placer"].animation.north.layers[1].hr_version.scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].animation.north.layers[2].scale = 2
-data.raw["assembling-machine"]["surface-drill-placer"].animation.north.layers[2].hr_version.scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].animation.west.layers[1].scale = 2
-data.raw["assembling-machine"]["surface-drill-placer"].animation.west.layers[1].hr_version.scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].animation.west.layers[2].scale = 2
-data.raw["assembling-machine"]["surface-drill-placer"].animation.west.layers[2].hr_version.scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].animation.south.layers[1].scale = 2
-data.raw["assembling-machine"]["surface-drill-placer"].animation.south.layers[1].hr_version.scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].animation.south.layers[2].scale = 2
-data.raw["assembling-machine"]["surface-drill-placer"].animation.south.layers[2].hr_version.scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].animation.east.layers[1].scale = 2
-data.raw["assembling-machine"]["surface-drill-placer"].animation.east.layers[1].hr_version.scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].animation.east.layers[2].scale = 2
-data.raw["assembling-machine"]["surface-drill-placer"].animation.east.layers[2].hr_version.scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.north.layers[1].scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.north.layers[2].scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.west.layers[1].scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.west.layers[2].scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.south.layers[1].scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.south.layers[2].scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.east.layers[1].scale = 1
+data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.east.layers[2].scale = 1
 
 data.raw["electric-pole"]["wooden-support"].pictures.layers[1].filename = "__Subsurface__/graphics/entities/wooden-support/wooden-support.png"
-data.raw["electric-pole"]["wooden-support"].pictures.layers[1].hr_version.filename = "__Subsurface__/graphics/entities/wooden-support/hr-wooden-support.png"
 data.raw["electric-pole"]["wooden-support"].pictures.layers[2].filename = "__Subsurface__/graphics/entities/wooden-support/wooden-support-shadow.png"
-data.raw["electric-pole"]["wooden-support"].pictures.layers[2].hr_version.filename = "__Subsurface__/graphics/entities/wooden-support/hr-wooden-support-shadow.png"

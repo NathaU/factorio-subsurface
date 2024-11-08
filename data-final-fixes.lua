@@ -8,14 +8,13 @@ if settings.startup["pollution-trains"].value then
 	end
 	for _,e in pairs(data.raw["locomotive"]) do
 		if not exclude_prototypes[e.name] and e.burner then
-			e.burner.emissions_per_minute = e.burner.emissions_per_minute or 10
+			e.burner.emissions_per_minute = e.burner.emissions_per_minute or {pollution = 10}
 		end
 	end
 end
 
 table.insert(data.raw.projectile["cliff-explosives"].action[1].action_delivery.target_effects, {type = "script", effect_id = "cliff-explosives"})
 
-local tne = noise.to_noise_expression
 for name,dt in pairs(data.raw["resource"]) do
 	if dt.autoplace and dt.autoplace.probability_expression then
 		local serialized_expression = serpent.line(dt.autoplace.probability_expression)
@@ -25,27 +24,7 @@ for name,dt in pairs(data.raw["resource"]) do
 			  {
 				type = "noise-expression",
 				name = name.."-probability",
-				expression = tne(noise.var("random-value-0-1") + (tne{
-				  type = "function-application",
-				  function_name = "random-penalty",
-				  arguments = {
-					x = noise.var("x"),
-					y = noise.var("y"),
-					source = tne(9999),
-					amplitude = tne(10000),
-					seed = tne(bit32.band(hash(name), 0xFFFF))
-				  }
-				} / 10000) - noise.floor(noise.var("random-value-0-1") + (tne{
-				  type = "function-application",
-				  function_name = "random-penalty",
-				  arguments = {
-					x = noise.var("x"),
-					y = noise.var("y"),
-					source = tne(9999),
-					amplitude = tne(10000),
-					seed = tne(bit32.band(hash(name), 0xFFFF))
-				  }
-				} / 10000)))
+				expression = "var('random-value-0-1') + (random_penalty(x, y, 9999, "..hash(name).."&0xffff, 10000) / 10000) - floor(var('random-value-0-1') + (random_penalty(x, y, 9999, "..hash(name).."&0xffff, 10000) / 10000))",
 			  }
 			})
 		end

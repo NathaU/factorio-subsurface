@@ -1,5 +1,4 @@
 require "util"
-noise = require("noise")
 require("prototypes.entities")
 require("prototypes.items")
 require("prototypes.items-groups")
@@ -81,16 +80,6 @@ data:extend({
   {
 	type = "noise-expression",
 	name = "random-value-0-1",
-	expression = noise.to_noise_expression{
-	  type = "function-application",
-	  function_name = "random-penalty",
-	  arguments = {
-		x = noise.var("x"),
-		y = noise.var("y"),
-		source = noise.to_noise_expression(100),
-		amplitude = noise.to_noise_expression(100),
-		seed = noise.var("map_seed")
-	  }
-	} / 100
+	expression = "random_penalty(x, y, 100, map_seed, 100) / 100",
   },
 })
