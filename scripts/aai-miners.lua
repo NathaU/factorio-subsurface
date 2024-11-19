@@ -9,17 +9,18 @@ ai_miner_names = {
 	"vehicle-miner-0-_-ghost", "vehicle-miner-mk2-0-_-ghost", "vehicle-miner-mk3-0-_-ghost", "vehicle-miner-mk4-0-_-ghost", "vehicle-miner-mk5-0-_-ghost",
 	"vehicle-miner-0-_-solid", "vehicle-miner-mk2-0-_-solid", "vehicle-miner-mk3-0-_-solid", "vehicle-miner-mk4-0-_-solid", "vehicle-miner-mk5-0-_-solid"
 }
-non_ai_miner_names = {["vehicle-miner"]=1, ["vehicle-miner-mk2"]=1, ["vehicle-miner-mk3"]=1, ["vehicle-miner-mk4"]=1, ["vehicle-miner-mk5"]=1}
+non_ai_miner_names = {"vehicle-miner", "vehicle-miner-mk2", "vehicle-miner-mk3", "vehicle-miner-mk4", "vehicle-miner-mk5"}
+non_ai_miner_names_k = {["vehicle-miner"] = 1, ["vehicle-miner-mk2"] = 1, ["vehicle-miner-mk3"] = 1, ["vehicle-miner-mk4"] = 1, ["vehicle-miner-mk5"] = 1}
 
 -- AAI miner gui
 function aai_cursor_stack_changed(player)
 	local surface = player.surface
 	if player.gui.left.aai_gui ~= nil then player.gui.left.aai_gui.destroy() end
 	if player.cursor_stack and player.cursor_stack.valid_for_read and player.cursor_stack.name == "unit-remote-control" and is_subsurface(surface) then
-		local miners = surface.find_entities_filtered{name=ai_miner_names, force=player.force}
+		local miners = surface.find_entities_filtered{name = ai_miner_names, force = player.force}
 		if #miners > 0 then
 			
-			local paths = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=surface.index, force_name=player.force.name})
+			local paths = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index = surface.index, force_name = player.force.name})
 			local path_names = {"None"}
 			for _,p in ipairs(paths or {}) do
 				path_names[p.path_id + 1] = p.path_id .. ": " .. p.name
@@ -39,9 +40,9 @@ function aai_cursor_stack_changed(player)
 					direction = "horizontal",
 					style = "aai_vehicles_unit-frame"
 				}
-				frame.add{type="sprite", sprite="entity/"..miner_data.unit_type}
-				frame.add{type="label", caption=miner_data.unit_id, style="aai_vehicles_unit-number-label"}
-				frame.add{type="drop-down", name="miner_path", tags={unit_id=miner_data.unit_id}, items=path_names, selected_index=(global.aai_miner_paths[miner_data.unit_id] or {0, 0})[1] + 1}
+				frame.add{type = "sprite", sprite = "entity/"..miner_data.unit_type}
+				frame.add{type = "label", caption = miner_data.unit_id, style = "aai_vehicles_unit-number-label"}
+				frame.add{type = "drop-down", name = "miner_path", tags={unit_id = miner_data.unit_id}, items=path_names, selected_index = (storage.aai_miner_paths[miner_data.unit_id] or {0, 0})[1] + 1}
 			end
 		end
 	end
@@ -51,49 +52,51 @@ script.on_event(defines.events.on_gui_selection_state_changed, function(event)
 	if event.element.name == "miner_path" then
 		local unit_id = event.element.tags.unit_id
 		if event.element.selected_index == 1 then
-			global.aai_miner_paths[unit_id] = {0, 0}
+			storage.aai_miner_paths[unit_id] = {0, 0}
 		else
-			global.aai_miner_paths[unit_id] = {event.element.selected_index - 1, remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=game.get_player(event.player_index).surface.index, force_name=game.get_player(event.player_index).force.name})[event.element.selected_index - 1].first_waypoint_id}
+			storage.aai_miner_paths[unit_id] = {event.element.selected_index - 1, remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index = game.get_player(event.player_index).surface.index, force_name = game.get_player(event.player_index).force.name})[event.element.selected_index - 1].first_waypoint_id}
 		end
 	end
 end)
 
 function handle_miners(tick)
-	for _,subsurface in pairs(global.subsurfaces) do
-		for _,miner in ipairs(subsurface.find_entities_filtered{name=miner_names}) do
+	local miners = non_ai_miner_names
+	if remote.interfaces["aai-programmable-vehicles"] then miners = miner_names end
+	for _,subsurface in pairs(storage.subsurfaces) do
+		for _,miner in ipairs(subsurface.find_entities_filtered{name = miners}) do
 			
-			if not non_ai_miner_names[miner.name] then -- navigation part
+			if not non_ai_miner_names_k[miner.name] then -- navigation part
 				local miner_data = remote.call("aai-programmable-vehicles", "get_unit_by_entity", miner)
 				local path = nil
-				if global.aai_miner_paths[miner_data.unit_id] and global.aai_miner_paths[miner_data.unit_id][1] > 0 then
-					path = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index=subsurface.index, force_name=miner.force.name})[global.aai_miner_paths[miner_data.unit_id][1]]
+				if storage.aai_miner_paths[miner_data.unit_id] and storage.aai_miner_paths[miner_data.unit_id][1] > 0 then
+					path = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index = subsurface.index, force_name = miner.force.name})[storage.aai_miner_paths[miner_data.unit_id][1]]
 				end
 				
 				if path then
-					local target_position = path.waypoints[global.aai_miner_paths[miner_data.unit_id][2]].position -- position of next waypoint
+					local target_position = path.waypoints[storage.aai_miner_paths[miner_data.unit_id][2]].position -- position of next waypoint
 					if miner_data.mode == "unit" and miner_data.speed == 0 then -- miner has no path (stucked)
 						for _,p in ipairs(miner.force.players) do
-							if tick % 180 == 0 then p.add_custom_alert(miner, {type="item", name=miner_data.unit_type}, {"subsurface.miner-stuck"}, true) end
+							if tick % 180 == 0 then p.add_custom_alert(miner, {type = "item", name = miner_data.unit_type}, {"subsurface.miner-stuck"}, true) end
 						end
 					elseif miner_data.mode == "vehicle" and not miner_data.vehicle.get_inventory(defines.inventory.car_trunk).is_full() then
 						if miner.position.x - 2 < target_position.x and miner.position.x + 2 > target_position.x and miner.position.y - 2 < target_position.y and miner.position.y + 2 > target_position.y then
 							local next_waypoint = path.first_waypoint_id
 							for i,w in pairs(path.waypoints) do
-								if next_waypoint == path.first_waypoint_id and i > global.aai_miner_paths[miner_data.unit_id][2] and path.waypoints[i] and path.waypoints[i].type == "position" then
+								if next_waypoint == path.first_waypoint_id and i > storage.aai_miner_paths[miner_data.unit_id][2] and path.waypoints[i] and path.waypoints[i].type == "position" then
 									next_waypoint = i
 								end
 							end
-							global.aai_miner_paths[miner_data.unit_id][2] = next_waypoint
+							storage.aai_miner_paths[miner_data.unit_id][2] = next_waypoint
 						end
-						remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_position_direct=path.waypoints[global.aai_miner_paths[miner_data.unit_id][2]].position})
+						remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id = miner_data.unit_id, target_position_direct = path.waypoints[storage.aai_miner_paths[miner_data.unit_id][2]].position})
 					elseif miner_data.vehicle.get_inventory(defines.inventory.car_trunk).is_full() then
 						for _,p in ipairs(miner.force.players) do
-							if tick % 180 == 0 then p.add_custom_alert(miner, {type="item", name=miner_data.unit_type}, {"subsurface.miner-inventory-full"}, true) end
+							if tick % 180 == 0 then p.add_custom_alert(miner, {type = "item", name = miner_data.unit_type}, {"subsurface.miner-inventory-full"}, true) end
 						end
-						remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id=miner_data.unit_id, target_speed=0})
+						remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id = miner_data.unit_id, target_speed = 0})
 					end
 				else
-					global.aai_miner_paths[miner_data.unit_id] = {0, 0}
+					storage.aai_miner_paths[miner_data.unit_id] = {0, 0}
 				end
 			end
 			
@@ -112,12 +115,12 @@ function handle_miners(tick)
 					local actually_inserted = miner.insert(stack)
 					if actually_inserted ~= stack.count then
 						stack.count = stack.count - actually_inserted
-						subsurface.spill_item_stack(miner.position, stack)
+						subsurface.spill_item_stack{position = miner.position, stack = stack}
 					end
 					subsurface.pollute(center_small_excavation, walls_dug * 0.25)
-					subsurface.create_trivial_smoke{name="fire-smoke-without-glow", position=speed_test_position}
-					subsurface.create_trivial_smoke{name="fire-smoke-without-glow", position=speed_test_position}
-					subsurface.create_trivial_smoke{name="fire-smoke-without-glow", position=speed_test_position}
+					subsurface.create_trivial_smoke{name = "fire-smoke-without-glow", position = speed_test_position}
+					subsurface.create_trivial_smoke{name = "fire-smoke-without-glow", position = speed_test_position}
+					subsurface.create_trivial_smoke{name = "fire-smoke-without-glow", position = speed_test_position}
 				end
 
 				if miner.speed > 0 and subsurface.find_entity("subsurface-wall", speed_test_position) then

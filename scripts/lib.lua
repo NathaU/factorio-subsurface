@@ -42,13 +42,13 @@ end
 
 function get_area(pos, size) -- cannot use math2d.bounding_box.create_from_centre because of floor and ceil
 	pos = math2d.position.ensure_xy(pos)
-	return {left_top={x=math.floor(pos.x - size), y=math.floor(pos.y - size)}, right_bottom={x=math.ceil(pos.x + size), y=math.ceil(pos.y + size)}}
+	return {left_top = {x = math.floor(pos.x - size), y = math.floor(pos.y - size)}, right_bottom = {x = math.ceil(pos.x + size), y = math.ceil(pos.y + size)}}
 end
 
 function get_area_positions(area)
 	local arr = {}
-	for y=area.left_top.y,area.right_bottom.y,1 do
-		for x=area.left_top.x,area.right_bottom.x,1 do
+	for y = area.left_top.y,area.right_bottom.y,1 do
+		for x = area.left_top.x,area.right_bottom.x,1 do
 			table.insert(arr, {x, y})
 		end
 	end
@@ -68,7 +68,7 @@ end
 
 function get_chunk_positions(poss)
 	pos = math2d.position.ensure_xy(poss)
-	return get_area_positions({left_top={x=math.floor(pos.x/32)*32, y=math.floor(pos.y/32)*32}, right_bottom={x=(math.floor(pos.x/32)*32)+31, y=(math.floor(pos.y/32)*32)+31}})
+	return get_area_positions({left_top = {x = math.floor(pos.x/32)*32, y = math.floor(pos.y/32)*32}, right_bottom = {x = (math.floor(pos.x/32)*32)+31, y = (math.floor(pos.y/32)*32)+31}})
 end
 
 function get_position_index_in_chunk(pos)

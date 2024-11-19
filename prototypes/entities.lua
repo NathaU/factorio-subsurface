@@ -587,12 +587,11 @@ data:extend(
 	  {type = "impact", percent = 30}
 	},
 	fluid_box = {
-	  height = 4,
-	  volume = 4,
+	  volume = 200,
 	  pipe_covers = pipecoverspictures(),
 	  pipe_connections = {
 		{flow_direction = "input", connection_type = "normal", position = {0, 0}, direction = defines.direction.north},
-		{flow_direction = "output", connection_type = "linked", linked_connection_id = 68752},
+		{flow_direction = "output", connection_type = "linked", linked_connection_id = 1},
 	  }
 	},
 	energy_source = {
@@ -660,12 +659,11 @@ data:extend(
 	  {type = "impact", percent = 30}
 	},
 	fluid_box = {
-	  height = 4,
-	  volume = 4,
+	  volume = 200,
 	  pipe_covers = pipecoverspictures(),
 	  pipe_connections = {
 		{flow_direction = "output", connection_type = "normal", position = {0, 0}, direction = defines.direction.north},
-		{flow_direction = "input", connection_type = "linked", linked_connection_id = 68752},
+		{flow_direction = "input", connection_type = "linked", linked_connection_id = 1},
 	  }
 	},
 	energy_source = {type = "void"},

@@ -1,8 +1,9 @@
 function place_resources(surface, pos_arr)
 	local resources = {}
 	local properties = {"probability"}
+	local game_prototypes = prototypes.entity
 	for proto,_ in pairs(surface.map_gen_settings.autoplace_controls or {}) do
-		if proto ~= "enemy-base" and proto ~= "trees" then
+		if game_prototypes[proto] then
 			table.insert(resources, proto)
 			table.insert(properties, "entity:"..proto..":richness")
 			table.insert(properties, "entity:"..proto..":probability")
@@ -32,7 +33,7 @@ end
 local meta = {
 	__index = function(self, key) return {size = 0, frequency = 0, richness = 0} end,
 	__newindex = function(self, key, value)
-		if game.autoplace_control_prototypes[key] then rawset(self, key, value) end
+		if prototypes.autoplace_control[key] then rawset(self, key, value) end
 	end,
 }
 
@@ -46,7 +47,7 @@ function manipulate_autoplace_controls(surface)
 	
 	-- first, half all resource richness
 	for proto,control in pairs(mgs.autoplace_controls) do
-		if proto ~= "trees" and proto ~= "enemy-base" then
+		if control.richness then
 			mgs.autoplace_controls[proto].richness = control.richness / 2
 		end
 	end
