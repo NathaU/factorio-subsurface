@@ -12,12 +12,16 @@ data:extend(
 	absorptions_per_second = {pollution = 0},
 	variants =
 	{
-	  material_background =
+	  --[[material_background =
 	  {
 		picture = "__Subsurface__/graphics/terrain/underground-dirt.png",
+		count = 4
+	  },]]
+	  main = {{
+	    picture = "__Subsurface__/graphics/terrain/underground-dirt.png",
 		count = 4,
-		scale = 8
-	  },
+		size = 1
+	  }},
 	  transition =
       {
         overlay_layout =

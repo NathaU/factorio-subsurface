@@ -1,4 +1,4 @@
-for _,v in ipairs(global.air_vents) do
+for _,v in ipairs(storage.air_vents) do
 	v.operable = true
 end
 
@@ -36,7 +36,7 @@ for _,s in pairs(game.surfaces) do
 				end
 			end
 			log("Migrated chunks and map gen settings of subsurface "..s.name)
-		else -- this is a new game where global.subsurfaces doesn't exist. Delete all subsurfaces
+		else -- this is a new game where storage.subsurfaces doesn't exist. Delete all subsurfaces
 			game.delete_surface(s)
 			log("Deleted existing surface that will be considered as subsurface: "..s.name)
 		end
