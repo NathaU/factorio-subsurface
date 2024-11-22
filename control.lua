@@ -16,6 +16,8 @@ suffocation_damage = 2.5 -- per 64 ticks (~1 second)
 attrition_threshold = 150
 attrition_types = {"assembling-machine", "reactor", "mining-drill", "generator", "inserter", "burner-generator", "car", "construction-robot", "lab", "loader", "loader-1x1", "locomotive", "logistic-robot", "power-switch", "pump", "radar", "roboport", "spider-vehicle", "splitter", "transport-belt"}
 
+aai_miners = false
+
 function setup_globals()
 	storage.subsurfaces = storage.subsurfaces or {}
 	storage.pole_links = storage.pole_links or {}
@@ -44,6 +46,8 @@ script.on_init(function()
 			on_remote_view_started(game.get_player(event.player_index))
 		end)
 	end
+	
+	aai_miners = script.active_mods["aai-vehicles-miner"] ~= nil
 end)
 script.on_configuration_changed(function(config) -- TBC
 	setup_globals()
@@ -98,6 +102,8 @@ script.on_load(function()
 			on_remote_view_started(game.get_player(event.player_index))
 		end)
 	end
+	
+	aai_miners = script.active_mods["aai-vehicles-miner"] ~= nil
 end)
 
 function get_subsurface(surface, create)
@@ -347,7 +353,7 @@ script.on_event(defines.events.on_tick, function(event)
 	end
 	
 	-- handle miners
-	if --[[remote.interfaces["aai-programmable-vehicles"] and ]]event.tick % 10 == 0 then handle_miners(event.tick) end
+	if aai_miners and event.tick % 10 == 0 then handle_miners(event.tick) end
 	
 	if event.tick % 20 == 0 and not settings.global["disable-autoplace-manipulation"].value and game.map_settings.enemy_expansion.enabled then handle_enemies(event.tick) end
 end)
