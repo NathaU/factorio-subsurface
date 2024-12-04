@@ -9,7 +9,6 @@ data:extend(
 	{
 	  {type = "unlock-recipe", recipe = "surface-drill"},
 	  {type = "unlock-recipe", recipe = "wooden-support"},
-	  {type = "unlock-recipe", recipe = "prospector"},
 	  {type = "unlock-recipe", recipe = "cave-sealing"},
 	},
 	prerequisites = {},
