@@ -89,46 +89,52 @@ function handle_elevators(tick)
 	end
 end
 
-function show_placement_indicators(player, elevator_name)
-	if get_oversurface(player.surface) then
-		for _,e in ipairs(get_oversurface(player.surface).find_entities_filtered{name = get_elevator_names()}) do
-			if not is_linked(e) then
-				storage.placement_indicators[player.index] = storage.placement_indicators[player.index] or {}
-				if elevator_name == "item-elevator" then table.insert(storage.placement_indicators[player.index], rendering.draw_sprite{sprite = "placement-indicator-3", surface = player.surface, x_scale = 0.3, y_scale = 0.3, target = e.position, players={player}})
-				elseif elevator_name == "fluid-elevator" then table.insert(storage.placement_indicators[player.index], rendering.draw_sprite{sprite = "placement-indicator-4", surface = player.surface, x_scale = 0.3, y_scale = 0.3, target = e.position, players={player}})
-				else table.insert(storage.placement_indicators[player.index], rendering.draw_sprite{sprite = "placement-indicator-6", surface = player.surface, x_scale = 0.3, y_scale = 0.3, target = e.position, players={player}}) end
-			end
+function show_placement_indicators(player, elevator_type)
+	local entities = {}
+	if elevator_type == 1 then
+		local i = 1
+		while prototypes.entity["item-elevator-"..i] do
+			table.insert(entities, "item-elevator-"..i)
+			i = i + 1
 		end
+	elseif elevator_type == 2 then table.insert(entities, "fluid-elevator-input")
+	else table.insert(entities, "heat-elevator")
 	end
-	for _,e in ipairs(get_subsurface(player.surface).find_entities_filtered{name = get_elevator_names()}) do
-		if not is_linked(e) then
-			storage.placement_indicators[player.index] = storage.placement_indicators[player.index] or {}
-			if elevator_name == "item-elevator" then table.insert(storage.placement_indicators[player.index], rendering.draw_sprite{sprite = "placement-indicator-1", surface = player.surface, x_scale = 0.3, y_scale = 0.3, target = e.position, players={player}})
-			elseif elevator_name == "fluid-elevator" then table.insert(storage.placement_indicators[player.index], rendering.draw_sprite{sprite = "placement-indicator-2", surface = player.surface, x_scale = 0.3, y_scale = 0.3, target = e.position, players={player}})
-			else table.insert(storage.placement_indicators[player.index], rendering.draw_sprite{sprite = "placement-indicator-5", surface = player.surface, x_scale = 0.3, y_scale = 0.3, target = e.position, players={player}}) end
+		
+	local iter = {get_oversurface(player.surface), get_subsurface(player.surface, false)}
+	for i=1,2,1 do
+		if iter[i] then
+			for _,e in ipairs(iter[i].find_entities_filtered{name = entities}) do
+				if not is_linked(e) then
+					storage.placement_indicators[player.index] = storage.placement_indicators[player.index] or {}
+					table.insert(storage.placement_indicators[player.index], rendering.draw_sprite{sprite = "placement-indicator-"..(elevator_type + (i - 1) * 3), surface = player.surface, x_scale = 0.3, y_scale = 0.3, target = e.position, players = {player}})
+				end
+			end
 		end
 	end
 end
 
 function elevator_on_cursor_stack_changed(player)
-	if player.cursor_stack and player.cursor_stack.valid_for_read then
-		if player.cursor_stack.name == "fluid-elevator" then show_placement_indicators(player, "fluid-elevator")
-		elseif is_item_elevator(player.cursor_stack.name) then show_placement_indicators(player, "item-elevator")
-		elseif player.cursor_stack.name == "heat-elevator" then show_placement_indicators(player, "heat-elevator")
-		elseif player.is_cursor_blueprint() and (player.cursor_record or player.cursor_stack).get_blueprint_entities() then
-			local item = false
-			local fluid = false
-			local heat = false
-			for _,e in ipairs((player.cursor_record or player.cursor_stack).get_blueprint_entities()) do
-				if e.name == "fluid-elevator-input" then fluid = true
-				elseif is_item_elevator(e.name) then item = true
-				elseif e.name == "heat-elevator" then heat = true end
-			end
-			if fluid then show_placement_indicators(player, "fluid-elevator") end
-			if item then show_placement_indicators(player, "item-elevator") end
-			if heat then show_placement_indicators(player, "heat-elevator") end
+	local item = false
+	local fluid = false
+	local heat = false
+			
+	if player.is_cursor_blueprint() and (player.cursor_record or player.cursor_stack.is_blueprint) then
+		for _,e in ipairs((player.cursor_record or player.cursor_stack).get_blueprint_entities() or {}) do
+			if e.name == "fluid-elevator-input" then fluid = true
+			elseif is_item_elevator(e.name) then item = true
+			elseif e.name == "heat-elevator" then heat = true end
+		end
+	elseif player.cursor_stack and player.cursor_stack.valid_for_read then
+		if player.cursor_stack.name == "fluid-elevator" then fluid = true
+		elseif is_item_elevator(player.cursor_stack.name) then item = true
+		elseif player.cursor_stack.name == "heat-elevator" then heat = true
 		end
 	end
+	
+	if item then show_placement_indicators(player, 1) end
+	if fluid then show_placement_indicators(player, 2) end
+	if heat then show_placement_indicators(player, 3) end
 end
 
 function elevator_rotated(entity, previous_direction)
