@@ -295,7 +295,7 @@ script.on_event(defines.events.on_tick, function(event)
 			
 			-- machine inefficiency due to pollution
 			for _,e in ipairs(subsurface.find_entities_filtered{type = attrition_types}) do
-				if subsurface.get_pollution(e.position) > attrition_threshold and math.random(5) == 1 then e.damage(e.prototype.max_health*0.01, game.forces.neutral, "physical") end
+				if subsurface.get_pollution(e.position) > attrition_threshold and math.random(5) == 1 then e.damage(e.max_health*0.01, game.forces.neutral, "physical") end
 			end
 			
 		end
