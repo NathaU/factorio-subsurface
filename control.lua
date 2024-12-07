@@ -24,7 +24,6 @@ function setup_globals()
 	storage.car_links = storage.car_links or {}
 	storage.heat_elevators = storage.heat_elevators or {}
 	storage.air_vents = storage.air_vents or {}
-	storage.air_vent_lights = storage.air_vent_lights or {}
 	storage.exposed_chunks = storage.exposed_chunks or {} -- [surface][x][y], 1 means chunk is exposed, 0 means chunk is next to an exposed chunk
 	storage.aai_miner_paths = storage.aai_miner_paths or {}
 	storage.prospectors = storage.prospectors or {}
@@ -423,9 +422,6 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 	elseif entity.name == "air-vent" or entity.name == "active-air-vent" then
 		build_safe(event, function()
 			table.insert(storage.air_vents, entity)
-			if not is_subsurface(entity.surface) then -- draw light in subsurface, but only if air vent is placed on surface
-				storage.air_vent_lights[script.register_on_object_destroyed(entity)] = rendering.draw_light{surface = get_subsurface(entity.surface), target = entity.position, sprite = "utility/light_small"}
-			end
 		end, false)
 	elseif entity.name == "wooden-support" then
 		script.register_on_object_destroyed(entity)
@@ -587,9 +583,6 @@ script.on_event(defines.events.on_object_destroyed, function(event)
 		if opposite_pole and opposite_pole.valid then opposite_pole.destroy() end
 		storage.car_links[event.useful_id].destroy()
 		storage.car_links[event.useful_id] = nil
-	elseif storage.air_vent_lights[event.registration_number] then
-		storage.air_vent_lights[event.registration_number].destroy()
-		storage.air_vent_lights[event.registration_number] = nil
 	elseif storage.support_lamps[event.useful_id] then
 		storage.support_lamps[event.useful_id].destroy()
 	end
