@@ -65,8 +65,6 @@ data:extend(
 	name = "subsurface-wall",
 	flags = {"placeable-neutral", "not-on-map", "placeable-off-grid"},
 	icon = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon),
-	icon_size = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon_size),
-	icon_mipmaps = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon_mipmaps),
 	orientations = {
 	  west_to_east = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
 	  north_to_south = {pictures = cliff_pics, collision_bounding_box = cliff_collision_box, fill_volume = 0},
@@ -100,8 +98,6 @@ data:extend(
 	name = "subsurface-wall-map-border",
 	localised_name = {"entity-name.subsurface-wall"},
 	icon = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon),
-	icon_size = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon_size),
-	icon_mipmaps = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon_mipmaps),
 	flags = {"placeable-neutral", "not-on-map", "placeable-off-grid", "not-deconstructable"},
 	resistances = {
 	  {type = "physical", percent = 100},
@@ -303,8 +299,7 @@ data:extend(
 	name = "surface-drill",
 	icons = {
 	  {
-		icon = "__base__/graphics/icons/burner-mining-drill.png",
-		icon_size = 64, icon_mipmaps = 4
+		icon = "__base__/graphics/icons/burner-mining-drill.png"
 	  },
 	  {
 		icon = "__Subsurface__/graphics/icons/elevator.png",
@@ -339,8 +334,7 @@ data:extend(
 	name = "surface-drill-placer",
 	icons = {
 	  {
-		icon = "__base__/graphics/icons/burner-mining-drill.png",
-		icon_size = 64, icon_mipmaps = 4
+		icon = "__base__/graphics/icons/burner-mining-drill.png"
 	  },
 	  {
 		icon = "__Subsurface__/graphics/icons/elevator.png",
@@ -363,7 +357,6 @@ data:extend(
 	type = "resource",
 	name = "subsurface-hole",
 	icon = "__base__/graphics/icons/stone.png",
-	icon_size = 64, icon_mipmaps = 4,
 	category = "subsurface-hole",
 	minable = {mining_time = 1, result = "stone", count = 20},
 	stages = {blank_image},
@@ -374,7 +367,7 @@ data:extend(
 	type = "assembling-machine",
 	name = "active-air-vent",
 	icon = "__Subsurface__/graphics/icons/air_vent_22_icon.png",
-	icon_size = 32, icon_mipmaps = 1,
+	icon_size = 32,
 	flags = {"placeable-player", "player-creation"},
 	minable = {hardness = 0.2, mining_time = 0.5, result = "active-air-vent"},
 	max_health = 200,
@@ -408,7 +401,7 @@ data:extend(
 	flags = {"placeable-neutral", "not-on-map", "player-creation"},
 	collision_mask = {layers={item=true, object=true, player=true, water_tile=true}},
 	icon = "__Subsurface__/graphics/icons/air_vent_11_icon.png",
-	icon_size = 32, icon_mipmaps = 1,
+	icon_size = 32,
 	minable = {mining_time = 1, result = "air-vent"},
 	selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	collision_box = {{-0.4, -0.4}, {0.4, 0.4}},
@@ -429,7 +422,6 @@ data:extend(
 	type = "assembling-machine",
 	name = "prospector",
 	icon = "__Subsurface__/graphics/icons/prospector.png",
-	icon_size = 64, icon_mipmaps = 4,
 	flags = {"placeable-player", "player-creation"},
 	minable = {mining_time = 0.1, result = "prospector"},
 	max_health = 250,
@@ -479,7 +471,6 @@ data:extend(
 	type = "electric-pole",
 	name = "wooden-support",
 	icon = "__Subsurface__/graphics/icons/wooden-support.png",
-	icon_size = 64, icon_mipmaps = 4,
 	flags = {"placeable-neutral", "player-creation"},
 	minable = {mining_time = 0.1, result = "wooden-support"},
 	max_health = 100,
@@ -737,9 +728,7 @@ data:extend(
 	name = "heat-elevator",
 	icons = {
 	  {
-		icon = data.raw["heat-pipe"]["heat-pipe"].icon,
-		icon_size = data.raw["heat-pipe"]["heat-pipe"].icon_size,
-		icon_mipmaps = data.raw["heat-pipe"]["heat-pipe"].icon_mipmaps
+		icon = data.raw["heat-pipe"]["heat-pipe"].icon
 	  },
 	  {
 		icon = "__Subsurface__/graphics/icons/elevator.png",

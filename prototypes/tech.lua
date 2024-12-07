@@ -4,7 +4,7 @@ data:extend(
 	type = "technology",
 	name = "surface-drilling",
 	icon = "__base__/graphics/icons/burner-mining-drill.png",
-	icon_size = 64, icon_mipmaps = 4,
+	icon_size = 64,
 	effects =
 	{
 	  {type = "unlock-recipe", recipe = "surface-drill"},
