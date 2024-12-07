@@ -7,7 +7,7 @@ function place_resources(surface, pos_arr)
 			table.insert(resources, proto)
 			table.insert(properties, "entity:"..proto..":richness")
 			table.insert(properties, "entity:"..proto..":probability")
-			table.insert(properties, "probability-" .. proto)
+			if surface.map_gen_settings.property_expression_names["probability-" .. proto] and prototypes.named_noise_expression[proto .. "-probability"] then table.insert(properties, "probability-" .. proto) end
 		end
 	end
 	
@@ -24,7 +24,7 @@ function place_resources(surface, pos_arr)
 			and stored_results[chunk_id]["entity:"..proto..":richness"][pos_pos] > 0
 			and ((stored_results[chunk_id]["probability-"..proto] and stored_results[chunk_id]["probability-"..proto][pos_pos]) or stored_results[chunk_id]["probability"][pos_pos]) <= stored_results[chunk_id]["entity:"..proto..":probability"][pos_pos]
 			and not surface.entity_prototype_collides(proto, pos, false) then
-				surface.create_entity{name=proto, position=pos, force=game.forces.neutral, amount=math.ceil(stored_results[chunk_id]["entity:"..proto..":richness"][pos_pos])}
+				surface.create_entity{name = proto, position = pos, force = game.forces.neutral, amount = math.ceil(stored_results[chunk_id]["entity:"..proto..":richness"][pos_pos])}
 			end
 		end
 	end
@@ -45,7 +45,7 @@ function manipulate_autoplace_controls(surface)
 	if not mgs or not mgs.autoplace_controls then return end
 	setmetatable(mgs.autoplace_controls, meta)
 	
-	-- first, half all resource richness
+	-- first, halve all resource richness
 	for proto,control in pairs(mgs.autoplace_controls) do
 		if control.richness then
 			mgs.autoplace_controls[proto].richness = control.richness / 2
@@ -53,7 +53,7 @@ function manipulate_autoplace_controls(surface)
 	end
 	mgs.autoplace_controls["stone"].richness = mgs.autoplace_controls["stone"].richness / 4
 	
-	-- second, half all existing resources (only if the mod was added to an existing game)
+	-- second, halve all existing resources (only if the mod was added to an existing game)
 	for _,res in ipairs(surface.find_entities_filtered{type = "resource"}) do
 		res.amount = math.ceil(res.amount / 2)
 	end

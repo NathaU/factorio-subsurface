@@ -47,6 +47,12 @@ script.on_init(function()
 	end
 	
 	aai_miners = script.active_mods["aai-vehicles-miner"] ~= nil
+	
+	for name, _ in pairs(prototypes.get_entity_filtered{{filter = "type", type = "resource"}}) do
+		if prototypes.named_noise_expression[name .. "-probability"] then
+			storage.resources_autoplace_replace[name] = name .. "-probability"
+		end
+	end
 end)
 script.on_configuration_changed(function(config) -- TBC
 	setup_globals()
@@ -78,20 +84,17 @@ script.on_configuration_changed(function(config) -- TBC
 	
 	-- handle resources whose autoplace is independent from position
 	storage.resources_autoplace_replace = {}
-	for name,prt in pairs(prototypes.get_entity_filtered{{filter = "type", type = "resource"}}) do
-		if prt.autoplace_specification and prt.autoplace_specification.probability_expression then
-			local serialized_expression = serpent.line(prt.autoplace_specification.probability_expression)
-			if string.find(serialized_expression, 'variable_name = "x"') == nil and string.find(serialized_expression, 'variable_name = "y"') == nil then
-				storage.resources_autoplace_replace[name] = name .. "-probability"
-			end
+	for name, _ in pairs(prototypes.get_entity_filtered{{filter = "type", type = "resource"}}) do
+		if prototypes.named_noise_expression[name .. "-probability"] then
+			storage.resources_autoplace_replace[name] = name .. "-probability"
 		end
 	end
-	for prt,expr in pairs(storage.resources_autoplace_replace) do
-		for _,s in pairs(storage.subsurfaces) do
-			local mgs = s.map_gen_settings
+	for _, surface in pairs(storage.subsurfaces) do
+		local mgs = surface.map_gen_settings
+		for prt,expr in pairs(storage.resources_autoplace_replace) do
 			mgs.property_expression_names["probability-" .. prt] = expr
-			s.map_gen_settings = mgs
 		end
+		surface.map_gen_settings = mgs
 	end
 end)
 
