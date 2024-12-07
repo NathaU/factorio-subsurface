@@ -22,7 +22,6 @@ function setup_globals()
 	storage.subsurfaces = storage.subsurfaces or {}
 	storage.pole_links = storage.pole_links or {}
 	storage.car_links = storage.car_links or {}
-	storage.fluid_elevators = storage.fluid_elevators or {}
 	storage.heat_elevators = storage.heat_elevators or {}
 	storage.air_vents = storage.air_vents or {}
 	storage.air_vent_lights = storage.air_vent_lights or {}
@@ -412,9 +411,9 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		end
 	elseif entity.name == "prospector" then table.insert(storage.prospectors, entity)
 	elseif string.sub(entity.name, 1, 13) == "item-elevator" then elevator_built(entity)
-	elseif entity.name == "fluid-elevator-input" then elevator_built(entity, event.tags)
+	elseif entity.name == "fluid-elevator-input" then elevator_built(entity, event.tags and event.tags.output or false)
 	elseif entity.name == "heat-elevator" then
-		elevator_built(entity, event.tags)
+		elevator_built(entity)
 		entity.operable = false
 	elseif entity.name == "air-vent" or entity.name == "active-air-vent" then
 		build_safe(event, function()
@@ -449,12 +448,7 @@ script.on_event(defines.events.on_player_configured_blueprint, function(event)
 		local contents = item.get_blueprint_entities()
 		for _,e in ipairs(contents or {}) do
 			if e.name == "surface-drill" then e.name = "surface-drill-placer"
-			elseif e.name == "fluid-elevator-output" then
-				e.name = "fluid-elevator-input"
-				e.tags = {type = 0}
-			elseif e.name == "fluid-elevator-input" then
-				e.tags = {type = 1}
-			end
+			elseif e.name == "fluid-elevator-output" then e.tags = {output = true} end
 		end
 		item.set_blueprint_entities(contents)
 	end
@@ -501,15 +495,10 @@ script.on_event(defines.events.on_entity_died, function(event)
 		placer_dummy.surface.create_entity{name = "massive-explosion", position = placer_dummy.position}
 		if event.cause then placer_dummy.die(event.force, event.cause)
 		else placer_dummy.die(event.force) end
-	elseif entity.name == "fluid-elevator-output" then
-		local ghost = entity.surface.create_entity{name = "entity-ghost", position = entity.position, direction = entity.direction, force = entity.force, inner_name = "fluid-elevator-input", expires=true}
-		ghost.tags = {type = 0}
 	end
 end)
 script.on_event(defines.events.on_post_entity_died, function(event)
-	if event.prototype.name == "fluid-elevator-input" then
-		event.ghost.tags = {type = 1}
-	end
+	if event.prototype.name == "fluid-elevator-output" then event.ghost.tags = {output = true} end
 end)
 
 script.on_event(defines.events.on_resource_depleted, function(event)
