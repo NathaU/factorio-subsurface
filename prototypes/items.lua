@@ -5,8 +5,7 @@ data:extend(
 	name = "surface-drill",
 	icons = {
 	  {
-		icon = "__base__/graphics/icons/burner-mining-drill.png",
-		icon_size = 64, icon_mipmaps = 4
+		icon = "__base__/graphics/icons/burner-mining-drill.png"
 	  },
 	  {
 		icon = "__Subsurface__/graphics/icons/elevator.png",
@@ -23,8 +22,7 @@ data:extend(
 	name = "surface-drill-dummy",
 	icons = {
 	  {
-		icon = "__base__/graphics/icons/burner-mining-drill.png",
-		icon_size = 64, icon_mipmaps = 4
+		icon = "__base__/graphics/icons/burner-mining-drill.png"
 	  },
 	  {
 		icon = "__Subsurface__/graphics/icons/elevator.png",
@@ -42,7 +40,6 @@ data:extend(
 	type = "item",
 	name = "prospector",
 	icon = "__Subsurface__/graphics/icons/prospector.png",
-	icon_size = 64, icon_mipmaps = 4,
 	subgroup = "production-machine",
 	order = "z",
 	place_result = "prospector",
@@ -72,9 +69,7 @@ data:extend(
 	name = "heat-elevator",
 	icons = {
 	  {
-		icon = data.raw.item["heat-pipe"].icon,
-		icon_size = data.raw.item["heat-pipe"].icon_size,
-		icon_mipmaps = data.raw.item["heat-pipe"].icon_mipmaps
+		icon = data.raw.item["heat-pipe"].icon
 	  },
 	  {
 		icon = "__Subsurface__/graphics/icons/elevator.png",
@@ -91,7 +86,7 @@ data:extend(
 	type = "item",
 	name = "air-vent",
 	icon = "__Subsurface__/graphics/icons/air_vent_11_icon.png",
-	icon_size = 32, icon_mipmaps = 1,
+	icon_size = 32,
 	subgroup = "inter-surface-transport",
 	order = "b-a",
 	place_result = "air-vent",
@@ -101,7 +96,7 @@ data:extend(
 	type = "item",
 	name = "active-air-vent",
 	icon = "__Subsurface__/graphics/icons/air_vent_22_icon.png",
-	icon_size = 32, icon_mipmaps = 1,
+	icon_size = 32,
 	subgroup = "inter-surface-transport",
 	order = "b-b",
 	place_result = "active-air-vent",
@@ -111,7 +106,6 @@ data:extend(
 	type = "capsule",
 	name = "cave-sealing",
 	icon = "__base__/graphics/icons/big-rock.png",
-	icon_size = 64, icon_mipmaps = 4,
 	flags = {"hide-from-bonus-gui"},
 	capsule_action =
 	{
@@ -150,7 +144,6 @@ data:extend(
 	type = "item",
 	name = "wooden-support",
 	icon = "__Subsurface__/graphics/icons/wooden-support.png",
-	icon_size = 64, icon_mipmaps = 4,
 	subgroup = "inter-surface-transport",
 	order = "a-a",
 	place_result = "wooden-support",
