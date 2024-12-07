@@ -364,7 +364,10 @@ function cancel_placement(entity, player_index, text)
 		local player = game.get_player(player_index)
 		if text then player.create_local_flying_text{text = {text}, position = entity.position} end
 		player.play_sound{path = "utility/cannot_build", position = entity.position}
-		player.mine_entity(entity, true)
+		local proto = entity.prototype
+		if player.mine_entity(entity, true) and not player.cursor_stack.valid_for_read then -- player had only one item, this is now in inventory
+			player.pipette_entity(proto)
+		end
 	else -- robot built it
 		entity.surface.play_sound{path = "utility/cannot_build", position = entity.position}
 		entity.order_deconstruction(entity.force)
