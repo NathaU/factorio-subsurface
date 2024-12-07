@@ -564,22 +564,22 @@ end)
 
 script.on_event(defines.events.on_object_destroyed, function(event)
 	-- entrances can't be mined, but in case they are destroyed by mods we have to handle it
-	if storage.pole_links[event.unit_number] and storage.pole_links[event.unit_number].valid then
-		local opposite_car = storage.pole_links[event.unit_number].surface.find_entities_filtered{name = {"tunnel-entrance", "tunnel-exit"}, position = storage.pole_links[event.unit_number].position, radius=1}[1]
+	if storage.pole_links[event.useful_id] and storage.pole_links[event.useful_id].valid then
+		local opposite_car = storage.pole_links[event.useful_id].surface.find_entities_filtered{name = {"tunnel-entrance", "tunnel-exit"}, position = storage.pole_links[event.useful_id].position, radius=1}[1]
 		if opposite_car and opposite_car.valid then opposite_car.destroy() end
-		storage.pole_links[event.unit_number].destroy()
-		storage.pole_links[event.unit_number] = nil
-	elseif storage.car_links[event.unit_number] and storage.car_links[event.unit_number].valid then
-		local opposite_pole = storage.car_links[event.unit_number].surface.find_entities_filtered{name = {"tunnel-entrance-cable", "tunnel-exit-cable"}, position = storage.car_links[event.unit_number].position, radius=1}[1]
+		storage.pole_links[event.useful_id].destroy()
+		storage.pole_links[event.useful_id] = nil
+	elseif storage.car_links[event.useful_id] and storage.car_links[event.useful_id].valid then
+		local opposite_pole = storage.car_links[event.useful_id].surface.find_entities_filtered{name = {"tunnel-entrance-cable", "tunnel-exit-cable"}, position = storage.car_links[event.useful_id].position, radius=1}[1]
 		if opposite_pole and opposite_pole.valid then opposite_pole.destroy() end
-		storage.car_links[event.unit_number].destroy()
-		storage.car_links[event.unit_number] = nil
+		storage.car_links[event.useful_id].destroy()
+		storage.car_links[event.useful_id] = nil
 	elseif storage.air_vent_lights[event.registration_number] then
 		storage.air_vent_lights[event.registration_number].destroy()
 		storage.air_vent_lights[event.registration_number] = nil
-	elseif storage.support_lamps[event.unit_number] then
-		storage.support_lamps[event.unit_number].destroy()
- 	end
+	elseif storage.support_lamps[event.useful_id] then
+		storage.support_lamps[event.useful_id].destroy()
+	end
 end)
 
 script.on_event(defines.events.on_script_trigger_effect, function(event)
