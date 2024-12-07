@@ -102,7 +102,7 @@ function elevator_on_cursor_stack_changed(player)
 	local fluid = false
 	local heat = false
 			
-	if player.is_cursor_blueprint() and (player.cursor_record or player.cursor_stack.is_blueprint) then
+	if player.is_cursor_blueprint() and ((player.cursor_record and player.cursor_record.type == "blueprint") or (player.cursor_stack.valid_for_read and player.cursor_stack.is_blueprint)) then
 		for _,e in ipairs((player.cursor_record or player.cursor_stack).get_blueprint_entities() or {}) do
 			if e.name == "fluid-elevator-input" then fluid = true
 			elseif is_item_elevator(e.name) then item = true
