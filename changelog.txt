@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.13
+Date: 2024-12-07
+  Bugfixes:
+    - Fixed crash when entities get damaged by pollution
+    - Fixed crash when taking blueprint book into cursor
+    - Elevator placement indicators now show the right sprite
+    - Fixed crash when digging (unknown property expression)
+    - Support lamp is now aligned with support
+    - Fixed bug that cave sealing produced unbreakable walls
+  Changes:
+    - Ghost fluid elevators now show their variant, connecting correctly when being placed
+---------------------------------------------------------------------------------------------------
 Version: 1.0.12
 Date: 2024-11-22
   Changes:
