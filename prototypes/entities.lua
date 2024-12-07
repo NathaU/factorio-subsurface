@@ -571,8 +571,15 @@ data:extend(
   {
 	type = "pump",
 	name = "fluid-elevator-input",
-	icon = "__Subsurface__/graphics/icons/fluid_elevator_mk1_icon.png",
-	icon_size = 32, icon_mipmaps = 1,
+	icons = {
+	  {
+		icon = data.raw["pipe-to-ground"]["pipe-to-ground"].icon
+	  },
+	  {
+		icon = "__Subsurface__/graphics/icons/elevator.png",
+		icon_size = 32,
+	  }
+	},
 	flags = {"placeable-neutral", "player-creation"},
 	minable = {mining_time = 0.2, result = "fluid-elevator"},
 	max_health = 180,
@@ -581,7 +588,6 @@ data:extend(
 	collision_box = {{-0.29, -0.29}, {0.29, 0.29}},
 	selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	working_sound = table.deepcopy(data.raw.pump.pump.working_sound),
-	--damaged_trigger_effect = hit_effects.entity(),
 	resistances = {
 	  {type = "fire", percent = 80},
 	  {type = "impact", percent = 30}
@@ -642,18 +648,24 @@ data:extend(
   {
 	type = "pump",
 	name = "fluid-elevator-output",
-	icon = "__Subsurface__/graphics/icons/fluid_elevator_mk1_icon.png",
-	icon_size = 32, icon_mipmaps = 1,
+	icons = {
+	  {
+		icon = data.raw["pipe-to-ground"]["pipe-to-ground"].icon
+	  },
+	  {
+		icon = "__Subsurface__/graphics/icons/elevator.png",
+		icon_size = 32,
+	  }
+	},
 	flags = {"placeable-neutral", "player-creation"},
 	minable = {mining_time = 0.2, result = "fluid-elevator"},
+	placeable_by = {item = "fluid-elevator", count = 1},
 	max_health = 180,
 	corpse = "small-remnants",
 	dying_explosion = "medium-explosion",
-	create_ghost_on_death = false,
 	collision_box = {{-0.29, -0.29}, {0.29, 0.29}},
 	selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	working_sound = table.deepcopy(data.raw.pump.pump.working_sound),
-	--damaged_trigger_effect = hit_effects.entity(),
 	resistances = {
 	  {type = "fire", percent = 80},
 	  {type = "impact", percent = 30}
