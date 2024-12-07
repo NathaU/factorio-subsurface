@@ -228,7 +228,6 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 			end
 			table.insert(new_tiles, {name = surface.get_hidden_tile({x, y}), position = {x, y}})
 			table.insert(new_resource_positions, {x, y})
-			surface.set_hidden_tile({x, y}, nil)
 		end
 	end
 	surface.set_tiles(new_tiles)
@@ -540,11 +539,19 @@ end)
 
 script.on_event(defines.events.on_chunk_generated, function(event)
 	if is_subsurface(event.surface) then
+		local set_tiles = {}
+		local set_hidden_tiles = {}
 		for x, y in iarea(event.area) do
 			local tile = event.surface.get_tile(x, y)
-			tile = tile.valid and tile.name or nil
-			event.surface.set_tiles({{name = "out-of-map", position = {x, y}}})
-			if tile and tile ~= "out-of-map" then event.surface.set_hidden_tile({x, y}, tile) end
+			tile = tile.valid and tile.name or "out-of-map"
+			
+			table.insert(set_tiles, {name = "out-of-map", position = {x, y}})
+			
+			if tile ~= "out-of-map" then table.insert(set_hidden_tiles, {tile, {x, y}}) end
+		end
+		event.surface.set_tiles(set_tiles)
+		for _, p in ipairs(set_hidden_tiles) do -- for performance reasons, first set the tiles and then the hidden tiles
+			event.surface.set_hidden_tile(p[2], p[1])
 		end
 	end
 end)
@@ -608,13 +615,15 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 			
 			entrance.destroy()
 		elseif is_subsurface(surface) then -- place walls: first, set out-of-map tiles, then place walls on those spots that have at least one adjacent ground tile 
-			local new_tiles = {}
+			local set_tiles = {}
+			local set_hidden_tiles = {}
 			for x,y in iarea(get_area(event.target_position, 0.2)) do
-				table.insert(new_tiles, {position = {x, y}, name = "out-of-map"})
+				table.insert(set_tiles, {position = {x, y}, name = "out-of-map"})
 				local tile = surface.get_tile(x ,y)
-				if tile.name ~= "out-of-map" then surface.set_hidden_tile({x, y}, tile.hidden_tile or tile.name) end
+				if tile.name ~= "out-of-map" then table.insert(set_hidden_tiles, {tile.hidden_tile or tile.name, {x, y}}) end
 			end
-			surface.set_tiles(new_tiles)
+			surface.set_tiles(set_tiles)
+			for _, p in ipairs(set_hidden_tiles) do surface.set_hidden_tile(p[2], p[1]) end
 			for x,y in iarea(get_area(event.target_position, 2)) do
 				if surface.get_tile(x, y).name == "out-of-map"
 				and (surface.get_tile(x+1, y).name ~= "out-of-map" or surface.get_tile(x-1, y).name ~= "out-of-map" or surface.get_tile(x, y+1).name ~= "out-of-map" or surface.get_tile(x, y-1).name ~= "out-of-map")
