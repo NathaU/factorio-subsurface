@@ -431,12 +431,15 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 	elseif entity.name == "wooden-support" then
 		script.register_on_object_destroyed(entity)
 		storage.support_lamps[entity.unit_number] = entity.surface.create_entity{name = "support-lamp", position = entity.position}
-	elseif is_subsurface(entity.surface)
-	and (entity.type == "electric-pole"
-	or entity.type == "rocket-silo"
-	or entity.name == "rsc-silo-stage1" or entity.name == "rsc-silo-stage1-sesprs" or entity.name == "rsc-silo-stage1-serlp"
-	or entity.type == "artillery-turret" or entity.type == "artillery-wagon")
-	then cancel_placement(entity, event.player_index) -- prevent some entities from being placed in subsurfaces
+	elseif is_subsurface(entity.surface) then -- check for placement restrictions, cancel placement if one of the consumed items has the hint in the description
+		if not script.feature_flags["space_travel"] then
+			for _, item in ipairs(event.consumed_items and event.consumed_items.get_contents() or {event.stack}) do
+				if string.find(serpent.line(prototypes.item[item.name].localised_description), "placement%-restriction") then
+					cancel_placement(event)
+					break
+				end
+			end
+		end
 	end
 end)
 
