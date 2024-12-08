@@ -91,7 +91,9 @@ function crawl_expression(expr, parent_function_protos, indent)
 				if crawl_expression(local_expression(parent_function_protos, identifier), parent_function_protos, indent+1) then return true end
 			elseif data.raw["noise-expression"][identifier] then
 				--log(msg .. "global expression")
-				if crawl_expression(data.raw["noise-expression"][identifier].expression, parent_function_protos, indent+1) then return true end
+				if identifier ~= "tier_from_start" then
+					if crawl_expression(data.raw["noise-expression"][identifier].expression, parent_function_protos, indent+1) then return true end
+				end
 			else
 				-- the identifier is not an argument name, not a function call, not a named noise expression
 				-- so it has to be a built-in variable or constant
@@ -124,8 +126,37 @@ for name,dt in pairs(data.raw["resource"]) do
 	end
 end
 
-for _,d in pairs(data.raw["electric-pole"]) do
-	if d.name ~= "wooden-support" and data.raw.item[d.name] then
-		data.raw.item[d.name].localised_description =  {"item-description.placement-restriction"}
+data.subsurface_entity_restrictions = data.subsurface_entity_restrictions or {}
+require "scripts.placement-restrictions"
+
+-- first, collect the data from the previous file
+for type, name_arr in pairs(type_restrictions) do
+	for name, _ in pairs(data.raw[type]) do
+		local ignore = false
+		for _, ign in ipairs(name_arr) do
+			if name == ign then ignore = true end
+		end
+		if not ignore then data.subsurface_entity_restrictions[name] = type end
 	end
+end
+
+-- then apply the restriction (surface condition for DLC owners, item description for non-owners)
+if feature_flags["space_travel"] then
+	for name, type in pairs(data.subsurface_entity_restrictions) do
+		if data.raw[type][name] then
+			data.raw[type][name].surface_conditions = data.raw[type][name].surface_conditions or {}
+			table.insert(data.raw[type][name].surface_conditions, {property = "subsurface-level", min = 1})
+		end
+	end
+else
+	local crawl_entities = function(item_data)
+		for entity_name, _ in pairs(data.subsurface_entity_restrictions) do
+			if item_data.place_result == entity_name then
+				data.raw[item_data.type][item_data.name].localised_description = {"", {"item-description.placement-restriction"}, {"?", {"", "\n", item_data.localised_description or {"nil"}}, ""}}
+			end
+		end
+	end
+	-- set localised_description on items that place this entity
+	for _, item_data in pairs(data.raw.item) do crawl_entities(item_data) end
+	for _, item_data in pairs(data.raw["item-with-entity-data"]) do crawl_entities(item_data) end
 end
