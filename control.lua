@@ -363,18 +363,25 @@ script.on_event(defines.events.on_tick, function(event)
 	if event.tick % 20 == 0 and not settings.global["disable-autoplace-manipulation"].value and game.map_settings.enemy_expansion.enabled then handle_enemies(event.tick) end
 end)
 
-function cancel_placement(entity, player_index, text)
-	if player_index then
-		local player = game.get_player(player_index)
+function cancel_placement(event, text)
+	local entity = event.entity
+	if event.player_index then
+		local player = game.get_player(event.player_index)
 		if text then player.create_local_flying_text{text = {text}, position = entity.position} end
 		player.play_sound{path = "utility/cannot_build", position = entity.position}
-		local proto = entity.prototype
-		if player.mine_entity(entity, true) and not player.cursor_stack.valid_for_read then -- player had only one item, this is now in inventory
-			player.pipette_entity(proto)
+		local n = entity.name
+		local q = entity.quality
+		entity.destroy()
+		for _, it in ipairs(event.consumed_items.get_contents()) do
+			player.insert(it)
+		end
+		if not player.cursor_stack.valid_for_read then
+			player.pipette_entity({name = n, quality = q})
 		end
 	else -- robot built it
 		entity.surface.play_sound{path = "utility/cannot_build", position = entity.position}
-		entity.order_deconstruction(entity.force)
+		entity.surface.spill_item_stack{position = entity.position, stack = event.stack, force = event.robot.force, allow_belts = false}
+		entity.destroy()
 	end
 end
 
@@ -395,7 +402,7 @@ function build_safe(event, func, check_for_entities)
 	if check_for_entities and subsurface.count_entities_filtered{area = area} > 0 then safe_position = false end
 	
 	if safe_position then func()
-	else cancel_placement(entity, event.player_index, "subsurface.cannot-place-here")
+	else cancel_placement(event, "subsurface.cannot-place-here")
 	end
 	
 end
@@ -416,7 +423,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 			local real_drill = entity.surface.create_entity{name = "surface-drill", position = entity.position, direction = entity.direction, force = entity.force, player = (event.player_index or nil)}
 			entity.destroy()
 			get_subsurface(real_drill.surface).request_to_generate_chunks(real_drill.position, 3)
-		else cancel_placement(entity, event.player_index, text)
+		else cancel_placement(event, text)
 		end
 	elseif entity.name == "prospector" then table.insert(storage.prospectors, entity)
 	elseif string.sub(entity.name, 1, 13) == "item-elevator" then elevator_built(entity)
