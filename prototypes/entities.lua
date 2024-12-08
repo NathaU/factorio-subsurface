@@ -574,6 +574,7 @@ data:extend(
   {
 	type = "pump",
 	name = "fluid-elevator-input",
+	localised_description = {"entity-description.fluid-elevator"},
 	icons = {
 	  {
 		icon = data.raw["pipe-to-ground"]["pipe-to-ground"].icon
@@ -651,6 +652,7 @@ data:extend(
   {
 	type = "pump",
 	name = "fluid-elevator-output",
+	localised_description = {"entity-description.fluid-elevator"},
 	icons = {
 	  {
 		icon = data.raw["pipe-to-ground"]["pipe-to-ground"].icon
