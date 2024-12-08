@@ -437,7 +437,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		end, false)
 	elseif entity.name == "wooden-support" then
 		script.register_on_object_destroyed(entity)
-		storage.support_lamps[entity.unit_number] = entity.surface.create_entity{name = "support-lamp", position = entity.position}
+		storage.support_lamps[entity.unit_number] = entity.surface.create_entity{name = "support-lamp", position = entity.position, quality = entity.quality, force = entity.force}
 	elseif is_subsurface(entity.surface) then -- check for placement restrictions, cancel placement if one of the consumed items has the hint in the description
 		if not script.feature_flags["space_travel"] then
 			for _, item in ipairs(event.consumed_items and event.consumed_items.get_contents() or {event.stack}) do
