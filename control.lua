@@ -163,6 +163,11 @@ function get_subsurface(surface, create)
 			subsurface.freeze_daytime = true
 			subsurface.show_clouds = false
 			subsurface.localised_name = {"subsurface.subsurface-name", game.get_surface(topname).localised_name or topname, depth}
+
+			for sp, _ in pairs(prototypes.surface_property) do
+				subsurface.set_property(sp, surface.get_property(sp))
+			end
+			subsurface.set_property("subsurface-level", depth)
 			
 			if remote.interfaces["blackmap"] then remote.call("blackmap", "register", subsurface) end
 			
