@@ -349,7 +349,7 @@ script.on_event(defines.events.on_tick, function(event)
 		
 		-- player suffocation damage
 		for _,p in pairs(game.players) do
-			if p.connected and is_subsurface(p.surface) and p.surface.get_pollution(p.position) > suffocation_threshold then
+			if p.character and is_subsurface(p.surface) and p.surface.get_pollution(p.position) > suffocation_threshold then
 				p.character.damage(suffocation_damage, game.forces.neutral, "poison")
 				if (event.tick - 1) % 256 == 0 then p.print({"subsurface.suffocation"}, {1, 0, 0}) end
 			end
