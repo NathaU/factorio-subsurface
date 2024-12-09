@@ -7,3 +7,7 @@ for _, r in pairs(storage.air_vent_lights) do
 end
 
 storage.air_vent_lights = nil
+
+for _, s in pairs(storage.subsurfaces) do
+	s.set_property("subsurface-level", get_subsurface_depth(s))
+end

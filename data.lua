@@ -82,4 +82,11 @@ data:extend({
 	name = "random-value-0-1",
 	expression = "random_penalty(x, y, 100, map_seed, 100) / 100",
   },
+
+  {
+	type = "surface-property",
+	name = "subsurface-level",
+	default_value = 0,
+	localised_unit_key = "description.rocket-capacity-value-short"
+  },
 })
