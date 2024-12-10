@@ -1,4 +1,4 @@
-for _, r in pairs(storage.air_vent_lights) do
+for _, r in pairs(storage.air_vent_lights or {}) do
 	if type(r) == "number" then
 		rendering.get_object_by_id(r).destroy()
 	else

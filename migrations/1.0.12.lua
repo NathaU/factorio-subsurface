@@ -1,6 +1,6 @@
 -- 2.0 update
 
-for i,elevators in ipairs(storage.fluid_elevators) do
+for i,elevators in ipairs(storage.fluid_elevators or {}) do
 	elevators[1].fluidbox.add_linked_connection(1, elevators[2], 1)
 end
 
