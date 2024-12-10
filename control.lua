@@ -420,7 +420,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		
 		if text == "" then
 			entity.surface.create_entity{name = "subsurface-hole", position = entity.position, amount = 100 * (2 ^ (get_subsurface_depth(entity.surface) - 1))}
-			local real_drill = entity.surface.create_entity{name = "surface-drill", position = entity.position, direction = entity.direction, force = entity.force, player = (event.player_index or nil)}
+			local real_drill = entity.surface.create_entity{name = "surface-drill", position = entity.position, direction = entity.direction, force = entity.force, player = entity.last_user, quality = entity.quality}
 			entity.destroy()
 			get_subsurface(real_drill.surface).request_to_generate_chunks(real_drill.position, 3)
 		else cancel_placement(event, text)
@@ -504,13 +504,8 @@ end)
 script.on_event(defines.events.on_entity_died, function(event)
 	local entity = event.entity
 	if entity.name == "surface-drill" then
-		-- destroy this entity and create a placer_dummy ghost, which we need to revive with the correct item
 		if entity.mining_target then entity.mining_target.destroy() end
-		local placer_dummy = entity.surface.create_entity{name = "surface-drill-placer", position = entity.position, direction = entity.direction, force = entity.force}
-		entity.destroy()
-		placer_dummy.surface.create_entity{name = "massive-explosion", position = placer_dummy.position}
-		if event.cause then placer_dummy.die(event.force, event.cause)
-		else placer_dummy.die(event.force) end
+		entity.surface.create_entity{name = "massive-explosion", position = entity.position}
 	end
 end)
 script.on_event(defines.events.on_post_entity_died, function(event)

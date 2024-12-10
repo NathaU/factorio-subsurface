@@ -309,6 +309,7 @@ data:extend(
 	flags = {"placeable-player", "player-creation"},
 	resource_categories = {"subsurface-hole"},
 	minable = {hardness = 0.2, mining_time = 2, result = "surface-drill"},
+	placeable_by = {item = "surface-drill", count = 1},
 	max_health = 300,
 	corpse = "burner-mining-drill-remnants",
 	dying_explosion = "burner-mining-drill-explosion",
@@ -323,6 +324,7 @@ data:extend(
 	vehicle_impact_sound =  data.raw["mining-drill"]["burner-mining-drill"].vehicle_impact_sound,
 	working_sound = data.raw["mining-drill"]["burner-mining-drill"].working_sound,
 	resource_searching_radius = 0.49,
+	drops_full_belt_stacks = feature_flags["space_travel"],
 	vector_to_place_result = {-1, -2.6},
 	graphics_set = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].graphics_set),
 	circuit_connector = ccd,
@@ -341,7 +343,6 @@ data:extend(
 		icon_size = 32,
 	  }
 	},
-	minable = {hardness = 0.2, mining_time = 2, result = "surface-drill"},
 	flags = {"placeable-player", "player-creation"},
 	max_health = 300,
 	corpse = "surface-drill-remnants",

@@ -19,25 +19,6 @@ data:extend(
   },
   {
 	type = "item",
-	name = "surface-drill-dummy",
-	icons = {
-	  {
-		icon = "__base__/graphics/icons/burner-mining-drill.png"
-	  },
-	  {
-		icon = "__Subsurface__/graphics/icons/elevator.png",
-		icon_size = 32,
-	  }
-	},
-	flags = {"hide-from-bonus-gui"},
-	hidden = true,
-	subgroup = "extraction-machine",
-	order = "cb",
-	place_result = "surface-drill",
-	stack_size = 5
-  },
-  {
-	type = "item",
 	name = "prospector",
 	icon = "__Subsurface__/graphics/icons/prospector.png",
 	subgroup = "production-machine",
