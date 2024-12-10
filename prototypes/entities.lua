@@ -474,6 +474,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/wooden-support.png",
 	flags = {"placeable-neutral", "player-creation"},
 	minable = {mining_time = 0.1, result = "wooden-support"},
+	surface_conditions = feature_flags["space_travel"] and {{property = "subsurface-level", min = 1}} or nil,
 	max_health = 100,
 	corpse = "small-electric-pole-remnants",
 	dying_explosion = "small-electric-pole-explosion",
