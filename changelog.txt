@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.14
+Date: 2024-12-10
+  Changes:
+    - Removed air vent lights in the first underground level
+    - Placement restriction hints are shown on all entities that cannot be built in subsurfaces
+  Bugfixes:
+    - Fixed crash when using blueprint book from the library
+    - Fixed crash when using elevator while suffering from pollution
+    - Fixed wrong pipetting of surface drill
+---------------------------------------------------------------------------------------------------
 Version: 1.0.13
 Date: 2024-12-07
   Bugfixes:
