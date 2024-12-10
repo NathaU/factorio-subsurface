@@ -145,7 +145,7 @@ if feature_flags["space_travel"] then
 	for name, type in pairs(data.subsurface_entity_restrictions) do
 		if data.raw[type][name] then
 			data.raw[type][name].surface_conditions = data.raw[type][name].surface_conditions or {}
-			table.insert(data.raw[type][name].surface_conditions, {property = "subsurface-level", min = 1})
+			table.insert(data.raw[type][name].surface_conditions, {property = "subsurface-level", max = 0})
 		end
 	end
 else
