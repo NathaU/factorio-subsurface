@@ -33,6 +33,7 @@ function setup_globals()
 	storage.next_burrowing = storage.next_burrowing or game.map_settings.enemy_expansion.max_expansion_cooldown
 	if not storage.enemies_above_exposed_underground then init_enemies_global() end
 	storage.resources_autoplace_replace = storage.resources_autoplace_replace or {}
+	storage.revealed_resources = storage.revealed_resources or {}
 end
 
 script.on_init(function()
@@ -543,6 +544,13 @@ script.on_event(defines.events.on_resource_depleted, function(event)
 			script.register_on_object_destroyed(entrance_car)
 			script.register_on_object_destroyed(exit_car)
 		end
+	else
+		local pos = {x = math.floor(event.entity.position.x), y = math.floor(event.entity.position.y)}
+		local chunk_id = spiral({math.floor(pos.x / 32), math.floor(pos.y / 32)})
+		local pos_i = get_position_index_in_chunk(pos)
+		storage.revealed_resources[chunk_id] = storage.revealed_resources[chunk_id] or {}
+		storage.revealed_resources[chunk_id][pos_i] = storage.revealed_resources[chunk_id][pos_i] or {}
+		storage.revealed_resources[chunk_id][pos_i][event.entity.name] = 0
 	end
 end)
 
@@ -599,13 +607,12 @@ script.on_event(defines.events.on_object_destroyed, function(event)
 end)
 
 script.on_event(defines.events.on_script_trigger_effect, function(event)
+	local surface = game.get_surface(event.surface_index)
 	if event.effect_id == "cliff-explosives" then
-		local surface = game.get_surface(event.surface_index)
 		clear_subsurface(surface, event.target_position, 2.5)
 		surface.spill_item_stack{position = event.target_position, stack = {name = "stone", count = 20}, enable_looted = true, force = game.forces.neutral}
 		surface.pollute(event.target_position, 10)
 	elseif event.effect_id == "cave-sealing" then
-		local surface = game.get_surface(event.surface_index)
 		
 		-- first, try to seal tunnel entrances
 		local entrance = surface.find_entities_filtered{name = {"tunnel-entrance", "tunnel-entrance-sealed-0", "tunnel-entrance-sealed-1", "tunnel-entrance-sealed-2"}, position = event.target_position, radius=3}[1]
@@ -620,20 +627,32 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 			end
 			
 			entrance.destroy()
-		elseif is_subsurface(surface) then -- place walls: first, set out-of-map tiles, then place walls on those spots that have at least one adjacent ground tile 
+		elseif is_subsurface(surface) then -- place walls: first, prevent resources from being restored, then set out-of-map tiles, then place walls on those spots that have at least one adjacent ground tile 
+			for _, res in ipairs(surface.find_entities(get_area(event.target_position, 1))) do
+				if res.type == "resource" then
+					local x = math.floor(res.position.x)
+					local y = math.floor(res.position.y)
+					local chunk_id = spiral({math.floor(x / 32), math.floor(y / 32)})
+					local pos_i = get_position_index_in_chunk({x, y})
+					storage.revealed_resources[chunk_id] = storage.revealed_resources[chunk_id] or {}
+					storage.revealed_resources[chunk_id][pos_i] = storage.revealed_resources[chunk_id][pos_i] or {}
+					storage.revealed_resources[chunk_id][pos_i][res.name] = res.amount
+				end
+			end
+
 			local set_tiles = {}
 			local set_hidden_tiles = {}
-			for x,y in iarea(get_area(event.target_position, 0.2)) do
+			for x, y in iarea(get_area(event.target_position, 0.2)) do
 				table.insert(set_tiles, {position = {x, y}, name = "out-of-map"})
 				local tile = surface.get_tile(x ,y)
 				if tile.name ~= "out-of-map" then table.insert(set_hidden_tiles, {tile.hidden_tile or tile.name, {x, y}}) end
 			end
 			surface.set_tiles(set_tiles)
 			for _, p in ipairs(set_hidden_tiles) do surface.set_hidden_tile(p[2], p[1]) end
-			for x,y in iarea(get_area(event.target_position, 2)) do
+			for x, y in iarea(get_area(event.target_position, 2)) do
 				if surface.get_tile(x, y).name == "out-of-map"
 				and (surface.get_tile(x+1, y).name ~= "out-of-map" or surface.get_tile(x-1, y).name ~= "out-of-map" or surface.get_tile(x, y+1).name ~= "out-of-map" or surface.get_tile(x, y-1).name ~= "out-of-map")
-				and not surface.find_entity("subsurface-wall", {x, y}) then
+				and not surface.find_entity("subsurface-wall", {x, y}) and not surface.find_entity("subsurface-wall-map-border", {x, y}) then
 					surface.create_entity{name = "subsurface-wall", position = {x, y}, force = game.forces.neutral}
 					for i=1,100,1 do surface.create_trivial_smoke{name = "subsurface-smoke", position = {x + (math.random(-20, 20) / 20), y + (math.random(-21, 19) / 20)}} end
 				end

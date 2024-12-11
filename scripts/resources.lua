@@ -18,13 +18,16 @@ function place_resources(surface, pos_arr)
 		if not stored_results[chunk_id] then
 			stored_results[chunk_id] = surface.calculate_tile_properties(properties, get_chunk_positions(pos))
 		end
-		local pos_pos = get_position_index_in_chunk(pos)
+		local pos_i = get_position_index_in_chunk(pos)
 		for _,proto in ipairs(resources) do
-			if stored_results[chunk_id]["entity:"..proto..":richness"]
-			and stored_results[chunk_id]["entity:"..proto..":richness"][pos_pos] > 0
-			and ((stored_results[chunk_id]["probability-"..proto] and stored_results[chunk_id]["probability-"..proto][pos_pos]) or stored_results[chunk_id]["probability"][pos_pos]) <= stored_results[chunk_id]["entity:"..proto..":probability"][pos_pos]
-			and not surface.entity_prototype_collides(proto, pos, false) then
-				surface.create_entity{name = proto, position = pos, force = game.forces.neutral, amount = math.ceil(stored_results[chunk_id]["entity:"..proto..":richness"][pos_pos])}
+			if (stored_results[chunk_id]["entity:"..proto..":richness"] or {[pos_i] = 0})[pos_i] > 0
+			and (stored_results[chunk_id]["probability-"..proto] or stored_results[chunk_id]["probability"])[pos_i] <= stored_results[chunk_id]["entity:"..proto..":probability"][pos_i]
+			and not surface.entity_prototype_collides(proto, {pos[1]+0.5, pos[2]+0.5}, false) then
+				local amount = math.ceil(stored_results[chunk_id]["entity:"..proto..":richness"][pos_i])
+				if storage.revealed_resources[chunk_id] and storage.revealed_resources[chunk_id][pos_i] and storage.revealed_resources[chunk_id][pos_i][proto] then
+					amount = storage.revealed_resources[chunk_id][pos_i][proto]
+				end
+				if amount > 0 then surface.create_entity{name = proto, position = pos, force = game.forces.neutral, enable_cliff_removal = false, amount = amount} end
 			end
 		end
 	end
