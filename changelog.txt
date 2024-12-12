@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.15
+Date: 2024-?
+  Changes:
+    - Added surface condition for wooden support
+  Bugfixes:
+    - Fixed wrong surface condition for restricted entities
+    - Resources cannot be restored after using cave sealing
+---------------------------------------------------------------------------------------------------
 Version: 1.0.14
 Date: 2024-12-10
   Changes:
