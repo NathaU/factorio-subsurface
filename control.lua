@@ -25,7 +25,7 @@ function setup_globals()
 	storage.heat_elevators = storage.heat_elevators or {}
 	storage.air_vents = storage.air_vents or {}
 	storage.exposed_chunks = storage.exposed_chunks or {} -- [surface][x][y], 1 means chunk is exposed, 0 means chunk is next to an exposed chunk
-	storage.aai_miner_paths = storage.aai_miner_paths or {}
+	storage.aai_digging_miners = storage.aai_digging_miners or {}
 	storage.prospectors = storage.prospectors or {}
 	storage.support_lamps = storage.support_lamps or {}
 	storage.placement_indicators = storage.placement_indicators or {}
@@ -477,7 +477,6 @@ script.on_event(defines.events.on_player_cursor_stack_changed, function(event)
 		r.destroy()
 	end
 	
-	aai_cursor_stack_changed(player)
 	elevator_on_cursor_stack_changed(player)
 end)
 
@@ -498,7 +497,6 @@ script.on_event(defines.events.on_player_changed_surface, function(event)
 	for _,r in ipairs(storage.placement_indicators[player.index] or {}) do
 		r.destroy()
 	end
-	aai_cursor_stack_changed(player)
 	elevator_on_cursor_stack_changed(player)
 end)
 
@@ -686,9 +684,10 @@ script.on_event(defines.events.on_lua_shortcut, function(event)
 	end
 end)
 script.on_event(defines.events.on_gui_click, function(event)
-	if not (event.element and event.element.valid) then return end
 	if event.element.name == "se-overhead_satellite" then
 		on_remote_view_started(game.get_player(event.player_index))
+	elseif event.element.name == "unit_digging" then
+		aai_on_gui_click(event)
 	end
 end)
 
