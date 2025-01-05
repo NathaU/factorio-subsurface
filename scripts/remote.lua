@@ -17,6 +17,8 @@ remote.add_interface("subsurface", {
 			end
 		end
 	end,
+
+	on_unit_change_mode = function(data) return aai_on_unit_change_mode(data.unit, data.new_mode, data.old_mode) end
 })
 
 --[[
