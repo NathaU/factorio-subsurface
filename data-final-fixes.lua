@@ -33,21 +33,11 @@ for name, dt in pairs(data.raw["resource"]) do
 	end
 end
 
+
 data.subsurface_entity_restrictions = data.subsurface_entity_restrictions or {}
 require "scripts.placement-restrictions"
 
--- first, collect the data from the previous file
-for type, name_arr in pairs(type_restrictions) do
-	for name, _ in pairs(data.raw[type]) do
-		local ignore = false
-		for _, ign in ipairs(name_arr) do
-			if name == ign then ignore = true end
-		end
-		if not ignore then data.subsurface_entity_restrictions[name] = type end
-	end
-end
-
--- then apply the restriction (surface condition for DLC owners, item description for non-owners)
+-- apply the restriction (surface condition for DLC owners, item description for non-owners)
 if feature_flags["space_travel"] then
 	for name, type in pairs(data.subsurface_entity_restrictions) do
 		if data.raw[type][name] then

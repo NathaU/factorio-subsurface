@@ -14,3 +14,14 @@ type_restrictions = {
 	["artillery-turret"] = {},
 	["artillery-wagon"] = {},
 }
+
+-- collect the data into the table
+for type, name_arr in pairs(type_restrictions) do
+	for name, _ in pairs(data.raw[type]) do
+		local ignore = false
+		for _, ign in ipairs(name_arr) do
+			if name == ign then ignore = true end
+		end
+		if not ignore then data.subsurface_entity_restrictions[name] = type end
+	end
+end
