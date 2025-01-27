@@ -472,12 +472,7 @@ script.on_event(defines.events.on_player_configured_blueprint, function(event)
 end)
 
 script.on_event(defines.events.on_player_cursor_stack_changed, function(event)
-	local player = game.get_player(event.player_index)
-	for _,r in ipairs(storage.placement_indicators[player.index] or {}) do
-		r.destroy()
-	end
-	
-	elevator_on_cursor_stack_changed(player)
+	elevator_on_cursor_stack_changed(game.get_player(event.player_index))
 end)
 
 script.on_event(defines.events.on_selected_entity_changed, function(event)
@@ -490,14 +485,6 @@ script.on_event(defines.events.on_selected_entity_changed, function(event)
 			elevator_selected(player, player.selected)
 		end
 	end
-end)
-
-script.on_event(defines.events.on_player_changed_surface, function(event)
-	local player = game.get_player(event.player_index)
-	for _,r in ipairs(storage.placement_indicators[player.index] or {}) do
-		r.destroy()
-	end
-	elevator_on_cursor_stack_changed(player)
 end)
 
 script.on_event(defines.events.on_entity_died, function(event)

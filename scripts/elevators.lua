@@ -1,6 +1,9 @@
 function is_item_elevator(name)
 	return string.sub(name, 1, 13) == "item-elevator"
 end
+function is_fluid_elevator(name)
+	return string.sub(name, 1, 14) == "fluid-elevator"
+end
 
 function get_item_elevator_names()
 	local tbl = {}
@@ -98,13 +101,15 @@ function show_placement_indicators(player, elevator_type)
 end
 
 function elevator_on_cursor_stack_changed(player)
+	for _, r in ipairs(storage.placement_indicators[player.index] or {}) do r.destroy() end
+	
 	local item = false
 	local fluid = false
 	local heat = false
 			
 	if player.is_cursor_blueprint() and ((player.cursor_record and player.cursor_record.type == "blueprint") or (player.cursor_stack.valid_for_read and player.cursor_stack.is_blueprint)) then
 		for _,e in ipairs((player.cursor_record or player.cursor_stack).get_blueprint_entities() or {}) do
-			if e.name == "fluid-elevator-input" then fluid = true
+			if is_fluid_elevator(e.name) then fluid = true
 			elseif is_item_elevator(e.name) then item = true
 			elseif e.name == "heat-elevator" then heat = true end
 		end
