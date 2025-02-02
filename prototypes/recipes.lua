@@ -129,4 +129,17 @@ data:extend(
 	},
 	results = {{type="item", name="wooden-support", amount=1}}
   },
+
+  {
+	type = "recipe",
+	name = "subway",
+	enabled = false,
+	ingredients =
+	{
+	  {type="item", name="rail", amount = 6},
+	  {type="item", name="refined-concrete", amount = 600},
+	},
+	energy_required = 30,
+	results = {{type="item", name="subway", amount = 2}}
+  },
 })

@@ -130,4 +130,22 @@ data:extend(
 	place_result = "wooden-support",
 	stack_size = 50
   },
+
+  {
+	type = "item",
+	name = "subway",
+	icons = {
+		{
+		  icon = data.raw["straight-rail"]["straight-rail"].icon
+		},
+		{
+		  icon = "__Subsurface__/graphics/icons/elevator.png",
+		  icon_size = 32,
+		}
+	  },
+	subgroup = "inter-surface-transport",
+	order = "c-d",
+	place_result = "subway",
+	stack_size = 2
+  },
 })

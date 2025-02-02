@@ -7,6 +7,7 @@ require "scripts.aai-miners"
 require "scripts.resources"
 require "scripts.elevators"
 require "scripts.enemies"
+require "scripts.trains"
 
 max_pollution_move_active = 128 -- the max amount of pollution that can be moved per 64 ticks from one surface to the above
 max_pollution_move_passive = 64
@@ -34,6 +35,7 @@ function setup_globals()
 	if not storage.enemies_above_exposed_underground then init_enemies_global() end
 	storage.resources_autoplace_replace = storage.resources_autoplace_replace or {}
 	storage.revealed_resources = storage.revealed_resources or {}
+	storage.train_subways = storage.train_subways or {}
 end
 
 script.on_init(function()
@@ -428,10 +430,12 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		end
 	elseif entity.name == "prospector" then table.insert(storage.prospectors, entity)
 	elseif string.sub(entity.name, 1, 13) == "item-elevator" then elevator_built(entity)
-	elseif entity.name == "fluid-elevator-input" then elevator_built(entity, event.tags and event.tags.output or false)
-	elseif entity.name == "heat-elevator" then
+	elseif entity.name == "fluid-elevator-input" then
+		if event.tags and event.tags.output then entity = switch_elevator(entity) end
 		elevator_built(entity)
+	elseif entity.name == "heat-elevator" then
 		entity.operable = false
+		elevator_built(entity)
 	elseif entity.name == "air-vent" or entity.name == "active-air-vent" then
 		build_safe(event, function()
 			table.insert(storage.air_vents, entity)
@@ -439,6 +443,11 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 	elseif entity.name == "wooden-support" then
 		script.register_on_object_destroyed(entity)
 		storage.support_lamps[entity.unit_number] = entity.surface.create_entity{name = "support-lamp", position = entity.position, quality = entity.quality, force = entity.force}
+	elseif entity.name == "subway" then
+		subway_built(entity)
+		elevator_built(entity)
+	elseif (entity.type == "train-stop" and entity.connected_rail and entity.connected_rail.name == "subway-rail") or ((entity.type == "rail-signal" or entity.type == "rail-chain-signal") and entity.get_connected_rails()[1] and entity.get_connected_rails()[1].name == "subway-rail") then
+		cancel_placement(event, "cant-build-reason.cant-build-here")
 	elseif is_subsurface(entity.surface) then -- check for placement restrictions, cancel placement if one of the consumed items has the hint in the description
 		if not script.feature_flags["space_travel"] then
 			for _, item in ipairs(event.consumed_items and event.consumed_items.get_contents() or {event.stack}) do
@@ -477,14 +486,10 @@ end)
 
 script.on_event(defines.events.on_selected_entity_changed, function(event)
 	local player = game.get_player(event.player_index)
-	for _,r in ipairs(storage.selection_indicators[event.player_index] or {}) do
+	for _, r in ipairs(storage.selection_indicators[event.player_index] or {}) do
 		r.destroy()
 	end
-	if player.selected then
-		if string.sub(player.selected.name, 1, 13) == "item-elevator" or player.selected.name == "fluid-elevator-input" or player.selected.name == "fluid-elevator-output" or player.selected.name == "heat-elevator" then
-			elevator_selected(player, player.selected)
-		end
-	end
+	if player.selected then elevator_selected(player, player.selected) end
 end)
 
 script.on_event(defines.events.on_entity_died, function(event)
@@ -588,6 +593,8 @@ script.on_event(defines.events.on_object_destroyed, function(event)
 		storage.car_links[event.useful_id] = nil
 	elseif storage.support_lamps[event.useful_id] then
 		storage.support_lamps[event.useful_id].destroy()
+	elseif storage.train_subways[event.useful_id] then
+		subway_entity_destroyed(event.useful_id)
 	end
 end)
 
