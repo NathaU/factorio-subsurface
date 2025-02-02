@@ -30,6 +30,7 @@ data:extend(
 	{
 	  {type = "unlock-recipe", recipe = "fluid-elevator"},
 	  {type = "unlock-recipe", recipe = "heat-elevator"},
+	  {type = "unlock-recipe", recipe = "subway"},
 	},
 	prerequisites = {"surface-drilling"},
 	unit = {

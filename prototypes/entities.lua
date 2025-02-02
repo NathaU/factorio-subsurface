@@ -764,6 +764,77 @@ data:extend(
 	},
 	picture = table.deepcopy(data.raw["heat-interface"]["heat-interface"].picture),
 	working_sound = table.deepcopy(data.raw["heat-pipe"]["heat-pipe"].working_sound),
+  },
+
+  {
+	type = "simple-entity-with-owner",
+	name = "subway",
+	icons = {
+  	  {
+		icon = data.raw["straight-rail"]["straight-rail"].icon
+	  },
+	  {
+		icon = "__Subsurface__/graphics/icons/elevator.png",
+		icon_size = 32,
+	  }
+	},
+	minable = {mining_time = 5, result = "subway"},
+	flags = {"placeable-neutral"},
+	selection_box = {{-2, -6}, {2, 5}},
+	collision_box = {{-1.9, -7}, {1.9, 4.9}},
+	tile_width = 2,
+	tile_height = 2,
+	build_grid_size = 2,
+	resistances = {
+		{type = "physical", percent = 100},
+		{type = "impact", percent = 100},
+		{type = "explosion", percent = 100},
+		{type = "fire", percent = 100},
+		{type = "laser", percent = 100}
+	},
+	max_health = 1000,
+	render_layer = "train-stop-top",
+	picture = {
+	  north = {
+		filename = "__Subsurface__/graphics/entities/subway/N.png",
+		width = 256,
+		height = 512,
+		shift = {1, -1},
+	  },
+	  east = {
+		filename = "__Subsurface__/graphics/entities/subway/E.png",
+		width = 512,
+		height = 256,
+		scale = 0.9,
+		shift = {2, -0.5},
+	  },
+	  south = {
+		filename = "__Subsurface__/graphics/entities/subway/S.png",
+		width = 256,
+		height = 412,
+		shift = {1, -1},
+	  },
+	  west = {
+		filename = "__Subsurface__/graphics/entities/subway/W.png",
+		width = 512,
+		height = 256,
+		scale = 0.9,
+		shift = {0, -0.5},
+	  },
+	},
+  },
+  {
+	type = "train-stop",
+	name = "subway-stop",
+	icon = "__Subsurface__/graphics/icons/tunnels-icon.png", icon_size = 32,
+	animation_ticks_per_frame = 600,
+	chart_name = false,
+	collision_mask = {layers = {}},
+	selectable_in_game = false,
+	tile_width = 2,
+	tile_height = 2,
+	hidden = true,
+	alert_icon_scale = 0,
   }
 })
 
@@ -787,3 +858,11 @@ data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.ea
 
 data.raw["electric-pole"]["wooden-support"].pictures.layers[1].filename = "__Subsurface__/graphics/entities/wooden-support/wooden-support.png"
 data.raw["electric-pole"]["wooden-support"].pictures.layers[2].filename = "__Subsurface__/graphics/entities/wooden-support/wooden-support-shadow.png"
+
+local ssrail = table.deepcopy(data.raw["straight-rail"]["straight-rail"])
+ssrail.name = "subway-rail"
+ssrail.localised_name = {"entity-name.straight-rail"}
+ssrail.collision_mask = {layers = {floor = true, rail = true}}
+ssrail.hidden = true
+
+data.extend({ssrail})

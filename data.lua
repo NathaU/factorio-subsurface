@@ -76,6 +76,54 @@ data:extend({
 	filename = "__Subsurface__/graphics/indicator-6.png",
 	width = 85, height = 85
   },
+  {
+	type = "sprite",
+	name = "placement-indicator-subway-n",
+	filename = "__Subsurface__/graphics/indicator-subway-n.png",
+	width = 256, height = 512,
+	shift = {1, -1}
+  },
+  {
+	type = "sprite",
+	name = "placement-indicator-subway-e",
+	filename = "__Subsurface__/graphics/indicator-subway-e.png",
+	width = 512, height = 256,
+	shift = {2, -0.5},
+	scale = 0.9
+  },
+  {
+	type = "sprite",
+	name = "placement-indicator-subway-s",
+	filename = "__Subsurface__/graphics/indicator-subway-s.png",
+	width = 256, height = 512,
+	shift = {1, 0.5}
+  },
+  {
+	type = "sprite",
+	name = "placement-indicator-subway-w",
+	filename = "__Subsurface__/graphics/indicator-subway-w.png",
+	width = 512, height = 256,
+	shift = {0, -0.5},
+	scale = 0.9
+  },
+  {
+	type = "sprite",
+	name = "placement-indicator-up",
+	filename = "__Subsurface__/graphics/indicator-subway-up.png",
+	width = 35, height = 35
+  },
+  {
+	type = "sprite",
+	name = "placement-indicator-down",
+	filename = "__Subsurface__/graphics/indicator-subway-down.png",
+	width = 35, height = 35
+  },
+  {
+	type = "sprite",
+	name = "elevator",
+	filename = "__Subsurface__/graphics/icons/elevator-sprite.png",
+	width = 32, height = 32
+  },
   
   {
 	type = "noise-expression",

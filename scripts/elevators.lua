@@ -45,12 +45,14 @@ end
 function is_linked(entity)
 	if is_item_elevator(entity.name) then
 		return entity.linked_belt_neighbour ~= nil
+	elseif is_fluid_elevator(entity.name) then
+		return entity.fluidbox.get_linked_connection(1) ~= nil
 	elseif entity.name == "heat-elevator" then
 		for i,v in ipairs(storage.heat_elevators) do
 			if v[1] == entity or v[2] == entity then return true end
 		end
 	else
-		return entity.fluidbox.get_linked_connection(1) ~= nil
+		return storage.train_subways[entity.unit_number].connection ~= nil
 	end
 	return false
 end
@@ -84,16 +86,21 @@ function show_placement_indicators(player, elevator_type)
 	local entities = {}
 	if elevator_type == 1 then entities = get_item_elevator_names()
 	elseif elevator_type == 2 then entities = {"fluid-elevator-input", "fluid-elevator-output"}
-	else entities = {"heat-elevator"}
+	elseif elevator_type == 3 then entities = {"heat-elevator"}
+	else entities = {"subway"}
 	end
 		
 	local iter = {get_oversurface(player.surface), get_subsurface(player.surface, false)}
-	for i=1,2,1 do
+	for i = 1, 2 do
 		if iter[i] then
-			for _,e in ipairs(iter[i].find_entities_filtered{name = entities}) do
+			for _, e in ipairs(iter[i].find_entities_filtered{name = entities}) do
 				if not is_linked(e) then
 					storage.placement_indicators[player.index] = storage.placement_indicators[player.index] or {}
-					table.insert(storage.placement_indicators[player.index], rendering.draw_sprite{sprite = "placement-indicator-"..(elevator_type + (i - 1) * 3), surface = player.surface, x_scale = 0.3, y_scale = 0.3, target = e.position, players = {player}})
+					if elevator_type == 4 then
+						subway_show_placement_indicators(player, e)
+					else
+						table.insert(storage.placement_indicators[player.index], rendering.draw_sprite{sprite = "placement-indicator-"..(elevator_type + (i - 1) * 3), surface = player.surface, x_scale = 0.3, y_scale = 0.3, target = e.position, players = {player}})
+					end
 				end
 			end
 		end
@@ -106,6 +113,7 @@ function elevator_on_cursor_stack_changed(player)
 	local item = false
 	local fluid = false
 	local heat = false
+	local subway = false
 			
 	if player.is_cursor_blueprint() and ((player.cursor_record and player.cursor_record.type == "blueprint") or (player.cursor_stack.valid_for_read and player.cursor_stack.is_blueprint)) then
 		for _,e in ipairs((player.cursor_record or player.cursor_stack).get_blueprint_entities() or {}) do
@@ -117,12 +125,14 @@ function elevator_on_cursor_stack_changed(player)
 		if player.cursor_stack.name == "fluid-elevator" then fluid = true
 		elseif is_item_elevator(player.cursor_stack.name) then item = true
 		elseif player.cursor_stack.name == "heat-elevator" then heat = true
+		elseif player.cursor_stack.name == "subway" then subway = true
 		end
 	end
 	
 	if item then show_placement_indicators(player, 1) end
 	if fluid then show_placement_indicators(player, 2) end
 	if heat then show_placement_indicators(player, 3) end
+	if subway then show_placement_indicators(player, 4) end
 end
 
 function elevator_rotated(entity, previous_direction)
@@ -144,16 +154,33 @@ function elevator_rotated(entity, previous_direction)
 	end
 end
 
-function elevator_built(entity, output)
-	if entity.name == "fluid-elevator-input" and output then entity = switch_elevator(entity) end
+function elevator_built(entity)
 	local iter = {get_oversurface(entity.surface), get_subsurface(entity.surface, false)}
-	local elevator_names = get_item_elevator_names()
-	table.insert(elevator_names, "heat-elevator")
-	table.insert(elevator_names, "fluid-elevator-input")
-	table.insert(elevator_names, "fluid-elevator-output")
-	for i=1,2,1 do
+	local name_filter = {}
+	local direction_filter = {defines.direction.north, defines.direction.south, defines.direction.east, defines.direction.west}
+	local offset = {0, 0}
+	if is_item_elevator(entity.name) then name_filter = get_item_elevator_names()
+	elseif is_fluid_elevator(entity.name) then name_filter = {"fluid-elevator-input", "fluid-elevator-output"}
+	elseif entity.name == "heat-elevator" then name_filter = {"heat-elevator"}
+	else
+		name_filter = {"subway"}
+		if entity.direction == defines.direction.north then
+			offset = {0, -12}
+			direction_filter = {defines.direction.south}
+		elseif entity.direction == defines.direction.south then
+			offset = {0, 12}
+			direction_filter = {defines.direction.north}
+		elseif entity.direction == defines.direction.east then
+			offset = {14, 0}
+			direction_filter = {defines.direction.west}
+		else
+			offset = {-14, 0}
+			direction_filter = {defines.direction.east}
+		end
+	end
+	for i = 1, 2 do
 		if iter[i] then
-			local e = iter[i].find_entities_filtered{name = elevator_names, position = entity.position}[1]
+			local e = iter[i].find_entities_filtered{name = name_filter, position = math2d.position.add(entity.position, offset), radius = 0.3, direction = direction_filter}[1]
 			if e and not is_linked(e) then
 				if entity.name == "fluid-elevator-input" then
 					if e.name == "fluid-elevator-input" then
@@ -169,6 +196,8 @@ function elevator_built(entity, output)
 						bottom = entity
 					end
 					table.insert(storage.heat_elevators, {top, bottom})
+				elseif entity.name == "subway" then
+					subway_link(entity, e)
 				else
 					if not entity.linked_belt_neighbour then
 						if e.linked_belt_type == "input" then entity.linked_belt_type = "output" end
@@ -186,7 +215,7 @@ function elevator_selected(player, entity)
 	local offs = 0 -- line offset, when 0 then don't show indicators
 	local orien = 0 -- arrow orientation (0 is arrow pointing north)
 	if is_item_elevator(entity.name) and entity.linked_belt_neighbour and is_item_elevator(entity.linked_belt_neighbour.name) then
-		if entity.linked_belt_neighbour.surface == get_subsurface(entity.surface) then -- selected entity is top
+		if entity.linked_belt_neighbour.surface == get_subsurface(entity.surface, false) then -- selected entity is top
 			offs = -0.3
 			if entity.linked_belt_type == "input" then orien = 0.5 end
 		else offs = 0.3
@@ -195,7 +224,7 @@ function elevator_selected(player, entity)
 	elseif entity.name == "fluid-elevator-input" or entity.name == "fluid-elevator-output" then
 		if entity.fluidbox.get_linked_connection(1) ~= nil then
 			local endpoint, _ = entity.fluidbox.get_linked_connection(1)
-			if endpoint.surface == get_subsurface(entity.surface) then -- selected entity is top
+			if endpoint.surface == get_subsurface(entity.surface, false) then -- selected entity is top
 				offs = -0.3
 				if entity.fluidbox.get_pipe_connections(1)[1].flow_direction == "input" then orien = 0.5 end
 			else offs = 0.3
@@ -203,12 +232,19 @@ function elevator_selected(player, entity)
 			end
 		end
 	elseif entity.name == "heat-elevator" then
-		for i,v in ipairs(storage.heat_elevators) do
+		for i, v in ipairs(stoage.heat_elevators) do
 			if v[1] == entity then -- selected entity is on top surface
 				table.insert(storage.selection_indicators[player.index], rendering.draw_sprite{sprite = "utility/indication_arrow", surface = entity.surface, target = entity, orientation = 0.5, players = {player}})
 			elseif v[2] == entity then
 				table.insert(storage.selection_indicators[player.index], rendering.draw_sprite{sprite = "utility/indication_arrow", surface = entity.surface, target = entity, orientation = 0, players = {player}})
 			end
+		end
+	elseif entity.name == "subway" then
+		if storage.train_subways[entity.unit_number].connection then
+			if storage.train_subways[entity.unit_number].connection.surface == get_subsurface(entity.surface, false) then -- selected entity is top
+				orien = 0.5
+			end
+			table.insert(storage.selection_indicators[player.index], rendering.draw_sprite{sprite = "utility/indication_arrow", surface = entity.surface, target = entity, orientation = orien, players = {player}})
 		end
 	end
 	if offs ~= 0 then
