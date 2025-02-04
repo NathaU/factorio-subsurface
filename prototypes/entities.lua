@@ -99,6 +99,7 @@ data:extend(
 	localised_name = {"entity-name.subsurface-wall"},
 	icon = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon),
 	flags = {"placeable-neutral", "not-on-map", "placeable-off-grid", "not-deconstructable"},
+	hidden = true,
 	resistances = {
 	  {type = "physical", percent = 100},
 	  {type = "impact", percent = 100},
@@ -164,6 +165,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/Tunnels-icon.png",
 	icon_size = 32,
 	flags = {"placeable-neutral", "placeable-off-grid"},
+	hidden = true,
 	collision_box = {{-1.4, -0.8}, {1.4, 1}},
 	selection_box = {{0, 0}, {0, 0}},
 	animation = {
@@ -255,6 +257,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/Tunnels-icon.png",
 	icon_size = 32,
 	flags = {"placeable-neutral", "placeable-off-grid"},
+	hidden = true,
 	collision_box = {{-1, 0}, {1, 0.7}},
 	selection_box = {{0, 0}, {0, 0}},
 	animation = {
@@ -344,6 +347,7 @@ data:extend(
 	  }
 	},
 	flags = {"placeable-player", "player-creation"},
+	hidden = true,
 	max_health = 300,
 	corpse = "surface-drill-remnants",
 	collision_box = {{-2.1, -2.2}, {2.2, 2.2}},
