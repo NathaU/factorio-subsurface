@@ -36,6 +36,8 @@ function setup_globals()
 	storage.resources_autoplace_replace = storage.resources_autoplace_replace or {}
 	storage.revealed_resources = storage.revealed_resources or {}
 	storage.train_subways = storage.train_subways or {}
+	storage.train_transport = storage.train_transport or {}
+	storage.train_carriage_protection = storage.train_carriage_protection or {}
 end
 
 script.on_init(function()
@@ -272,6 +274,8 @@ script.on_event(defines.events.on_tick, function(event)
 	end
 	
 	handle_elevators(event.tick)
+
+	handle_subways()
 	
 	-- POLLUTION (since there is no mechanic to just reflect pollution (no absorption but also no spread) we have to do it for our own. The game's mechanic can't be changed so we need to consider it)
 	if (event.tick - 1) % 64 == 0 then
