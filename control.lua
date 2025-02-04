@@ -25,7 +25,6 @@ function setup_globals()
 	storage.car_links = storage.car_links or {}
 	storage.heat_elevators = storage.heat_elevators or {}
 	storage.air_vents = storage.air_vents or {}
-	storage.exposed_chunks = storage.exposed_chunks or {} -- [surface][x][y], 1 means chunk is exposed, 0 means chunk is next to an exposed chunk
 	storage.aai_digging_miners = storage.aai_digging_miners or {}
 	storage.prospectors = storage.prospectors or {}
 	storage.support_lamps = storage.support_lamps or {}
@@ -180,7 +179,6 @@ function get_subsurface(surface, create)
 			
 		end
 		storage.subsurfaces[surface.index] = subsurface
-		storage.exposed_chunks[subsurface.index] = storage.exposed_chunks[subsurface.index] or {}
 		return subsurface
 	else return nil
 	end
@@ -281,29 +279,25 @@ script.on_event(defines.events.on_tick, function(event)
 	if (event.tick - 1) % 64 == 0 then
 		
 		for _,subsurface in pairs(storage.subsurfaces) do
-			-- chunks that are not exposed but polluted distribute their pollution back to a chunk that is polluted (amount is proportional to adjacent chunks pollution)
-			--for cx,cyt in pairs(storage.exposed_chunks[subsurface.index] or {}) do
-				--for cy,expval in pairs(cyt) do
-				for chunk in subsurface.get_chunks() do
-					local cx = chunk.x
-					local cy = chunk.y
-					local pollution = subsurface.get_pollution{cx*32, cy*32}
-					if pollution > 0 and subsurface.count_tiles_filtered{area = chunk.area, name = "out-of-map"} == 1024 then
-						local north = subsurface.get_pollution{cx*32, (cy-1)*32}
-						local south = subsurface.get_pollution{cx*32, (cy+1)*32}
-						local east = subsurface.get_pollution{(cx+1)*32, cy*32}
-						local west = subsurface.get_pollution{(cx-1)*32, cy*32}
-						local total = north + south + east + west
-						if total > 0 then
-							subsurface.pollute({cx*32, (cy-1)*32}, pollution*north/total)
-							subsurface.pollute({cx*32, (cy+1)*32}, pollution*south/total)
-							subsurface.pollute({(cx+1)*32, cy*32}, pollution*east/total)
-							subsurface.pollute({(cx-1)*32, cy*32}, pollution*west/total)
-							subsurface.pollute({cx*32, cy*32}, -pollution)
-						end
+			for chunk in subsurface.get_chunks() do
+				local cx = chunk.x
+				local cy = chunk.y
+				local pollution = subsurface.get_pollution{cx*32, cy*32}
+				if pollution > 0 and subsurface.count_tiles_filtered{area = chunk.area, name = "out-of-map"} == 1024 then
+					local north = subsurface.get_pollution{cx*32, (cy-1)*32}
+					local south = subsurface.get_pollution{cx*32, (cy+1)*32}
+					local east = subsurface.get_pollution{(cx+1)*32, cy*32}
+					local west = subsurface.get_pollution{(cx-1)*32, cy*32}
+					local total = north + south + east + west
+					if total > 0 then
+						subsurface.pollute({cx*32, (cy-1)*32}, pollution*north/total)
+						subsurface.pollute({cx*32, (cy+1)*32}, pollution*south/total)
+						subsurface.pollute({(cx+1)*32, cy*32}, pollution*east/total)
+						subsurface.pollute({(cx-1)*32, cy*32}, pollution*west/total)
+						subsurface.pollute({cx*32, cy*32}, -pollution)
 					end
 				end
-			--end
+			end
 			
 			-- machine inefficiency due to pollution
 			for _,e in ipairs(subsurface.find_entities_filtered{type = attrition_types}) do
