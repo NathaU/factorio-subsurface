@@ -3,19 +3,25 @@ data:extend(
   {
 	type = "technology",
 	name = "surface-drilling",
-	icon = "__base__/graphics/icons/burner-mining-drill.png",
-	icon_size = 64,
+	icons = {
+	  {icon = "__base__/graphics/icons/burner-mining-drill.png"},
+	  {
+		icon = "__Subsurface__/graphics/icons/elevator.png",
+		icon_size = 32,
+	  }
+	},
 	effects =
 	{
 	  {type = "unlock-recipe", recipe = "surface-drill"},
 	  {type = "unlock-recipe", recipe = "wooden-support"},
 	  {type = "unlock-recipe", recipe = "cave-sealing"},
 	},
-	prerequisites = {},
+	prerequisites = {"automation-2"},
 	unit = {
-	  count = 100,
+	  count = 200,
 	  ingredients = {
-		{"automation-science-pack", 1}
+		{"automation-science-pack", 1},
+		{"logistic-science-pack", 1}
 	  },
 	  time = 30
 	},
@@ -32,7 +38,7 @@ data:extend(
 	  {type = "unlock-recipe", recipe = "heat-elevator"},
 	  {type = "unlock-recipe", recipe = "subway"},
 	},
-	prerequisites = {"surface-drilling"},
+	prerequisites = {"surface-drilling", "fluid-handling", "railway"},
 	unit = {
 	  count = 500,
 	  ingredients = {
