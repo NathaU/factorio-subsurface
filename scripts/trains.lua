@@ -34,20 +34,20 @@ function subway_show_placement_indicators(player, entity)
 	table.insert(storage.placement_indicators[player.index], rendering.draw_sprite{sprite = "placement-indicator-subway-"..suffix, surface = player.surface, target = math2d.position.add(entity.position, offset), players = {player}})
 end
 
+function create_fake_stop(surface, ref_stop)
+	storage.train_stop_clones[ref_stop.unit_number] = storage.train_stop_clones[ref_stop.unit_number] or {}
+	local fake = surface.create_entity{name = "subway-stop", position = {0, 0}, force = ref_stop.force}
+	fake.backer_name = ref_stop.backer_name
+	fake.color = ref_stop.color
+	table.insert(storage.train_stop_clones[ref_stop.unit_number], fake)
+end
 function create_fake_stops(stop)
-	storage.train_stop_clones[stop.unit_number] = {}
 	script.register_on_object_destroyed(stop)
-
 	local s = get_top_surface(stop.surface)
 	repeat
-		if s ~= stop.surface then
-			local fake = s.create_entity{name = "subway-stop", position = {0, 0}, force = stop.force}
-			fake.backer_name = stop.backer_name
-			fake.color = stop.color
-			table.insert(storage.train_stop_clones[stop.unit_number], fake)
-		end
+		if s ~= stop.surface then create_fake_stop(s, stop) end
 		s = storage.subsurfaces[s.index]
-	until not s 
+	until not s
 end
 
 function subway_link(entity1, entity2)
