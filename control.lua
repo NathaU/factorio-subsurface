@@ -250,7 +250,8 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 				if surface.get_hidden_tile({x, y}) then
 					surface.create_entity{name = "subsurface-wall", position = {x, y}, force = game.forces.neutral}
 				else
-					surface.create_entity{name = "subsurface-wall-map-border", position = {x, y}, force = game.forces.neutral}
+					local w = surface.create_entity{name = "subsurface-wall-map-border", position = {x, y}, force = game.forces.neutral}
+					w.destructible = false
 				end
 			end
 		end
@@ -513,12 +514,16 @@ script.on_event(defines.events.on_resource_depleted, function(event)
 			-- oversurface entity placing
 			local entrance_car = drill.surface.create_entity{name = "tunnel-entrance", position = pos, force = drill.force}
 			local entrance_pole = drill.surface.create_entity{name = "tunnel-entrance-cable", position = pos, force = drill.force}
+			entrance_car.destructible = false
+			entrance_pole.destructible = false
 			
 			-- subsurface entity placing
 			local subsurface = get_subsurface(drill.surface)
 			clear_subsurface(subsurface, pos, 4, 1.5)
 			local exit_car = subsurface.create_entity{name = "tunnel-exit", position = pos, force = drill.force}
 			local exit_pole = subsurface.create_entity{name = "tunnel-exit-cable", position = pos, force = drill.force}
+			exit_car.destructible = false
+			exit_pole.destructible = false
 			
 			
 			for w,wc in pairs(entrance_pole.get_wire_connectors()) do
@@ -614,7 +619,8 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 		local entrance = surface.find_entities_filtered{name = {"tunnel-entrance", "tunnel-entrance-sealed-0", "tunnel-entrance-sealed-1", "tunnel-entrance-sealed-2"}, position = event.target_position, radius=3}[1]
 		if entrance then
 			local next_stage = {["tunnel-entrance"] = "tunnel-entrance-sealed-0", ["tunnel-entrance-sealed-0"] = "tunnel-entrance-sealed-1", ["tunnel-entrance-sealed-1"] = "tunnel-entrance-sealed-2", ["tunnel-entrance-sealed-2"] = "tunnel-entrance-sealed-3"}
-			surface.create_entity{name = next_stage[entrance.name], position = entrance.position, force = game.forces.neutral}
+			local new_entrance = surface.create_entity{name = next_stage[entrance.name], position = entrance.position, force = game.forces.neutral}
+			new_entrance.destructible = false
 			
 			if entrance.name == "tunnel-entrance" then
 				for x, y in iarea(get_area(event.target_position, 0.2)) do

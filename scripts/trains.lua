@@ -14,6 +14,7 @@ function subway_built(entity)
 	storage.train_subways[entity.unit_number].stop_pos = util.rotate_position({2, -4}, entity.orientation)
 
 	entity.rotatable = false
+	entity.destructible = false
 	script.register_on_object_destroyed(entity)
 end
 
