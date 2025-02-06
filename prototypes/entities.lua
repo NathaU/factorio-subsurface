@@ -13,13 +13,6 @@ cave_sealing.action[1].action_delivery.target_effects = {
 for i=0,3,1 do
 	local sealed_entrance = table.deepcopy(data.raw["simple-entity"]["big-rock"])
 	sealed_entrance.name = "tunnel-entrance-sealed-"..i
-	sealed_entrance.resistances = {
-		{type = "physical", percent = 100},
-		{type = "impact", percent = 100},
-		{type = "explosion", percent = 100},
-		{type = "fire", percent = 100},
-		{type = "laser", percent = 100}
-	}
 	sealed_entrance.flags = {"placeable-neutral", "not-deconstructable", "placeable-off-grid"}
 	sealed_entrance.count_as_rock_for_filtered_deconstruction = false
 	sealed_entrance.minable = nil
@@ -100,13 +93,6 @@ data:extend(
 	icon = table.deepcopy(data.raw["simple-entity"]["huge-rock"].icon),
 	flags = {"placeable-neutral", "not-on-map", "placeable-off-grid", "not-deconstructable"},
 	hidden = true,
-	resistances = {
-	  {type = "physical", percent = 100},
-	  {type = "impact", percent = 100},
-	  {type = "explosion", percent = 100},
-	  {type = "fire", percent = 100},
-	  {type = "laser", percent = 100}
-	},
 	count_as_rock_for_filtered_deconstruction = true,
 	collision_box = {{-0.9, -0.9}, {0.9, 0.9}},
 	pictures = cliff_pics
@@ -146,13 +132,6 @@ data:extend(
 		}
 	  }
 	},
-	resistances = {
-	  {type = "physical", percent = 100},
-	  {type = "impact", percent = 100},
-	  {type = "explosion", percent = 100},
-	  {type = "fire", percent = 100},
-	  {type = "laser", percent = 100}
-	},
 	open_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].open_sound),
 	close_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].close_sound),
 	circuit_wire_max_distance = 7.5,
@@ -179,13 +158,6 @@ data:extend(
 		  width = 1
 		},
 	  }
-	},
-	resistances = {
-	  {type = "physical", percent = 100},
-	  {type = "impact", percent = 100},
-	  {type = "explosion", percent = 100},
-	  {type = "fire", percent = 100},
-	  {type = "laser", percent = 100}
 	},
 	braking_power = "200kW",
 	energy_source = {type = "void"},
@@ -238,13 +210,6 @@ data:extend(
 		}
 	  }
 	},
-	resistances = {
-	  {type = "physical", percent = 100},
-	  {type = "impact", percent = 100},
-	  {type = "explosion", percent = 100},
-	  {type = "fire", percent = 100},
-	  {type = "laser", percent = 100}
-	},
 	open_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].open_sound),
 	close_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].close_sound),
 	circuit_wire_max_distance = 7.5,
@@ -271,13 +236,6 @@ data:extend(
 		  width = 1
 		},
 	  }
-	},
-	resistances = {
-	  {type = "physical", percent = 100},
-	  {type = "impact", percent = 100},
-	  {type = "explosion", percent = 100},
-	  {type = "fire", percent = 100},
-	  {type = "laser", percent = 100}
 	},
 	braking_power = "200kW",
 	energy_source = {type = "void"},
@@ -789,13 +747,6 @@ data:extend(
 	tile_width = 2,
 	tile_height = 2,
 	build_grid_size = 2,
-	resistances = {
-		{type = "physical", percent = 100},
-		{type = "impact", percent = 100},
-		{type = "explosion", percent = 100},
-		{type = "fire", percent = 100},
-		{type = "laser", percent = 100}
-	},
 	max_health = 1000,
 	render_layer = "train-stop-top",
 	picture = {
