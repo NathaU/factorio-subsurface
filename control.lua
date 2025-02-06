@@ -547,6 +547,14 @@ script.on_event(defines.events.on_resource_depleted, function(event)
 			script.register_on_object_destroyed(exit_pole)
 			script.register_on_object_destroyed(entrance_car)
 			script.register_on_object_destroyed(exit_car)
+			
+			local temp_s = drill.surface
+			repeat
+				for _, stop in ipairs(temp_s.find_entities_filtered{type = "train-stop"}) do
+					if stop.name ~= "subway-stop" then create_fake_stop(subsurface, stop) end
+				end
+				temp_s = get_oversurface(temp_s)
+			until not temp_s
 		end
 	else
 		local pos = {x = math.floor(event.entity.position.x), y = math.floor(event.entity.position.y)}
