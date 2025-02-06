@@ -37,6 +37,7 @@ function setup_globals()
 	storage.train_subways = storage.train_subways or {}
 	storage.train_transport = storage.train_transport or {}
 	storage.train_carriage_protection = storage.train_carriage_protection or {}
+	storage.train_stop_clones = storage.train_stop_clones or {}
 end
 
 script.on_init(function()
@@ -446,6 +447,8 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		elevator_built(entity)
 	elseif (entity.type == "train-stop" and entity.connected_rail and entity.connected_rail.name == "subway-rail") or ((entity.type == "rail-signal" or entity.type == "rail-chain-signal") and entity.get_connected_rails()[1] and entity.get_connected_rails()[1].name == "subway-rail") then
 		cancel_placement(event, "cant-build-reason.cant-build-here")
+	elseif entity.type == "train-stop" then
+		create_fake_stops(entity)
 	elseif is_subsurface(entity.surface) then -- check for placement restrictions, cancel placement if one of the consumed items has the hint in the description
 		if not script.feature_flags["space_travel"] then
 			for _, item in ipairs(event.consumed_items and event.consumed_items.get_contents() or {event.stack}) do
@@ -593,6 +596,9 @@ script.on_event(defines.events.on_object_destroyed, function(event)
 		storage.support_lamps[event.useful_id].destroy()
 	elseif storage.train_subways[event.useful_id] then
 		subway_entity_destroyed(event.useful_id)
+	elseif storage.train_stop_clones[event.useful_id] then
+		for _, s in ipairs(storage.train_stop_clones[event.useful_id]) do s.destroy() end
+		storage.train_stop_clones[event.useful_id] = nil
 	end
 end)
 
@@ -649,6 +655,17 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 			end
 			surface.pollute(event.target_position, 5)
 		end
+	end
+end)
+
+script.on_event(defines.events.on_entity_renamed, function(event)
+	if event.entity.type == "train-stop" and not event.entity.name == "subway-stop" then
+		for _, s in ipairs(storage.train_stop_clones[event.entity.unit_number] or {}) do s.backer_name = event.entity.backer_name end
+	end
+end)
+script.on_event(defines.events.on_entity_color_changed, function(event)
+	if event.entity.type == "train-stop" and not event.entity.name == "subway-stop" then
+		for _, s in ipairs(storage.train_stop_clones[event.entity.unit_number] or {}) do s.color = event.entity.color end
 	end
 end)
 
