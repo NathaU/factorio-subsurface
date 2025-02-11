@@ -188,3 +188,13 @@ function crawl_expression(expr, parent_function_protos, indent)
 	end
 	return false
 end
+
+function simple_hash(text)
+	local hash = 0
+	for i = 1, string.len(text), 2 do
+		local number = bit32.lshift(string.byte(text, i) or 0, 8) + (string.byte(text, i + 1) or 0)
+		if i == 1 then hash = number
+		else hash = bit32.rrotate(bit32.bxor(hash, number), 1) end
+	end
+	return hash
+end

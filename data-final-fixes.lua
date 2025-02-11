@@ -1,6 +1,5 @@
 local collision_mask_util = require("collision-mask-util")
 require "scripts.lib"
-require "scripts.crc32"
 
 if settings.startup["pollution-trains"].value then
 	local exclude_prototypes = {}
@@ -21,12 +20,12 @@ table.insert(data.raw.projectile["cliff-explosives"].action[1].action_delivery.t
 for name, dt in pairs(data.raw["resource"]) do
 	if dt.autoplace and dt.autoplace.probability_expression then
 		if not crawl_expression(dt.autoplace.probability_expression) then
-			log("Resource " .. name .. " autoplace is independent from x and y. Replace it with spot noise expression")
+			log("Resource " .. name .. " autoplace is independent from x and y. Create noise expression to place it randomly.")
 			data:extend({
 			  {
 				type = "noise-expression",
 				name = name.."-probability",
-				expression = "var('random-value-0-1') + (random_penalty(x, y, 9999, "..hash(name).."&0xffff, 10000) / 10000) - floor(var('random-value-0-1') + (random_penalty(x, y, 9999, "..hash(name).."&0xffff, 10000) / 10000))",
+				expression = "random_penalty(x, y, 1000000, subsurface_seed ~ "..simple_hash(name)..", 1000000) / 1000000",
 			  }
 			})
 		end

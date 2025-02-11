@@ -25,4 +25,8 @@ for i, s in pairs(storage.subsurfaces) do
 	effect.pollution = (effect.pollution or 0) + 0.1 * depth
 	effect.quality = (effect.quality or 0) + 0.1 * depth
 	s.global_effect = effect
+
+	local mgs = s.map_gen_settings
+	mgs.property_expression_names["subsurface_seed"] = math.random(2^16)
+	s.map_gen_settings = mgs
 end

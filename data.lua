@@ -127,8 +127,8 @@ data:extend({
   
   {
 	type = "noise-expression",
-	name = "random-value-0-1",
-	expression = "random_penalty(x, y, 100, map_seed, 100) / 100",
+	name = "subsurface_random",
+	expression = "random_penalty(x, y, 1000000, subsurface_seed, 1000000) / 1000000",
   },
 
   {
