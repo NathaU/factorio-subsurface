@@ -32,7 +32,6 @@ function setup_globals()
 	storage.selection_indicators = storage.selection_indicators or {}
 	storage.next_burrowing = storage.next_burrowing or game.map_settings.enemy_expansion.max_expansion_cooldown
 	if not storage.enemies_above_exposed_underground then init_enemies_global() end
-	storage.resources_autoplace_replace = storage.resources_autoplace_replace or {}
 	storage.revealed_resources = storage.revealed_resources or {}
 	storage.train_subways = storage.train_subways or {}
 	storage.train_transport = storage.train_transport or {}
@@ -42,7 +41,7 @@ end
 
 script.on_init(function()
 	setup_globals()
-	for _,s in pairs(game.surfaces) do manipulate_autoplace_controls(s) end
+	for _, s in pairs(game.surfaces) do manipulate_autoplace_controls(s) end
 	
 	if remote.interfaces["space-exploration"] then
 		script.on_event("se-remote-view", function(event)
@@ -51,12 +50,6 @@ script.on_init(function()
 	end
 	
 	aai_miners = script.active_mods["aai-vehicles-miner"] ~= nil
-	
-	for name, _ in pairs(prototypes.get_entity_filtered{{filter = "type", type = "resource"}}) do
-		if prototypes.named_noise_expression[name .. "-probability"] then
-			storage.resources_autoplace_replace[name] = name .. "-probability"
-		end
-	end
 end)
 script.on_configuration_changed(function(config) -- TBC
 	setup_globals()
@@ -85,21 +78,6 @@ script.on_configuration_changed(function(config) -- TBC
 		end
 	end
 	if found then game.print("[font=default-large-bold][color=yellow]Subsurface: At least one tile generated in subsurfaces was removed from the game due to your mod configuration changes. It has been replaced with dirt-like tiles.[/color][/font]") end
-	
-	-- handle resources whose autoplace is independent from position
-	storage.resources_autoplace_replace = {}
-	for name, _ in pairs(prototypes.get_entity_filtered{{filter = "type", type = "resource"}}) do
-		if prototypes.named_noise_expression[name .. "-probability"] then
-			storage.resources_autoplace_replace[name] = name .. "-probability"
-		end
-	end
-	for _, surface in pairs(storage.subsurfaces) do
-		local mgs = surface.map_gen_settings
-		for prt,expr in pairs(storage.resources_autoplace_replace) do
-			mgs.property_expression_names["probability-" .. prt] = expr
-		end
-		surface.map_gen_settings = mgs
-	end
 end)
 
 script.on_load(function()
@@ -135,7 +113,9 @@ function get_subsurface(surface, create)
 				width = surface.map_gen_settings.width,
 				height = surface.map_gen_settings.height,
 				peaceful_mode = surface.map_gen_settings.peaceful_mode,
-				autoplace_controls = make_autoplace_controls(topname, depth),
+				no_enemies_mode = surface.map_gen_settings.no_enemies_mode,
+				autoplace_controls = make_autoplace_controls(game.get_surface(topname), depth),
+				default_enable_all_autoplace_controls = false,
 				autoplace_settings = {
 				  decorative = {treat_missing_as_default = false, settings = {
 					["small-rock"] = {},
@@ -147,6 +127,7 @@ function get_subsurface(surface, create)
 					["grass-4"] = {},
 					["out-of-map"] = {},
 				  }},
+				  entity = {treat_missing_as_default = false, settings = make_resource_autoplace_settings(game.get_surface(topname), depth)}
 				},
 				property_expression_names = { -- priority is from top to bottom
 					["tile:caveground:probability"] = 0, -- basic floor
@@ -154,13 +135,12 @@ function get_subsurface(surface, create)
 					["tile:grass-4:probability"] = 0, -- 2nd alternative
 					["decorative:small-rock:probability"] = 0.1,
 					["decorative:tiny-rock:probability"] = 0.7,
-					
-					["probability"] = "random-value-0-1",
+
+					["subsurface_seed"] = math.random(2^16)
 				}
 			}
-			for prt,expr in pairs(storage.resources_autoplace_replace) do
-				mgs.property_expression_names["probability-" .. prt] = expr
-			end
+			make_property_expressions(mgs, game.get_surface(topname), depth)
+			mgs.property_expression_names["entity:stone:richness"] = 0
 			
 			subsurface = game.create_surface(subsurface_name, mgs)
 			

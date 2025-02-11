@@ -11,7 +11,7 @@ for _,s in pairs(game.surfaces) do
 				seed = top.map_gen_settings.seed,
 				width = top.map_gen_settings.width,
 				height = top.map_gen_settings.height,
-				autoplace_controls = make_autoplace_controls(top.name, get_subsurface_depth(s)),
+				autoplace_controls = make_autoplace_controls(top, get_subsurface_depth(s)),
 				autoplace_settings = {
 				  tile = {treat_missing_as_default = false, settings = {
 					["caveground"] = {},
