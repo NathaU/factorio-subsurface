@@ -202,6 +202,7 @@ end
 
 function clear_subsurface(surface, pos, radius, clearing_radius)
 	if not is_subsurface(surface) then return 0 end
+	pos = math2d.position.ensure_xy(pos)
 	local new_tiles = {}
 	local new_resource_positions = {}
 	local walls_destroyed = 0

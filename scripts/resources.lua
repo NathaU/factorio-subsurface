@@ -16,13 +16,18 @@ function place_resources(surface, pos_arr)
 		if not stored_results[chunk_id] then stored_results[chunk_id] = surface.calculate_tile_properties(properties, get_chunk_positions(pos)) end
 		for _, proto in ipairs(resources) do
 			if (stored_results[chunk_id]["entity:"..proto..":richness"] or {[pos_i] = 0})[pos_i] > 0
-			and (stored_results[chunk_id][proto.."-probability"] or stored_results[chunk_id]["subsurface_random"])[pos_i] <= stored_results[chunk_id]["entity:"..proto..":probability"][pos_i]
-			and not surface.entity_prototype_collides(proto, {pos[1]+(0.5*(prototypes.entity[proto].tile_width % 2)), pos[2]+(0.5*(prototypes.entity[proto].tile_height % 2))}, false) then
-				local amount = math.ceil(stored_results[chunk_id]["entity:"..proto..":richness"][pos_i])
-				if storage.revealed_resources[chunk_id] and storage.revealed_resources[chunk_id][pos_i] and storage.revealed_resources[chunk_id][pos_i][proto] then
-					amount = storage.revealed_resources[chunk_id][pos_i][proto]
+			and (stored_results[chunk_id][proto.."-probability"] or stored_results[chunk_id]["subsurface_random"])[pos_i] <= stored_results[chunk_id]["entity:"..proto..":probability"][pos_i] then
+				local collision_box_vector = {x = prototypes.entity[proto].tile_width, y = prototypes.entity[proto].tile_height}
+				if surface.count_tiles_filtered{name = "out-of-map", area = math2d.bounding_box.create_from_centre({pos[1] + 0.5 * (collision_box_vector.x % 2), pos[2] + 0.5 * (collision_box_vector.y % 2)}, collision_box_vector.x, collision_box_vector.y)} > 0 then
+					clear_subsurface(surface, pos, math2d.vector.length(collision_box_vector) / 2)
 				end
-				if amount > 0 then surface.create_entity{name = proto, position = pos, force = game.forces.neutral, enable_cliff_removal = false, amount = amount} end
+				if not surface.entity_prototype_collides(proto, {pos[1] + 0.5 * (collision_box_vector.x % 2), pos[2] + 0.5 * (collision_box_vector.y % 2)}, false) then -- check for other collision than out-of-map tiles (already placed resources)
+					local amount = math.ceil(stored_results[chunk_id]["entity:"..proto..":richness"][pos_i])
+					if storage.revealed_resources[chunk_id] and storage.revealed_resources[chunk_id][pos_i] and storage.revealed_resources[chunk_id][pos_i][proto] then
+						amount = storage.revealed_resources[chunk_id][pos_i][proto]
+					end
+					if amount > 0 then surface.create_entity{name = proto, position = pos, force = game.forces.neutral, enable_cliff_removal = false, amount = amount} end
+				end
 			end
 		end
 	end
