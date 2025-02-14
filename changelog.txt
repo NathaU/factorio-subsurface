@@ -1,6 +1,18 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 2025-02-14
+  Features:
+    - Tweaked resource generation, they also generate below level 1
+    - Train subways
+    - Global effects in subsurfaces
+  Changes:
+    - Improved AAI miner behaviour
+    - Changed technology cost
+  Bugfixes:
+    - Space Age version 2.0.33 fixed that all rail-related entities could not be placed in subsurfaces
+---------------------------------------------------------------------------------------------------
 Version: 1.0.15
-Date: 2024-?
+Date: 2024-12-13
   Changes:
     - Added surface condition for wooden support
   Bugfixes:
