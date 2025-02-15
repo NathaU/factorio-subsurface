@@ -1,13 +1,18 @@
 resources = {}
-properties = {"subsurface_random"}
 for proto, _ in pairs(prototypes.get_entity_filtered({{filter = "type", type = "resource"}, {mode = "and", filter = "autoplace"}})) do
 	table.insert(resources, proto)
-	table.insert(properties, "entity:" .. proto .. ":richness")
-	table.insert(properties, "entity:" .. proto .. ":probability")
-	if prototypes.named_noise_expression[proto .. "-probability"] then table.insert(properties, proto .. "-probability") end
 end
 
 function place_resources(surface, pos_arr)
+	local properties = {"subsurface_random"}
+	for proto, _ in pairs((surface.map_gen_settings.autoplace_settings.entity or {settings = {}}).settings) do
+		if prototypes.entity[proto].type == "resource" then
+			table.insert(properties, "entity:" .. proto .. ":richness")
+			table.insert(properties, "entity:" .. proto .. ":probability")
+			if prototypes.named_noise_expression[proto .. "-probability"] then table.insert(properties, proto .. "-probability") end
+		end
+	end
+	
 	local stored_results = {}
 	
 	for _, pos in ipairs(pos_arr) do
