@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.1
+Date: 2025-02-15
+  Changes:
+    - Resources with big collision box will now generate by revealing the whole area covering them
+  Bugfixes:
+    - Fixed crash when trying to calculate properties of resources that are not to appear on subsurfaces
+---------------------------------------------------------------------------------------------------
 Version: 1.1.0
 Date: 2025-02-14
   Features:
