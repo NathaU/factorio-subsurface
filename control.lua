@@ -17,7 +17,7 @@ suffocation_damage = 2.5 -- per 64 ticks (~1 second)
 attrition_threshold = 150
 attrition_types = {"assembling-machine", "reactor", "mining-drill", "generator", "inserter", "burner-generator", "car", "construction-robot", "lab", "loader", "loader-1x1", "locomotive", "logistic-robot", "power-switch", "pump", "radar", "roboport", "spider-vehicle", "splitter", "transport-belt"}
 
-aai_miners = false
+aai_miners = script.active_mods["aai-vehicles-miner"] ~= nil
 
 function setup_globals()
 	storage.subsurfaces = storage.subsurfaces or {}
@@ -48,8 +48,6 @@ script.on_init(function()
 			on_remote_view_started(game.get_player(event.player_index))
 		end)
 	end
-	
-	aai_miners = script.active_mods["aai-vehicles-miner"] ~= nil
 end)
 script.on_configuration_changed(function(config) -- TBC
 	setup_globals()
@@ -86,8 +84,6 @@ script.on_load(function()
 			on_remote_view_started(game.get_player(event.player_index))
 		end)
 	end
-	
-	aai_miners = script.active_mods["aai-vehicles-miner"] ~= nil
 end)
 
 function get_subsurface(surface, create)
