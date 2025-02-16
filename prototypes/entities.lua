@@ -781,7 +781,7 @@ data:extend(
   {
 	type = "train-stop",
 	name = "subway-stop",
-	icon = "__Subsurface__/graphics/icons/tunnels-icon.png", icon_size = 32,
+	icon = "__Subsurface__/graphics/icons/Tunnels-icon.png", icon_size = 32,
 	animation_ticks_per_frame = 600,
 	chart_name = false,
 	collision_mask = {layers = {}},
