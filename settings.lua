@@ -26,4 +26,10 @@ data:extend({
 	name = "disable-autoplace-manipulation",
 	default_value = false
   },
+  {
+	type = "bool-setting",
+	setting_type = "runtime-global",
+	name = "enable-quality",
+	default_value = true
+  },
 })
