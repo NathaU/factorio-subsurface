@@ -191,10 +191,9 @@ end
 
 function simple_hash(text)
 	local hash = 0
-	for i = 1, string.len(text), 2 do
-		local number = bit32.lshift(string.byte(text, i) or 0, 8) + (string.byte(text, i + 1) or 0)
-		if i == 1 then hash = number
-		else hash = bit32.rrotate(bit32.bxor(hash, number), 1) end
+	for i = 1, string.len(text), 4 do
+		local number = bit32.lshift(string.byte(text, i + 3) or 0, 24) + bit32.lshift(string.byte(text, i + 2) or 0, 16) + bit32.lshift(string.byte(text, i + 1) or 0, 8) + (string.byte(text, i) or 0)
+		hash = bit32.bxor(hash, number)
 	end
-	return hash
+	return bit32.lrotate(hash, string.byte(text, string.len(text)))
 end
