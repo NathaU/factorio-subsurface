@@ -141,7 +141,7 @@ function get_subsurface(surface, create)
 					["decorative:small-rock:probability"] = 0.1,
 					["decorative:tiny-rock:probability"] = 0.7,
 
-					["subsurface_seed"] = math.random(2^16)
+					["subsurface_seed"] = bit32.band(bit32.bxor(simple_hash(subsurface_name), surface.map_gen_settings.seed), 0xFFFFFFF),
 				}
 			}
 			make_property_expressions(mgs, game.get_surface(topname), depth)
