@@ -77,6 +77,15 @@ script.on_configuration_changed(function(config) -- TBC
 	end
 	if found then game.print("[font=default-large-bold][color=yellow]Subsurface: At least one tile generated in subsurfaces was removed from the game due to your mod configuration changes. It has been replaced with dirt-like tiles.[/color][/font]") end
 end)
+script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
+	if event.setting == "enable-quality" then
+		for _, s in pairs(storage.subsurfaces) do
+			local effect = s.global_effect
+			if settings.global["enable-quality"].value then effect.quality = 0.1 * get_subsurface_depth(s) else effect.quality = nil end
+			s.global_effect = effect
+		end
+	end
+end)
 
 script.on_load(function()
 	if remote.interfaces["space-exploration"] then
@@ -151,11 +160,11 @@ function get_subsurface(surface, create)
 			subsurface.set_property("subsurface-level", depth)
 
 			local effect = surface.global_effect or {}
-			effect.productivity = (effect.productivity or 0) + 0.05 * depth
-			effect.speed = (effect.speed or 0) + 0.05 * depth
-			effect.consumption = (effect.consumption or 0) + 0.1 * depth
-			effect.pollution = (effect.pollution or 0) + 0.1 * depth
-			effect.quality = (effect.quality or 0) + 0.1 * depth
+			effect.productivity = 0.05 * depth
+			effect.speed = 0.05 * depth
+			effect.consumption = 0.1 * depth
+			effect.pollution = 0.1 * depth
+			if settings.global["enable-quality"].value then effect.quality = 0.1 * depth end
 			subsurface.global_effect = effect
 			
 			if remote.interfaces["blackmap"] then remote.call("blackmap", "register", subsurface) end
