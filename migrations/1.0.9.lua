@@ -40,7 +40,5 @@ for _,s in pairs(game.surfaces) do
 			game.delete_surface(s)
 			log("Deleted existing surface that will be considered as subsurface: "..s.name)
 		end
-	else
-		manipulate_autoplace_controls(s)
 	end
 end
