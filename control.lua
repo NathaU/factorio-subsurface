@@ -296,8 +296,10 @@ script.on_event(defines.events.on_tick, function(event)
 			end
 			
 			-- machine inefficiency due to pollution
-			for _,e in ipairs(subsurface.find_entities_filtered{type = attrition_types}) do
-				if subsurface.get_pollution(e.position) > attrition_threshold and math.random(5) == 1 then e.damage(e.max_health*0.01, game.forces.neutral, "physical") end
+			if not settings.global["disable-autoplace-manipulation"].value then
+				for _, e in ipairs(subsurface.find_entities_filtered{type = attrition_types}) do
+					if subsurface.get_pollution(e.position) > attrition_threshold and math.random(5) == 1 then e.damage(e.max_health * 0.01, game.forces.neutral, "physical") end
+				end
 			end
 			
 		end
@@ -345,10 +347,12 @@ script.on_event(defines.events.on_tick, function(event)
 		end
 		
 		-- player suffocation damage
-		for _,p in pairs(game.players) do
-			if p.character and is_subsurface(p.surface) and p.surface.get_pollution(p.position) > suffocation_threshold then
-				p.character.damage(suffocation_damage, game.forces.neutral, "poison")
-				if (event.tick - 1) % 256 == 0 then p.print({"subsurface.suffocation"}, {1, 0, 0}) end
+		if not settings.global["disable-autoplace-manipulation"].value then
+			for _, p in pairs(game.players) do
+				if p.character and is_subsurface(p.surface) and p.surface.get_pollution(p.position) > suffocation_threshold then
+					p.character.damage(suffocation_damage, game.forces.neutral, "poison")
+					if (event.tick - 1) % 256 == 0 then p.print({"subsurface.suffocation"}, {1, 0, 0}) end
+				end
 			end
 		end
 		
