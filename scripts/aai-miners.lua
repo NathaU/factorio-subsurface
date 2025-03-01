@@ -102,7 +102,7 @@ function handle_miners(tick)
 						stack.count = stack.count - actually_inserted
 						subsurface.spill_item_stack{position = miner.position, stack = stack}
 					end
-					subsurface.pollute(center_small_excavation, walls_dug * 0.25)
+					subsurface.pollute(center_small_excavation, walls_dug * 0.25, miner.name)
 					subsurface.create_trivial_smoke{name = "fire-smoke-without-glow", position = speed_test_position}
 					subsurface.create_trivial_smoke{name = "fire-smoke-without-glow", position = speed_test_position}
 					subsurface.create_trivial_smoke{name = "fire-smoke-without-glow", position = speed_test_position}

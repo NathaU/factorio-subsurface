@@ -315,8 +315,8 @@ script.on_event(defines.events.on_tick, function(event)
 					
 					local pollution_to_move = math.min(max_movable_pollution, subsurface.get_pollution(vent.position))
 					
-					subsurface.pollute(vent.position, -pollution_to_move)
-					vent.surface.pollute(vent.position, pollution_to_move)
+					subsurface.pollute(vent.position, -pollution_to_move, vent.name)
+					vent.surface.pollute(vent.position, pollution_to_move, vent.name)
 					
 					if pollution_to_move > 0 then
 						vent.active = true
@@ -338,8 +338,8 @@ script.on_event(defines.events.on_tick, function(event)
 						vent.surface.create_trivial_smoke{name = "light-smoke", position = {vent.position.x, vent.position.y}, force = game.forces.neutral}
 					end
 
-					vent.surface.pollute(vent.position, -diff)
-					subsurface.pollute(vent.position, diff)
+					vent.surface.pollute(vent.position, -diff, vent.name)
+					subsurface.pollute(vent.position, diff, vent.name)
 				end
 			else
 				table.remove(storage.air_vents, i)
