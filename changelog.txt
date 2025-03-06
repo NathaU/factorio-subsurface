@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.2
+Date: 2025-03-06
+  Features:
+    - Added setting to disable global quality effect
+  Changes:
+    - No damage from pollution if the no-challenges option is enabled
+    - Air vents show up in pollution statistics
+  Bugfixes:
+    - Fixed icon file name typo
+---------------------------------------------------------------------------------------------------
 Version: 1.1.1
 Date: 2025-02-15
   Changes:
