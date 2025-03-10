@@ -1,4 +1,3 @@
-local collision_mask_util = require("collision-mask-util")
 require "scripts.lib"
 
 if settings.startup["pollution-trains"].value then
@@ -56,3 +55,9 @@ else
 	for _, item_data in pairs(data.raw.item) do crawl_entities(item_data) end
 	for _, item_data in pairs(data.raw["item-with-entity-data"]) do crawl_entities(item_data) end
 end
+
+-----------------------
+-- MOD COMPATIBILITY --
+-----------------------
+
+data.raw.resource["subsurface-hole"].infinite = false
