@@ -85,7 +85,7 @@ function handle_miners(tick)
 				end
 			end
 			
-			if miner.valid and miner.speed > 0 then -- digging part
+			if miner.valid and miner.speed ~= 0 then -- digging part
 				local orientation = miner.orientation
 				local miner_collision_box = miner.prototype.collision_box
 				local center_big_excavation = move_towards_continuous(miner.position, orientation, -miner_collision_box.left_top.y)
@@ -109,7 +109,7 @@ function handle_miners(tick)
 				end
 
 				if miner.speed > 0 and subsurface.find_entity("subsurface-wall", speed_test_position) then
-					miner.friction_modifier = 10
+					miner.friction_modifier = 7
 				else
 					miner.friction_modifier = 1
 				end
