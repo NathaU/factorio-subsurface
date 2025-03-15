@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.3
+Date: 2025-03-15
+  Bugfixes:
+    - Compatibility fix for Infinite Resources
+    - Fixed that miners got stuck because friction was too high
+---------------------------------------------------------------------------------------------------
 Version: 1.1.2
 Date: 2025-03-06
   Features:
