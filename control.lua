@@ -229,6 +229,7 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 				walls_destroyed = walls_destroyed + 1
 			end
 			table.insert(new_tiles, {name = surface.get_hidden_tile({x, y}), position = {x, y}})
+			surface.set_hidden_tile({x, y}, nil)
 			table.insert(new_resource_positions, {x, y})
 		end
 	end
