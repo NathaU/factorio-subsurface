@@ -672,7 +672,7 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 end)
 
 script.on_event(defines.events.on_entity_renamed, function(event)
-	if event.entity.type == "train-stop" and not event.entity.name == "subway-stop" then
+	if event.entity.type == "train-stop" and event.entity.name ~= "subway-stop" then
 		for _, s in ipairs(storage.train_stop_clones[event.entity.unit_number] or {}) do s.backer_name = event.entity.backer_name end
 	end
 end)
