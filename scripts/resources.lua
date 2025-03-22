@@ -5,8 +5,8 @@ end
 
 function place_resources(surface, pos_arr)
 	local properties = {"subsurface_random"}
-	for proto, _ in pairs((surface.map_gen_settings.autoplace_settings.entity or {settings = {}}).settings) do
-		if prototypes.entity[proto].type == "resource" then
+	for proto, _ in pairs((surface.map_gen_settings.autoplace_settings.entity or {settings = {}}).settings or {}) do
+		if (prototypes.entity[proto] or {}).type == "resource" then
 			table.insert(properties, "entity:" .. proto .. ":richness")
 			table.insert(properties, "entity:" .. proto .. ":probability")
 			if prototypes.named_noise_expression[proto .. "-probability"] then table.insert(properties, proto .. "-probability") end
@@ -99,7 +99,7 @@ end
 function make_resource_autoplace_settings(top_surface, depth)
 	local res = {}
 	for name, _ in pairs((top_surface.map_gen_settings.autoplace_settings.entity or {settings = {}}).settings) do
-		if prototypes.entity[name].type == "resource" then
+		if (prototypes.entity[name] or {}).type == "resource" then
 			res[name] = {}
 		end
 	end
