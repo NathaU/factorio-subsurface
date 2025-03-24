@@ -60,12 +60,6 @@ function get_safe_position(entity_position, player_position)
 	return {x = entity_position.x + (player_position.x - entity_position.x) * distance_modifier, y= entity_position.y + (player_position.y - entity_position.y) * distance_modifier}
 end
 
-function move_towards_continuous(start, factorio_orientation, distance)
-	local rad_factorio_orientation = factorio_orientation * 2 * math.pi
-	local mod = {math.sin(rad_factorio_orientation), -math.cos(rad_factorio_orientation)} -- x, y
-	return {x = start.x + mod[1] * distance, y = start.y + mod[2] * distance}
-end
-
 function get_chunk_positions(poss)
 	pos = math2d.position.ensure_xy(poss)
 	return get_area_positions({left_top = {x = math.floor(pos.x/32)*32, y = math.floor(pos.y/32)*32}, right_bottom = {x = (math.floor(pos.x/32)*32)+31, y = (math.floor(pos.y/32)*32)+31}})

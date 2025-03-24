@@ -88,9 +88,9 @@ function handle_miners(tick)
 			if miner.valid and miner.speed ~= 0 then -- digging part
 				local orientation = miner.orientation
 				local miner_collision_box = miner.prototype.collision_box
-				local center_big_excavation = move_towards_continuous(miner.position, orientation, -miner_collision_box.left_top.y)
-				local center_small_excavation = move_towards_continuous(center_big_excavation, orientation, 1.5)
-				local speed_test_position = move_towards_continuous(center_small_excavation, orientation, 1.6)
+				local center_big_excavation = math2d.position.add(miner.position, math2d.vector.from_orientation(orientation, -miner_collision_box.left_top.y))
+				local center_small_excavation = math2d.position.add(center_big_excavation, math2d.vector.from_orientation(orientation, 1.5))
+				local speed_test_position = math2d.position.add(center_small_excavation, math2d.vector.from_orientation(orientation, 1.6))
 				
 				local walls_dug = clear_subsurface(subsurface, center_small_excavation, 1, nil)
 				walls_dug = walls_dug + clear_subsurface(subsurface, center_big_excavation, 3, nil)
