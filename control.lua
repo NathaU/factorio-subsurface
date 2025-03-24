@@ -35,7 +35,6 @@ function setup_globals()
 	storage.revealed_resources = storage.revealed_resources or {}
 	storage.train_subways = storage.train_subways or {}
 	storage.train_transport = storage.train_transport or {}
-	storage.train_carriage_protection = storage.train_carriage_protection or {}
 	storage.train_stop_clones = storage.train_stop_clones or {}
 end
 
