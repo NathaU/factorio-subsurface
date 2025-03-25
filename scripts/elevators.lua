@@ -232,7 +232,7 @@ function elevator_selected(player, entity)
 			end
 		end
 	elseif entity.name == "heat-elevator" then
-		for i, v in ipairs(stoage.heat_elevators) do
+		for i, v in ipairs(storage.heat_elevators) do
 			if v[1] == entity then -- selected entity is on top surface
 				table.insert(storage.selection_indicators[player.index], rendering.draw_sprite{sprite = "utility/indication_arrow", surface = entity.surface, target = entity, orientation = 0.5, players = {player}})
 			elseif v[2] == entity then
