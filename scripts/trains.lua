@@ -85,6 +85,11 @@ end
 function handle_subways()
 	for _, v in pairs(storage.train_subways) do
 		if v.connection then
+			local carriage_arriving_at_station = v.stop.surface.find_entities_filtered{type = rolling_stock_types, position = v.rails[5].position}[1]
+			if carriage_arriving_at_station and carriage_arriving_at_station.train.state == defines.train_state.arrive_station and carriage_arriving_at_station.train.path_end_stop == v.stop then
+				storage.train_transport[carriage_arriving_at_station.train.id] = {leaving_train = carriage_arriving_at_station.train, leaving_speed = carriage_arriving_at_station.train.speed, manual = false}
+			end
+			
 			local carriage = v.stop.surface.find_entities_filtered{type = rolling_stock_types, position = offset_position(v.stop, {-2, 1})}[1]
 			
 			local teleport_pos = offset_position(storage.train_subways[v.connection.unit_number].stop, {-2, 4})
@@ -220,7 +225,11 @@ function handle_subways()
 	end
 
 	for u, t in pairs(storage.train_transport) do
-		if t.arriving_train.valid then
+		if t.leaving_train.valid then
+			t.leaving_train.speed = t.leaving_speed
+			t.leaving_train.manual_mode = true
+		end
+		if t.arriving_train and t.arriving_train.valid then
 			if t.finished and (t.finished[1] and t.arriving_train.back_end or t.arriving_train.front_end).rail == t.finished[2] then
 				if not t.manual and t.next_station then
 					t.arriving_train.go_to_station(t.next_station)
@@ -231,10 +240,6 @@ function handle_subways()
 			else
 				t.arriving_train.speed = t.arriving_speed
 				t.arriving_train.manual_mode = true
-				if t.leaving_train.valid then
-					t.leaving_train.speed = t.leaving_speed
-					t.leaving_train.manual_mode = true
-				end
 			end
 		end
 	end
