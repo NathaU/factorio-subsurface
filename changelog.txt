@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.4
+Date: 2025-03-26
+  Bugfixes:
+    - Train improvements
+    - Fixed bug when mods were removed that added resources
+    - Fixed blueprint related issues
+---------------------------------------------------------------------------------------------------
 Version: 1.1.3
 Date: 2025-03-15
   Bugfixes:
