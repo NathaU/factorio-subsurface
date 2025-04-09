@@ -6,7 +6,7 @@ function handle_enemies(tick)
 		repeat
 			local rnd_surface = math.random(math.max(table_size(storage.subsurfaces), 1))
 			local i = 1
-			for si,ss in pairs(storage.subsurfaces) do
+			for si, ss in pairs(storage.subsurfaces) do
 				if i == rnd_surface and #storage.enemies_above_exposed_underground[si] > 0 then
 					local rnd_base = math.random(#storage.enemies_above_exposed_underground[si])
 					local base = storage.enemies_above_exposed_underground[si][rnd_base]
@@ -58,10 +58,10 @@ end)
 
 function init_enemies_global()
 	storage.enemies_above_exposed_underground = {}
-	for i,ss in pairs(storage.subsurfaces) do
+	for i, ss in pairs(storage.subsurfaces) do
 		storage.enemies_above_exposed_underground[i] = {}
 		local s = game.get_surface(i)
-		for _,e in ipairs(s.find_entities_filtered{type = {"unit-spawner", "turret"}, force = game.forces.enemy}) do
+		for _, e in ipairs(s.find_entities_filtered{type = {"unit-spawner", "turret"}, force = game.forces.enemy}) do
 			local tile = ss.get_tile(e.position)
 			if tile.valid and tile.name ~= "out-of-map" then
 				table.insert(storage.enemies_above_exposed_underground[i], e)
@@ -71,7 +71,7 @@ function init_enemies_global()
 end
 function find_enemies_above(subsurface, position, radius)
 	local s = get_oversurface(subsurface)
-	for _,e in ipairs(s.find_entities_filtered{type = {"unit-spawner", "turret"}, position = position, radius=radius, force = game.forces.enemy}) do
+	for _, e in ipairs(s.find_entities_filtered{type = {"unit-spawner", "turret"}, position = position, radius = radius, force = game.forces.enemy}) do
 		table.insert(storage.enemies_above_exposed_underground[s.index], e)
 	end
 end

@@ -16,9 +16,9 @@ data:extend(
 	energy_required = 10,
 	ingredients =
 	{
-	  {type="item", name="electric-mining-drill", amount=5},
+	  {type = "item", name = "electric-mining-drill", amount = 5},
 	},
-	results = {{type="item", name="surface-drill", amount=1}}
+	results = {{type = "item", name = "surface-drill", amount = 1}}
   },
   
   {
@@ -27,9 +27,9 @@ data:extend(
 	enabled = false,
 	ingredients =
 	{
-	  {type="item", name="radar", amount=5},
+	  {type = "item", name = "radar", amount = 5},
 	},
-	results = {{type="item", name="prospector", amount=1}}
+	results = {{type = "item", name = "prospector", amount = 1}}
   },
   
   {
@@ -39,10 +39,10 @@ data:extend(
 	energy_required = 2,
 	ingredients =
 	{
-	  {type="item", name="pipe", amount=10},
-	  {type="item", name="pump", amount=2},
+	  {type = "item", name = "pipe", amount = 10},
+	  {type = "item", name = "pump", amount = 2},
 	},
-	results = {{type="item", name="fluid-elevator", amount=2}}
+	results = {{type = "item", name = "fluid-elevator", amount = 2}}
   },
   {
 	type = "recipe",
@@ -51,9 +51,9 @@ data:extend(
 	energy_required = 2,
 	ingredients =
 	{
-	  {type="item", name="heat-pipe", amount=10},
+	  {type = "item", name = "heat-pipe", amount = 10},
 	},
-	results = {{type="item", name="heat-elevator", amount=2}}
+	results = {{type = "item", name = "heat-elevator", amount = 2}}
   },
   
   {
@@ -62,10 +62,10 @@ data:extend(
 	enabled = false,
 	ingredients =
 	{
-	  {type="item", name="iron-plate", amount=10},
-	  {type="item", name="steel-plate", amount=5},
+	  {type = "item", name = "iron-plate", amount = 10},
+	  {type = "item", name = "steel-plate", amount = 5},
 	},
-	results = {{type="item", name="air-vent", amount=1}}
+	results = {{type = "item", name = "air-vent", amount = 1}}
   }, 
   {
 	type = "recipe",
@@ -73,12 +73,12 @@ data:extend(
 	enabled = false,
 	ingredients =
 	{
-	  {type="item", name="plastic-bar", amount=10},
-	  {type="item", name="steel-plate", amount=5},
-	  {type="item", name="iron-gear-wheel", amount=5},
-	  {type="item", name="advanced-circuit", amount=10},
+	  {type = "item", name = "plastic-bar", amount = 10},
+	  {type = "item", name = "steel-plate", amount = 5},
+	  {type = "item", name = "iron-gear-wheel", amount = 5},
+	  {type = "item", name = "advanced-circuit", amount = 10},
 	},
-	results = {{type="item", name="active-air-vent", amount=1}}
+	results = {{type = "item", name = "active-air-vent", amount = 1}}
   },
   {
 	type = "recipe",
@@ -87,9 +87,9 @@ data:extend(
 	energy_required = 20,
 	ingredients =
 	{
-	  {type="item", name="stone", amount=200},
+	  {type = "item", name = "stone", amount = 200},
 	},
-	results = {{type="item", name="cave-sealing", amount=1}}
+	results = {{type = "item", name = "cave-sealing", amount = 1}}
   },
   
   {
@@ -124,10 +124,10 @@ data:extend(
 	enabled = false,
 	ingredients =
 	{
-	  {type="item", name="small-electric-pole", amount=1},
-	  {type="item", name="small-lamp", amount=1},
+	  {type = "item", name = "small-electric-pole", amount = 1},
+	  {type = "item", name = "small-lamp", amount = 1},
 	},
-	results = {{type="item", name="wooden-support", amount=1}}
+	results = {{type = "item", name = "wooden-support", amount = 1}}
   },
 
   {
@@ -136,10 +136,10 @@ data:extend(
 	enabled = false,
 	ingredients =
 	{
-	  {type="item", name="rail", amount = 6},
-	  {type="item", name="refined-concrete", amount = 600},
+	  {type = "item", name = "rail", amount  =  6},
+	  {type = "item", name = "refined-concrete", amount  =  600},
 	},
 	energy_required = 30,
-	results = {{type="item", name="subway", amount = 2}}
+	results  =  {{type = "item", name = "subway", amount = 2}}
   },
 })

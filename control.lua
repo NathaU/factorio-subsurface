@@ -52,7 +52,7 @@ script.on_configuration_changed(function(config) -- TBC
 	setup_globals()
 	
 	if config.mod_changes and config.mod_changes["BlackMap-continued"] and not config.mod_changes["BlackMap-continued"].old_version then
-		for _,s in pairs(storage.subsurfaces) do
+		for _, s in pairs(storage.subsurfaces) do
 			remote.call("blackmap", "register", s)
 		end
 	end
@@ -60,14 +60,14 @@ script.on_configuration_changed(function(config) -- TBC
 	-- handle too much tiles
 	local found = false
 	local substitute = (prototypes.tile["mineral-brown-dirt-2"] or prototypes.tile["grass-4"]).name
-	for _,s in pairs(storage.subsurfaces) do
+	for _, s in pairs(storage.subsurfaces) do
 		local new_tiles = {}
-		for _,t in ipairs(s.find_tiles_filtered{name = "grass-1"}) do
+		for _, t in ipairs(s.find_tiles_filtered{name = "grass-1"}) do
 			table.insert(new_tiles, {name = substitute, position = t.position})
 			found = true
 		end
 		s.set_tiles(new_tiles)
-		for _,t in ipairs(s.find_tiles_filtered{name = "out-of-map", has_hidden_tile = true}) do
+		for _, t in ipairs(s.find_tiles_filtered{name = "out-of-map", has_hidden_tile = true}) do
 			if t.hidden_tile == "grass-1" then
 				s.set_hidden_tile(t.position, substitute)
 				found = true
@@ -177,7 +177,7 @@ function get_subsurface(surface, create)
 	end
 end
 function get_oversurface(subsurface)
-	for i,s in pairs(storage.subsurfaces) do -- i is the index of the oversurface
+	for i, s in pairs(storage.subsurfaces) do -- i is the index of the oversurface
 		if s == subsurface and game.get_surface(i) then return game.get_surface(i) end
 	end
 	return nil
@@ -214,7 +214,7 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 
 	if clearing_radius and clearing_radius < radius then -- destroy all entities in this radius except players
 		local clearing_subsurface_area = get_area(pos, clearing_radius)
-		for _,entity in ipairs(surface.find_entities(clearing_subsurface_area)) do
+		for _, entity in ipairs(surface.find_entities(clearing_subsurface_area)) do
 			if entity.type ~= "player" then entity.destroy()
 			else entity.teleport(get_safe_position(pos, {x = pos.x + clearing_radius, y = pos.y})) end
 		end
@@ -259,7 +259,7 @@ end
 script.on_event(defines.events.on_tick, function(event)
 	
 	-- handle prospectors
-	for i,p in ipairs(storage.prospectors) do
+	for i, p in ipairs(storage.prospectors) do
 		if p.valid and p.products_finished == 1 then
 			p.active = false
 			prospect_resources(p)
@@ -274,7 +274,7 @@ script.on_event(defines.events.on_tick, function(event)
 	-- POLLUTION (since there is no mechanic to just reflect pollution (no absorption but also no spread) we have to do it for our own. The game's mechanic can't be changed so we need to consider it)
 	if (event.tick - 1) % 64 == 0 then
 		
-		for _,subsurface in pairs(storage.subsurfaces) do
+		for _, subsurface in pairs(storage.subsurfaces) do
 			for chunk in subsurface.get_chunks() do
 				local cx = chunk.x
 				local cy = chunk.y
@@ -305,7 +305,7 @@ script.on_event(defines.events.on_tick, function(event)
 		end
 		
 		-- next, move pollution using air vents
-		for i,vent in ipairs(storage.air_vents) do
+		for i, vent in ipairs(storage.air_vents) do
 			if vent.valid then
 				local subsurface = get_subsurface(vent.surface)
 				if vent.name == "active-air-vent" and vent.energy > 0 then
@@ -397,7 +397,7 @@ function build_safe(event, func, check_for_entities)
 	local safe_position = true
 	if not is_subsurface(subsurface) then safe_position = false end
 	if not subsurface.is_chunk_generated{entity.position.x / 32, entity.position.y / 32} then safe_position = false end
-	for _,t in ipairs(subsurface.find_tiles_filtered{area = area}) do
+	for _, t in ipairs(subsurface.find_tiles_filtered{area = area}) do
 		if t.name == "out-of-map" then safe_position = false end
 	end
 	if check_for_entities and subsurface.count_entities_filtered{area = area} > 0 then safe_position = false end
@@ -413,7 +413,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		local text = ""
 		if is_subsurface(entity.surface) and get_subsurface_depth(entity.surface) >= settings.global["subsurface-limit"].value then
 			text = "subsurface.limit-reached"
-		elseif entity.surface.count_entities_filtered{name = {"tunnel-entrance", "tunnel-exit"}, position = entity.position, radius=7} > 0 then
+		elseif entity.surface.count_entities_filtered{name = {"tunnel-entrance", "tunnel-exit"}, position = entity.position, radius = 7} > 0 then
 			text = "subsurface.cannot-place-here"
 		elseif string.find(entity.surface.name, "[Ff]actory[- ]floor") or 0 > 1 then -- prevent placement in factorissimo
 			text = "subsurface.only-allowed-on-terrain"
@@ -472,7 +472,7 @@ script.on_event(defines.events.on_player_configured_blueprint, function(event)
 	local item = game.get_player(event.player_index).cursor_stack
 	if item.valid_for_read then
 		local contents = item.get_blueprint_entities()
-		for _,e in ipairs(contents or {}) do
+		for _, e in ipairs(contents or {}) do
 			if e.name == "surface-drill" then e.name = "surface-drill-placer"
 			elseif e.name == "fluid-elevator-output" then e.tags = {output = true} end
 		end
@@ -524,7 +524,7 @@ script.on_event(defines.events.on_resource_depleted, function(event)
 			exit_pole.destructible = false
 			
 			
-			for w,wc in pairs(entrance_pole.get_wire_connectors()) do
+			for w, wc in pairs(entrance_pole.get_wire_connectors()) do
 				wc.connect_to(exit_pole.get_wire_connector(w), false, defines.wire_origin.script)
 			end
 			
@@ -585,7 +585,7 @@ script.on_event(defines.events.on_pre_surface_deleted, function(event)
 		game.delete_surface(s) -- delete s
 	end
 	if is_subsurface(game.get_surface(event.surface_index)) then -- remove this surface from list
-		for s,ss in pairs(storage.subsurfaces) do
+		for s, ss in pairs(storage.subsurfaces) do
 			if ss.index == event.surface_index then storage.subsurfaces[s] = nil end
 		end
 	end
@@ -594,12 +594,12 @@ end)
 script.on_event(defines.events.on_object_destroyed, function(event)
 	-- entrances can't be mined, but in case they are destroyed by mods we have to handle it
 	if storage.pole_links[event.useful_id] and storage.pole_links[event.useful_id].valid then
-		local opposite_car = storage.pole_links[event.useful_id].surface.find_entities_filtered{name = {"tunnel-entrance", "tunnel-exit"}, position = storage.pole_links[event.useful_id].position, radius=1}[1]
+		local opposite_car = storage.pole_links[event.useful_id].surface.find_entities_filtered{name = {"tunnel-entrance", "tunnel-exit"}, position = storage.pole_links[event.useful_id].position, radius = 1}[1]
 		if opposite_car and opposite_car.valid then opposite_car.destroy() end
 		storage.pole_links[event.useful_id].destroy()
 		storage.pole_links[event.useful_id] = nil
 	elseif storage.car_links[event.useful_id] and storage.car_links[event.useful_id].valid then
-		local opposite_pole = storage.car_links[event.useful_id].surface.find_entities_filtered{name = {"tunnel-entrance-cable", "tunnel-exit-cable"}, position = storage.car_links[event.useful_id].position, radius=1}[1]
+		local opposite_pole = storage.car_links[event.useful_id].surface.find_entities_filtered{name = {"tunnel-entrance-cable", "tunnel-exit-cable"}, position = storage.car_links[event.useful_id].position, radius = 1}[1]
 		if opposite_pole and opposite_pole.valid then opposite_pole.destroy() end
 		storage.car_links[event.useful_id].destroy()
 		storage.car_links[event.useful_id] = nil
@@ -622,7 +622,7 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 	elseif event.effect_id == "cave-sealing" then
 		
 		-- first, try to seal tunnel entrances
-		local entrance = surface.find_entities_filtered{name = {"tunnel-entrance", "tunnel-entrance-sealed-0", "tunnel-entrance-sealed-1", "tunnel-entrance-sealed-2"}, position = event.target_position, radius=3}[1]
+		local entrance = surface.find_entities_filtered{name = {"tunnel-entrance", "tunnel-entrance-sealed-0", "tunnel-entrance-sealed-1", "tunnel-entrance-sealed-2"}, position = event.target_position, radius = 3}[1]
 		if entrance then
 			local next_stage = {["tunnel-entrance"] = "tunnel-entrance-sealed-0", ["tunnel-entrance-sealed-0"] = "tunnel-entrance-sealed-1", ["tunnel-entrance-sealed-1"] = "tunnel-entrance-sealed-2", ["tunnel-entrance-sealed-2"] = "tunnel-entrance-sealed-3"}
 			local new_entrance = surface.create_entity{name = next_stage[entrance.name], position = entrance.position, force = game.forces.neutral}
@@ -652,7 +652,7 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 			local set_hidden_tiles = {}
 			for x, y in iarea(get_area(event.target_position, 0.2)) do
 				table.insert(set_tiles, {position = {x, y}, name = "out-of-map"})
-				local tile = surface.get_tile(x ,y)
+				local tile = surface.get_tile(x, y)
 				if tile.name ~= "out-of-map" then table.insert(set_hidden_tiles, {tile.hidden_tile or tile.name, {x, y}}) end
 			end
 			surface.set_tiles(set_tiles)
@@ -662,7 +662,7 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 				and (surface.get_tile(x+1, y).name ~= "out-of-map" or surface.get_tile(x-1, y).name ~= "out-of-map" or surface.get_tile(x, y+1).name ~= "out-of-map" or surface.get_tile(x, y-1).name ~= "out-of-map")
 				and not surface.find_entity("subsurface-wall", {x, y}) and not surface.find_entity("subsurface-wall-map-border", {x, y}) then
 					surface.create_entity{name = "subsurface-wall", position = {x, y}, force = game.forces.neutral}
-					for i=1,100,1 do surface.create_trivial_smoke{name = "subsurface-smoke", position = {x + (math.random(-20, 20) / 20), y + (math.random(-21, 19) / 20)}} end
+					for i = 1, 100 do surface.create_trivial_smoke{name = "subsurface-smoke", position = {x + (math.random(-20, 20) / 20), y + (math.random(-21, 19) / 20)}} end
 				end
 			end
 			surface.pollute(event.target_position, 5)
@@ -691,7 +691,7 @@ end)
 script.on_event("subsurface-rotate", function(event)
 	local player = game.get_player(event.player_index)
 	if player.selected then
-		for _,r in ipairs(storage.selection_indicators[event.player_index] or {}) do
+		for _, r in ipairs(storage.selection_indicators[event.player_index] or {}) do
 			r.destroy()
 		end
 		elevator_rotated(player.selected, player.selected.direction)
