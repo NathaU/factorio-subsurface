@@ -1,9 +1,5 @@
 rolling_stock_types = {"locomotive", "cargo-wagon", "fluid-wagon", "artillery-wagon"}
 
-function offset_position(entity, vector)
-	return math2d.position.add(entity.position, math2d.position.rotate_vector(vector, math.deg(entity.orientation * 2 * math.pi)))
-end
-
 function subway_built(entity)
 	storage.train_subways[entity.unit_number] = {rails = {}}
 	
@@ -113,7 +109,7 @@ function handle_subways()
 				
 				local e = v.connection.surface.create_entity{name = carriage.name, direction = carriage.direction, orientation = carriage.orientation, position = teleport_pos, force = carriage.force, quality = carriage.quality}
 				
-				local front_out = v.connection.orientation == math2d.vector.to_orientation(math2d.position.subtract(e.train.back_end.rail.position, e.train.front_end.rail.position)) -- example: exit points to south (0.5), position of back rail - front rail is also 0.5 if the train front is heading
+				local front_out = v.connection.orientation == to_orientation(math2d.position.subtract(e.train.back_end.rail.position, e.train.front_end.rail.position)) -- example: exit points to south (0.5), position of back rail - front rail is also 0.5 if the train front is heading
 				
 				if data.arriving_train then
 					local previous_speed_sign = data.arriving_speed < 0 and -1 or 1

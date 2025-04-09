@@ -70,6 +70,16 @@ function get_position_index_in_chunk(pos)
 	return p[2]*32 + p[1] + 1
 end
 
+function offset_position(entity, vector)
+	return math2d.position.add(entity.position, math2d.position.rotate_vector(vector, math.deg(entity.orientation * 2 * math.pi)))
+end
+
+function to_orientation(vector)
+	local o = math2d.vector.to_orientation(vector)
+	if o < 0 then o = o + 1 end
+	return o
+end
+
 function spiral(pos)
 	--https://web.archive.org/web/20141202041502/https://danpearcymaths.wordpress.com/2012/09/30/infinity-programming-in-geogebra-and-failing-miserably/
 	local p = {table.unpack(pos)}
