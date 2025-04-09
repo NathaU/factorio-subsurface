@@ -1,7 +1,7 @@
 function dump(o)
    if type(o) == 'table' then
       local s = '{ '
-      for k,v in pairs(o) do
+      for k, v in pairs(o) do
          --if type(k) ~= 'number' then k = '"'..k..'"' end
          s = s .. '['..k..'] = ' .. dump(v) .. ','
       end
@@ -47,8 +47,8 @@ end
 
 function get_area_positions(area)
 	local arr = {}
-	for y = area.left_top.y,area.right_bottom.y,1 do
-		for x = area.left_top.x,area.right_bottom.x,1 do
+	for y = area.left_top.y, area.right_bottom.y do
+		for x = area.left_top.x, area.right_bottom.x do
 			table.insert(arr, {x, y})
 		end
 	end
@@ -119,7 +119,7 @@ function local_function(function_prototypes, name)
 end
 function ind(n)
 	local str = ""
-	for i=1, n, 1 do
+	for i = 1, n do
 		str = str .. " "
 	end
 	return str
@@ -148,7 +148,7 @@ function crawl_expression(expr, parent_function_protos, indent)
 				--log(msg .. "argument name")
 			elseif (c0 or 0) == a1 + 1 then
 				-- if this is a local or custom function, check it's expression, but be aware that it can have x or y named parameters
-				-- if x or y are used as function arguments,they will be found later in this string
+				-- if x or y are used as function arguments, they will be found later in this string
 				if identifier == "var" then
 					_, a1, identifier = string.find(expr, "[%\"%\']([^%\"%\']+)[%\"%\']%)", c1 + 1)
 					do_next_search = false

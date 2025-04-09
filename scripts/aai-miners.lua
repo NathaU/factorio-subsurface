@@ -58,8 +58,8 @@ end
 function handle_miners(tick)
 	local miners = non_ai_miner_names
 	if remote.interfaces["aai-programmable-vehicles"] then miners = miner_names end
-	for _,subsurface in pairs(storage.subsurfaces) do
-		for _,miner in ipairs(subsurface.find_entities_filtered{name = miners}) do
+	for _, subsurface in pairs(storage.subsurfaces) do
+		for _, miner in ipairs(subsurface.find_entities_filtered{name = miners}) do
 			
 			if not non_ai_miner_names_k[miner.name] then -- navigation part
 				local unit = remote.call("aai-programmable-vehicles", "get_unit_by_entity", miner)

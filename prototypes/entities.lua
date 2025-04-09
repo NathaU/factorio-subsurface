@@ -10,7 +10,7 @@ cave_sealing.action[1].action_delivery.target_effects = {
 	{type = "play-sound", sound = table.deepcopy(data.raw.tile["stone-path"].build_sound.large)}
 }
 
-for i=0,3,1 do
+for i = 0, 3 do
 	local sealed_entrance = table.deepcopy(data.raw["simple-entity"]["big-rock"])
 	sealed_entrance.name = "tunnel-entrance-sealed-"..i
 	sealed_entrance.flags = {"placeable-neutral", "not-deconstructable", "placeable-off-grid"}
@@ -20,7 +20,7 @@ for i=0,3,1 do
 	sealed_entrance.selection_box = {{0, 0}, {0, 0}}
 	sealed_entrance.collision_box = {{-1.4, -0.8}, {1.4, 1}}
 	if i == 3 then
-		sealed_entrance.collision_mask = {layers={water_tile=true}}
+		sealed_entrance.collision_mask = {layers = {water_tile = true}}
 		sealed_entrance.render_layer = "ground-patch"
 	end
 	sealed_entrance.pictures = {
@@ -41,17 +41,24 @@ local ccd = circuit_connector_definitions.create_vector(universal_connector_temp
 })
 
 local cliff_pics = table.deepcopy(data.raw["simple-entity"]["big-rock"].pictures)
-for _,p in ipairs(data.raw["simple-entity"]["huge-rock"].pictures) do table.insert(cliff_pics, p) end
+for _, p in ipairs(data.raw["simple-entity"]["huge-rock"].pictures) do table.insert(cliff_pics, p) end
 local cliff_collision_box = {{-0.9, -0.9}, {0.9, 0.9}}
 
 local drill_remnants = table.deepcopy(data.raw.corpse["burner-mining-drill-remnants"])
 drill_remnants.name = "surface-drill-remnants"
 drill_remnants.animation[1].scale = 1
 
+local subway_rail = table.deepcopy(data.raw["straight-rail"]["straight-rail"])
+subway_rail.name = "subway-rail"
+subway_rail.localised_name = {"entity-name.straight-rail"}
+subway_rail.collision_mask = {layers = {floor = true, rail = true}}
+subway_rail.hidden = true
+
 data:extend(
 {
   cave_sealing,
   drill_remnants,
+  subway_rail,
   
   {
 	type = "cliff",
@@ -84,7 +91,7 @@ data:extend(
 	grid_offset = {0, 0},
 	cliff_explosive = "cliff-explosives",
 	selection_box = {{-0.9, -0.9}, {0.9, 0.9}},
-	minable = {mining_particle = "stone-particle", mining_time = 1, results = {{type="item", name="stone", amount_min=10, amount_max=30}}}
+	minable = {mining_particle = "stone-particle", mining_time = 1, results = {{type = "item", name = "stone", amount_min = 10, amount_max = 30}}}
   },
   {
 	type = "simple-entity",
@@ -341,12 +348,12 @@ data:extend(
 	selection_box = {{-1, -1}, {1, 1}},
 	graphics_set = {animation = {
 	  filename = "__Subsurface__/graphics/entities/air_vent22_sheet.png",
-	  priority="high",
+	  priority = "high",
 	  width = 96,
 	  height = 96,
 	  frame_count = 16,
 	  line_length = 4,
-	  shift = {0.45,-0.1},
+	  shift = {0.45, -0.1},
 	  animation_speed = 2,
 	}},
 	crafting_speed = 1,
@@ -362,7 +369,7 @@ data:extend(
 	type = "simple-entity",
 	name = "air-vent",
 	flags = {"placeable-neutral", "not-on-map", "player-creation"},
-	collision_mask = {layers={item=true, object=true, player=true, water_tile=true}},
+	collision_mask = {layers = {item = true, object = true, player = true, water_tile = true}},
 	icon = "__Subsurface__/graphics/icons/air_vent_11_icon.png",
 	icon_size = 32,
 	minable = {mining_time = 1, result = "air-vent"},
@@ -419,7 +426,7 @@ data:extend(
 		height = 186,
 		frame_count = 64,
 		line_length = 8,
-		shift = util.by_pixel(39.25,3),
+		shift = util.by_pixel(39.25, 3),
 		draw_as_shadow = true,
 		scale = 0.5
 	  }
@@ -532,7 +539,7 @@ data:extend(
 	selection_box = {{-0.3, -0.3}, {0.3, 0.3}},
 	energy_source = {type = "electric", usage_priority = "lamp"},
 	energy_usage_per_tick = "2kW",
-	light = {intensity = 0.7, size = 15, color = {r=1.0, g=1.0, b=0.75}}
+	light = {intensity = 0.7, size = 15, color = {r = 1.0, g = 1.0, b = 0.75}}
   },
   
   {
@@ -793,31 +800,12 @@ data:extend(
   }
 })
 
-data.raw["mining-drill"]["surface-drill"].graphics_set.animation.north.layers[1].scale = 1
-data.raw["mining-drill"]["surface-drill"].graphics_set.animation.north.layers[2].scale = 1
-data.raw["mining-drill"]["surface-drill"].graphics_set.animation.west.layers[1].scale = 1
-data.raw["mining-drill"]["surface-drill"].graphics_set.animation.west.layers[2].scale = 1
-data.raw["mining-drill"]["surface-drill"].graphics_set.animation.south.layers[1].scale = 1
-data.raw["mining-drill"]["surface-drill"].graphics_set.animation.south.layers[2].scale = 1
-data.raw["mining-drill"]["surface-drill"].graphics_set.animation.east.layers[1].scale = 1
-data.raw["mining-drill"]["surface-drill"].graphics_set.animation.east.layers[2].scale = 1
-
-data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.north.layers[1].scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.north.layers[2].scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.west.layers[1].scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.west.layers[2].scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.south.layers[1].scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.south.layers[2].scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.east.layers[1].scale = 1
-data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation.east.layers[2].scale = 1
+for _, o in ipairs({"north", "west", "south", "east"}) do
+	data.raw["mining-drill"]["surface-drill"].graphics_set.animation[o].layers[1].scale = 1
+	data.raw["mining-drill"]["surface-drill"].graphics_set.animation[o].layers[2].scale = 1
+	data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation[o].layers[1].scale = 1
+	data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation[o].layers[2].scale = 1
+end
 
 data.raw["electric-pole"]["wooden-support"].pictures.layers[1].filename = "__Subsurface__/graphics/entities/wooden-support/wooden-support.png"
 data.raw["electric-pole"]["wooden-support"].pictures.layers[2].filename = "__Subsurface__/graphics/entities/wooden-support/wooden-support-shadow.png"
-
-local ssrail = table.deepcopy(data.raw["straight-rail"]["straight-rail"])
-ssrail.name = "subway-rail"
-ssrail.localised_name = {"entity-name.straight-rail"}
-ssrail.collision_mask = {layers = {floor = true, rail = true}}
-ssrail.hidden = true
-
-data.extend({ssrail})

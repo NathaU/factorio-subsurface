@@ -1,5 +1,5 @@
 local i = 1
-for t,_ in pairs(data.raw["transport-belt"]) do
+for t, _ in pairs(data.raw["transport-belt"]) do
 
 	local b = data.raw["transport-belt"][t].related_underground_belt
 	if not b then break end
@@ -61,11 +61,11 @@ for t,_ in pairs(data.raw["transport-belt"]) do
 		energy_required = 2,
 		ingredients =
 		{
-		  {type="item", name=b, amount=2},
-		  {type="item", name="iron-gear-wheel", amount=10},
-		  {type="item", name="electronic-circuit", amount=10},
+		  {type = "item", name = b, amount = 2},
+		  {type = "item", name = "iron-gear-wheel", amount = 10},
+		  {type = "item", name = "electronic-circuit", amount = 10},
 		},
-		results = {{type="item", name="item-elevator-" .. i, amount=2}}
+		results = {{type = "item", name = "item-elevator-" .. i, amount = 2}}
 	  },
 	})
 	table.insert(data.raw.technology["inter-surface-transport"].effects, {type = "unlock-recipe", recipe = "item-elevator-" .. i})

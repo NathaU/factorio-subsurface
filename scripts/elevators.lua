@@ -48,7 +48,7 @@ function is_linked(entity)
 	elseif is_fluid_elevator(entity.name) then
 		return entity.fluidbox.get_linked_connection(1) ~= nil
 	elseif entity.name == "heat-elevator" then
-		for i,v in ipairs(storage.heat_elevators) do
+		for i, v in ipairs(storage.heat_elevators) do
 			if v[1] == entity or v[2] == entity then return true end
 		end
 	else
@@ -61,7 +61,7 @@ function handle_elevators(tick)
 	
 	-- heat elevators
 	if tick % 30 == 0 then
-		for i,elevators in ipairs(storage.heat_elevators) do  -- average heat between input and output
+		for i, elevators in ipairs(storage.heat_elevators) do  -- average heat between input and output
 			if not(elevators[1].valid and elevators[2].valid) then table.remove(storage.heat_elevators, i)
 			else
 				
@@ -203,7 +203,7 @@ function elevator_built(entity)
 				elseif entity.name == "fluid-elevator-output" then
 					if e.name == "fluid-elevator-input" then entity.fluidbox.add_linked_connection(1, e, 1) end
 				elseif entity.name == "heat-elevator" then
-					local top,bottom = entity,e
+					local top, bottom = entity, e
 					if i == 1 then
 						top = e
 						bottom = entity
