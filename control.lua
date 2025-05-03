@@ -245,12 +245,11 @@ function create_walls(surface, positions)
 	end
 end
 
-function clear_subsurface(surface, pos, radius, clearing_radius)
+function clear_subsurface(surface, pos, radius, clearing_radius, return_inventory)
 	if not is_subsurface(surface) then return 0 end
 	pos = math2d.position.ensure_xy(pos)
 	local new_tiles = {}
 	local new_resource_positions = {}
-	local walls_destroyed = 0
 	local area = get_area(pos, radius)
 
 	if clearing_radius and clearing_radius < radius then -- destroy all entities in this radius except players
@@ -261,12 +260,12 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 		end
 	end
 	
-	for x, y in iarea(area) do -- first, replace all out-of-map tiles with their hidden tile (which means that it is inside map limits)
+	local inventory = game.create_inventory(10)	
+	for x, y in iarea(area) do -- first, replace all out-of-map tiles with their hidden tile which means that it is inside map limits)
 		if (x-pos.x)^2 + (y-pos.y)^2 < radius^2 and surface.get_hidden_tile({x, y}) then
 			local wall = surface.find_entities_filtered{name = subsurface_wall_names, position = {x, y}}[1]
 			if wall then
-				wall.destroy()
-				walls_destroyed = walls_destroyed + 1
+				wall.mine{inventory = return_inventory and inventory or nil, force = true, raise_destroyed = false, ignore_minable = true}
 			end
 			table.insert(new_tiles, {name = surface.get_hidden_tile({x, y}), position = {x, y}})
 			surface.set_hidden_tile({x, y}, nil)
@@ -296,7 +295,8 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 	
 	find_enemies_above(surface, pos, radius)
 	
-	return walls_destroyed
+	if return_inventory then return inventory
+	else inventory.destroy() end
 end
 
 script.on_event(defines.events.on_tick, function(event)
