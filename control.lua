@@ -19,6 +19,9 @@ attrition_types = {"assembling-machine", "reactor", "mining-drill", "generator",
 
 aai_miners = script.active_mods["aai-vehicles-miner"] ~= nil
 
+subsurface_wall_expressions = {}
+subsurface_wall_names = {"subsurface-wall"}
+
 function setup_globals()
 	storage.subsurfaces = storage.subsurfaces or {}
 	storage.pole_links = storage.pole_links or {}
@@ -38,9 +41,23 @@ function setup_globals()
 	storage.train_stop_clones = storage.train_stop_clones or {}
 end
 
+function register_subsurface_walls()
+	for interface, functions in pairs(remote.interfaces) do
+		if functions["subsurface_register_walls"] then
+			subsurface_wall_expressions = util.merge({subsurface_wall_expressions, remote.call(interface, "subsurface_register_walls")})
+		end
+	end
+
+	for k, _ in pairs(subsurface_wall_expressions) do
+		table.insert(subsurface_wall_names, k)
+	end
+end
+
 script.on_init(function()
 	setup_globals()
 	for _, s in pairs(game.surfaces) do manipulate_autoplace_controls(s) end
+	
+	register_subsurface_walls()
 	
 	if remote.interfaces["space-exploration"] then
 		script.on_event("se-remote-view", function(event)
@@ -87,6 +104,8 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 end)
 
 script.on_load(function()
+	register_subsurface_walls()
+	
 	if remote.interfaces["space-exploration"] then
 		script.on_event("se-remote-view", function(event)
 			on_remote_view_started(game.get_player(event.player_index))
@@ -141,6 +160,7 @@ function get_subsurface(surface, create)
 					["decorative:tiny-rock:probability"] = 0.7,
 
 					["subsurface_seed"] = bit32.band(bit32.bxor(simple_hash(subsurface_name), surface.map_gen_settings.seed), 0xFFFFFFF),
+					["subsurface_level"] = depth,
 				}
 			}
 			make_property_expressions(mgs, game.get_surface(topname), depth)
@@ -204,6 +224,27 @@ function is_subsurface(surface)
 	else return false end
 end
 
+function create_walls(surface, positions)
+	local props = {}
+	local names_ordered = {}
+	for name, expr in pairs(subsurface_wall_expressions) do
+		table.insert(names_ordered, name)
+		table.insert(props, expr)
+	end
+	local calcresult = surface.calculate_tile_properties(props, positions)
+	for pos_i, pos in ipairs(positions) do
+		local name = "subsurface-wall"
+		local prio = 0
+		for j, p in ipairs(props) do
+			if calcresult[p][pos_i] > prio then
+				name = names_ordered[j]
+				prio = calcresult[p][pos_i]
+			end
+		end
+		surface.create_entity{name = name, position = pos, force = game.forces.neutral}
+	end
+end
+
 function clear_subsurface(surface, pos, radius, clearing_radius)
 	if not is_subsurface(surface) then return 0 end
 	pos = math2d.position.ensure_xy(pos)
@@ -222,7 +263,7 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 	
 	for x, y in iarea(area) do -- first, replace all out-of-map tiles with their hidden tile (which means that it is inside map limits)
 		if (x-pos.x)^2 + (y-pos.y)^2 < radius^2 and surface.get_hidden_tile({x, y}) then
-			local wall = surface.find_entity("subsurface-wall", {x, y})
+			local wall = surface.find_entities_filtered{name = subsurface_wall_names, position = {x, y}}[1]
 			if wall then
 				wall.destroy()
 				walls_destroyed = walls_destroyed + 1
@@ -235,14 +276,15 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 	surface.set_tiles(new_tiles)
 	place_resources(surface, new_resource_positions)
 	
+	local new_wall_positions = {}
 	for x, y in iarea(area) do -- second, place a wall where at least one out-of-map is adjacent
-		if surface.get_tile(x, y).valid and surface.get_tile(x, y).name == "out-of-map" and not surface.find_entity("subsurface-wall", {x, y}) and not surface.find_entity("subsurface-wall-map-border", {x, y}) then
+		if surface.get_tile(x, y).valid and surface.get_tile(x, y).name == "out-of-map" and not surface.find_entities_filtered{name = subsurface_wall_names, position = {x, y}}[1] and not surface.find_entity("subsurface-wall-map-border", {x, y}) then
 			if (surface.get_tile(x+1, y).valid and surface.get_tile(x+1, y).name ~= "out-of-map")
 			or (surface.get_tile(x-1, y).valid and surface.get_tile(x-1, y).name ~= "out-of-map")
 			or (surface.get_tile(x, y+1).valid and surface.get_tile(x, y+1).name ~= "out-of-map")
 			or (surface.get_tile(x, y-1).valid and surface.get_tile(x, y-1).name ~= "out-of-map") then
 				if surface.get_hidden_tile({x, y}) then
-					surface.create_entity{name = "subsurface-wall", position = {x, y}, force = game.forces.neutral}
+					table.insert(new_wall_positions, {x, y})
 				else
 					local w = surface.create_entity{name = "subsurface-wall-map-border", position = {x, y}, force = game.forces.neutral}
 					w.destructible = false
@@ -250,6 +292,7 @@ function clear_subsurface(surface, pos, radius, clearing_radius)
 			end
 		end
 	end
+	create_walls(surface, new_wall_positions)
 	
 	find_enemies_above(surface, pos, radius)
 	
@@ -420,7 +463,23 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		end
 		
 		if text == "" then
-			entity.surface.create_entity{name = "subsurface-hole", position = entity.position, amount = 100 * (2 ^ (get_subsurface_depth(entity.surface) - 1))}
+
+			local res_name = "subsurface-hole"
+			local res_amount = 100 * (2 ^ (get_subsurface_depth(entity.surface) - 1))
+			local res_prio = 0
+
+			for interface, functions in pairs(remote.interfaces) do
+				if functions["subsurface_hole_resource"] then
+					local prio, name, amount = remote.call(interface, "subsurface_hole_resource", entity.surface, get_subsurface_depth(entity.surface), entity.position)
+					if prio > res_prio then
+						res_name = name
+						res_amount = amount
+						res_prio = prio
+					end
+				end
+			end
+
+			entity.surface.create_entity{name = res_name, position = entity.position, amount = res_amount}
 			local real_drill = entity.surface.create_entity{name = "surface-drill", position = entity.position, direction = entity.direction, force = entity.force, player = entity.last_user, quality = entity.quality}
 			entity.destroy()
 			get_subsurface(real_drill.surface).request_to_generate_chunks(real_drill.position, 3)
@@ -463,8 +522,10 @@ end)
 script.on_event({defines.events.on_player_mined_entity, defines.events.on_robot_mined_entity}, function(event)
 	if event.entity.name == "surface-drill" then
 		if event.entity.mining_target then event.entity.mining_target.destroy() end
-	elseif event.entity.name == "subsurface-wall" then
-		clear_subsurface(event.entity.surface, event.entity.position, 1.5)
+	else
+		for _, w in ipairs(subsurface_wall_names) do
+			if event.entity.valid and event.entity.name == w then clear_subsurface(event.entity.surface, event.entity.position, 1.5) end
+		end
 	end
 end)
 
@@ -504,7 +565,7 @@ script.on_event(defines.events.on_post_entity_died, function(event)
 end)
 
 script.on_event(defines.events.on_resource_depleted, function(event)
-	if event.entity.name == "subsurface-hole" then
+	if event.entity.prototype.resource_category == "subsurface-hole" then
 		local drill = event.entity.surface.find_entity("surface-drill", event.entity.position)
 		if drill then
 			local pos = drill.position
@@ -628,11 +689,7 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 			local new_entrance = surface.create_entity{name = next_stage[entrance.name], position = entrance.position, force = game.forces.neutral}
 			new_entrance.destructible = false
 			
-			if entrance.name == "tunnel-entrance" then
-				for x, y in iarea(get_area(event.target_position, 0.2)) do
-					get_subsurface(surface).create_entity{name = "subsurface-wall", position = {x, y}, force = game.forces.neutral}
-				end
-			end
+			if entrance.name == "tunnel-entrance" then create_walls(get_subsurface(surface), get_area_positions(get_area(event.target_position, 0.2))) end
 			
 			entrance.destroy()
 		elseif is_subsurface(surface) then -- place walls: first, prevent resources from being restored, then set out-of-map tiles, then place walls on those spots that have at least one adjacent ground tile 
@@ -660,8 +717,8 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 			for x, y in iarea(get_area(event.target_position, 2)) do
 				if surface.get_tile(x, y).name == "out-of-map"
 				and (surface.get_tile(x+1, y).name ~= "out-of-map" or surface.get_tile(x-1, y).name ~= "out-of-map" or surface.get_tile(x, y+1).name ~= "out-of-map" or surface.get_tile(x, y-1).name ~= "out-of-map")
-				and not surface.find_entity("subsurface-wall", {x, y}) and not surface.find_entity("subsurface-wall-map-border", {x, y}) then
-					surface.create_entity{name = "subsurface-wall", position = {x, y}, force = game.forces.neutral}
+				and not surface.find_entities_filtered{name = subsurface_wall_names, position = {x, y}}[1] and not surface.find_entity("subsurface-wall-map-border", {x, y}) then
+					create_walls(surface, {{x, y}})
 					for i = 1, 100 do surface.create_trivial_smoke{name = "subsurface-smoke", position = {x + (math.random(-20, 20) / 20), y + (math.random(-21, 19) / 20)}} end
 				end
 			end

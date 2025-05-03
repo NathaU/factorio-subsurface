@@ -108,7 +108,7 @@ function handle_miners(tick)
 					subsurface.create_trivial_smoke{name = "fire-smoke-without-glow", position = speed_test_position}
 				end
 
-				if miner.speed > 0 and subsurface.find_entity("subsurface-wall", speed_test_position) then
+				if miner.speed > 0 and surface.find_entities_filtered{name = subsurface_wall_names, position = speed_test_position}[1] then
 					miner.friction_modifier = 7
 				else
 					miner.friction_modifier = 1
