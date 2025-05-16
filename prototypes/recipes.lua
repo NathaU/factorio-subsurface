@@ -114,7 +114,7 @@ data:extend(
 	enabled = true,
 	hidden = true,
 	category = "prospecting",
-	energy_required = 100,
+	energy_required = 40,
 	ingredients = {},
 	results = {}
   },

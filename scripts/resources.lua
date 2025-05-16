@@ -3,7 +3,7 @@ for proto, _ in pairs(prototypes.get_entity_filtered({{filter = "type", type = "
 	table.insert(resources, proto)
 end
 
-function place_resources(surface, pos_arr)
+function calculate_resources(surface, pos_arr)
 	local properties = {"subsurface_random"}
 	for proto, _ in pairs((surface.map_gen_settings.autoplace_settings.entity or {settings = {}}).settings or {}) do
 		if (prototypes.entity[proto] or {}).type == "resource" then
@@ -14,26 +14,37 @@ function place_resources(surface, pos_arr)
 	end
 	
 	local stored_results = {}
-	
-	for _, pos in ipairs(pos_arr) do
+	local result = {}
+
+	for i, pos in ipairs(pos_arr) do
 		local chunk_id = spiral({math.floor(pos[1] / 32), math.floor(pos[2] / 32)})
 		local pos_i = get_position_index_in_chunk(pos)
 		if not stored_results[chunk_id] then stored_results[chunk_id] = surface.calculate_tile_properties(properties, get_chunk_positions(pos)) end
 		for _, proto in ipairs(resources) do
 			if (stored_results[chunk_id]["entity:"..proto..":richness"] or {[pos_i] = 0})[pos_i] > 0
 			and (stored_results[chunk_id][proto.."-probability"] or stored_results[chunk_id]["subsurface_random"])[pos_i] <= stored_results[chunk_id]["entity:"..proto..":probability"][pos_i] then
-				local collision_box_vector = {x = prototypes.entity[proto].tile_width, y = prototypes.entity[proto].tile_height}
-				if surface.count_tiles_filtered{name = "out-of-map", area = math2d.bounding_box.create_from_centre({pos[1] + 0.5 * (collision_box_vector.x % 2), pos[2] + 0.5 * (collision_box_vector.y % 2)}, collision_box_vector.x, collision_box_vector.y)} > 0 then
-					clear_subsurface(surface, pos, math2d.vector.length(collision_box_vector) / 2)
-				end
-				if not surface.entity_prototype_collides(proto, {pos[1] + 0.5 * (collision_box_vector.x % 2), pos[2] + 0.5 * (collision_box_vector.y % 2)}, false) then -- check for other collision than out-of-map tiles (already placed resources)
-					local amount = math.ceil(stored_results[chunk_id]["entity:"..proto..":richness"][pos_i])
-					if storage.revealed_resources[chunk_id] and storage.revealed_resources[chunk_id][pos_i] and storage.revealed_resources[chunk_id][pos_i][proto] then
-						amount = storage.revealed_resources[chunk_id][pos_i][proto]
-					end
-					if amount > 0 then surface.create_entity{name = proto, position = pos, force = game.forces.neutral, enable_cliff_removal = false, amount = amount} end
-				end
+				if not result[i] then result[i] = {proto, math.ceil(stored_results[chunk_id]["entity:"..proto..":richness"][pos_i])} end
 			end
+		end
+	end
+	return result
+end
+
+function place_resources(surface, pos_arr)
+	local resources = calculate_resources(surface, pos_arr)
+	for i, v in pairs(resources) do
+		local proto = v[1]
+		local pos = pos_arr[i]
+		local amount = v[2]
+		local collision_box_vector = {x = prototypes.entity[proto].tile_width, y = prototypes.entity[proto].tile_height}
+		if surface.count_tiles_filtered{name = "out-of-map", area = math2d.bounding_box.create_from_centre({pos[1] + 0.5 * (collision_box_vector.x % 2), pos[2] + 0.5 * (collision_box_vector.y % 2)}, collision_box_vector.x, collision_box_vector.y)} > 0 then
+			clear_subsurface(surface, pos, math2d.vector.length(collision_box_vector) / 2)
+		end
+		if not surface.entity_prototype_collides(proto, {pos[1] + 0.5 * (collision_box_vector.x % 2), pos[2] + 0.5 * (collision_box_vector.y % 2)}, false) then -- check for other collision than out-of-map tiles (already placed resources)
+			if storage.revealed_resources[chunk_id] and storage.revealed_resources[chunk_id][pos_i] and storage.revealed_resources[chunk_id][pos_i][proto] then
+				amount = storage.revealed_resources[chunk_id][pos_i][proto]
+			end
+			if amount > 0 then surface.create_entity{name = proto, position = pos, force = game.forces.neutral, enable_cliff_removal = false, amount = amount} end
 		end
 	end
 end
@@ -126,5 +137,15 @@ script.on_event(defines.events.on_surface_created, function(event)
 end)
 
 function prospect_resources(prospector)
-	
+	local surface = prospector.surface
+	local pos_arr = get_area_positions(get_area(prospector.position, 34))
+	local resources = calculate_resources(surface, pos_arr)
+	for i, v in pairs(resources) do
+		local x = pos_arr[i][1]
+		local y = pos_arr[i][2]
+		if surface.get_tile(x, y).valid and surface.get_tile(x, y).name == "out-of-map"and (x - prospector.position.x)^2 + (y - prospector.position.y)^2 < 32^2 then
+			local proto = v[1]
+			rendering.draw_sprite{sprite = "entity/" .. proto, target = pos_arr[i], tint = {0.5, 0.5, 0.5, 0.1}, surface = surface, time_to_live = 1200, forces = prospector.force}
+		end
+	end
 end
