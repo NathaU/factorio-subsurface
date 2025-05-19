@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.5
+Date: 2025-05-19
+  Features:
+    - Added interface for other mods to define their own walls and hole resource
+    - Ore prospector can be used to scan for nearby resources
+  Bugfixes:
+    - Fixed crash when trains travel between surfaces oriented to west and east
+---------------------------------------------------------------------------------------------------
 Version: 1.1.4
 Date: 2025-03-26
   Bugfixes:
