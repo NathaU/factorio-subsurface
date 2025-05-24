@@ -128,6 +128,7 @@ function get_subsurface(surface, create)
 		end
 		subsurface_name = topname .. "_subsurface_" .. depth
 		
+		local top_surface = game.get_surface(topname)
 		local subsurface = game.get_surface(subsurface_name)
 		if not subsurface then
 			
@@ -137,7 +138,7 @@ function get_subsurface(surface, create)
 				height = surface.map_gen_settings.height,
 				peaceful_mode = surface.map_gen_settings.peaceful_mode,
 				no_enemies_mode = surface.map_gen_settings.no_enemies_mode,
-				autoplace_controls = make_autoplace_controls(game.get_surface(topname), depth),
+				autoplace_controls = {},
 				default_enable_all_autoplace_controls = false,
 				autoplace_settings = {
 				  decorative = {treat_missing_as_default = false, settings = {
@@ -150,7 +151,7 @@ function get_subsurface(surface, create)
 					["grass-4"] = {},
 					["out-of-map"] = {},
 				  }},
-				  entity = {treat_missing_as_default = false, settings = make_resource_autoplace_settings(game.get_surface(topname), depth)}
+				  entity = {treat_missing_as_default = false, settings = {}}
 				},
 				property_expression_names = { -- priority is from top to bottom
 					["tile:caveground:probability"] = 0, -- basic floor
@@ -163,15 +164,14 @@ function get_subsurface(surface, create)
 					["subsurface_level"] = depth,
 				}
 			}
-			make_property_expressions(mgs, game.get_surface(topname), depth)
-			mgs.property_expression_names["entity:stone:richness"] = 0
+			copy_resource_data(mgs, top_surface, depth)
 			
 			subsurface = game.create_surface(subsurface_name, mgs)
 			
 			subsurface.daytime = 0.5
 			subsurface.freeze_daytime = true
 			subsurface.show_clouds = false
-			subsurface.localised_name = {"subsurface.subsurface-name", game.get_surface(topname).localised_name or topname, depth}
+			subsurface.localised_name = {"subsurface.subsurface-name", top_surface.localised_name or topname, depth}
 
 			for sp, _ in pairs(prototypes.surface_property) do
 				subsurface.set_property(sp, surface.get_property(sp))
