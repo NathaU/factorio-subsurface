@@ -87,16 +87,12 @@ function manipulate_autoplace_controls(surface)
 	surface.map_gen_settings = mgs
 end
 
--- This is for subsurfaces, it returns a freshly new autoplace_controls array
--- depth is always >= 1
-function make_autoplace_controls(top_surface, depth)
-	if settings.global["disable-autoplace-manipulation"].value then return {} end
-	local controls = {}
-	setmetatable(controls, meta)
-	
-	for control_name, data in pairs(top_surface.map_gen_settings.autoplace_controls or {}) do -- alter all resources that occur on the top surface
+function copy_resource_data(mgs, from_surface, depth)
+	if settings.global["disable-autoplace-manipulation"].value then return end
+
+	for control_name, data in pairs(from_surface.map_gen_settings.autoplace_controls or {}) do
 		if prototypes.autoplace_control[control_name].category == "resource" then
-			controls[control_name] = {
+			mgs.autoplace_controls[control_name] = {
 				frequency = data.frequency,
 				size = data.size * size_formula(depth) / size_formula(0),
 				richness = data.richness * richness_formula(depth) / richness_formula(0)
@@ -104,29 +100,20 @@ function make_autoplace_controls(top_surface, depth)
 		end
 	end
 	
-	return controls
-end
-
-function make_resource_autoplace_settings(top_surface, depth)
-	local res = {}
-	for name, _ in pairs((top_surface.map_gen_settings.autoplace_settings.entity or {settings = {}}).settings) do
+	for name, _ in pairs((from_surface.map_gen_settings.autoplace_settings.entity or {settings = {}}).settings) do
 		if (prototypes.entity[name] or {}).type == "resource" then
-			res[name] = {}
+			mgs.autoplace_settings.entity.settings[name] = {}
+			if from_surface.map_gen_settings.property_expression_names["entity:"..name..":richness"] then
+				mgs.property_expression_names["entity:"..name..":richness"] = from_surface.map_gen_settings.property_expression_names["entity:"..name..":richness"]
+			end
+			if from_surface.map_gen_settings.property_expression_names["entity:"..name..":probability"] then
+				mgs.property_expression_names["entity:"..name..":probability"] = from_surface.map_gen_settings.property_expression_names["entity:"..name..":probability"]
+			end
 		end
 	end
-	res["stone"] = nil
-	return res
-end
-
-function make_property_expressions(mgs, top_surface, depth)
-	for _, proto in ipairs(resources) do
-		if top_surface.map_gen_settings.property_expression_names["entity:"..proto..":richness"] then
-			mgs.property_expression_names["entity:"..proto..":richness"] = top_surface.map_gen_settings.property_expression_names["entity:"..proto..":richness"]
-		end
-		if top_surface.map_gen_settings.property_expression_names["entity:"..proto..":probability"] then
-			mgs.property_expression_names["entity:"..proto..":probability"] = top_surface.map_gen_settings.property_expression_names["entity:"..proto..":probability"]
-		end
-	end
+	mgs.autoplace_settings.entity.settings["stone"] = nil
+	mgs.property_expression_names["entity:stone:richness"] = nil
+	mgs.property_expression_names["entity:stone:probability"] = nil
 end
 
 -- When top surfaces are created (this is not called for nauvis)
