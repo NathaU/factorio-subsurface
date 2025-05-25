@@ -118,7 +118,7 @@ end
 
 -- When top surfaces are created (this is not called for nauvis)
 script.on_event(defines.events.on_surface_created, function(event)
-	if not is_subsurface(event.surface_index) then
+	if not is_subsurface(event.surface_index) and allow_subsurfaces(game.get_surface(event.surface_index)) then
 		manipulate_resource_data(game.get_surface(event.surface_index))
 	end
 end)
