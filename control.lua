@@ -55,7 +55,9 @@ end
 
 script.on_init(function()
 	setup_globals()
-	for _, s in pairs(game.surfaces) do manipulate_resource_data(s) end
+	for _, s in pairs(game.surfaces) do
+		if allow_subsurfaces(s) then manipulate_resource_data(s) end
+	end
 	
 	register_subsurface_walls()
 	
@@ -79,7 +81,7 @@ script.on_configuration_changed(function(config) -- TBC
 			local creating_mod = prototypes.get_history("autoplace-control", ac).created
 			if config.mod_changes[creating_mod] and not config.mod_changes[creating_mod].old_version and prototypes.autoplace_control[ac].category == "resource" then
 				for _, s in pairs(game.surfaces) do
-					if not is_subsurface(s) and s.map_gen_settings.autoplace_controls and s.map_gen_settings.autoplace_controls[control_name] then
+					if not is_subsurface(s) and allow_subsurfaces(s) and s.map_gen_settings.autoplace_controls and s.map_gen_settings.autoplace_controls[control_name] then
 						local mgs = s.map_gen_settings
 						mgs.autoplace_controls[control_name].size = (mgs.autoplace_controls[control_name].size or 0) * size_formula(0)
 						mgs.autoplace_controls[control_name].richness = (mgs.autoplace_controls[control_name].richness or 0) * richness_formula(0)
@@ -429,6 +431,13 @@ script.on_event(defines.events.on_tick, function(event)
 	if event.tick % 20 == 0 and not settings.global["disable-autoplace-manipulation"].value and game.map_settings.enemy_expansion.enabled then handle_enemies(event.tick) end
 end)
 
+function allow_subsurfaces(surface)
+	if string.find(surface.name, "[Ff]actory[- ]floor") or 0 > 1 then -- prevent placement in factorissimo
+		return false
+	end
+	return true
+end
+
 function cancel_placement(event, text)
 	local entity = event.entity
 	if event.player_index then
@@ -480,8 +489,8 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 			text = "subsurface.limit-reached"
 		elseif entity.surface.count_entities_filtered{name = {"tunnel-entrance", "tunnel-exit"}, position = entity.position, radius = 7} > 0 then
 			text = "subsurface.cannot-place-here"
-		elseif string.find(entity.surface.name, "[Ff]actory[- ]floor") or 0 > 1 then -- prevent placement in factorissimo
-			text = "subsurface.only-allowed-on-terrain"
+		elseif not allow_subsurfaces(entity.surface) then
+			text = "subsurface.not-allowed-here"
 		end
 		
 		if text == "" then
