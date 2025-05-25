@@ -65,7 +65,7 @@ local meta = {
 
 -- This is for top surfaces. It directly manipulates the map_gen_settings table
 -- It is either called upon game start, mod installation or newly created surfaces which aren't subsurfaces
-function manipulate_autoplace_controls(surface)
+function manipulate_resource_data(surface)
 	if settings.global["disable-autoplace-manipulation"].value then return end
 	local mgs = surface.map_gen_settings
 	if not mgs or not mgs.autoplace_controls then return end
@@ -119,7 +119,7 @@ end
 -- When top surfaces are created (this is not called for nauvis)
 script.on_event(defines.events.on_surface_created, function(event)
 	if not is_subsurface(event.surface_index) then
-		manipulate_autoplace_controls(game.get_surface(event.surface_index))
+		manipulate_resource_data(game.get_surface(event.surface_index))
 	end
 end)
 

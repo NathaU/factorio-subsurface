@@ -55,7 +55,7 @@ end
 
 script.on_init(function()
 	setup_globals()
-	for _, s in pairs(game.surfaces) do manipulate_autoplace_controls(s) end
+	for _, s in pairs(game.surfaces) do manipulate_resource_data(s) end
 	
 	register_subsurface_walls()
 	
@@ -68,9 +68,31 @@ end)
 script.on_configuration_changed(function(config) -- TBC
 	setup_globals()
 	
-	if config.mod_changes and config.mod_changes["BlackMap-continued"] and not config.mod_changes["BlackMap-continued"].old_version then
+	if config.mod_changes then
+		if config.mod_changes["BlackMap-continued"] and not config.mod_changes["BlackMap-continued"].old_version then
+			for _, s in pairs(storage.subsurfaces) do
+				remote.call("blackmap", "register", s)
+			end
+		end
+
+		for ac, _ in pairs(prototypes.autoplace_control) do
+			local creating_mod = prototypes.get_history("autoplace-control", ac).created
+			if config.mod_changes[creating_mod] and not config.mod_changes[creating_mod].old_version and prototypes.autoplace_control[ac].category == "resource" then
+				for _, s in pairs(game.surfaces) do
+					if not is_subsurface(s) and s.map_gen_settings.autoplace_controls and s.map_gen_settings.autoplace_controls[control_name] then
+						local mgs = s.map_gen_settings
+						mgs.autoplace_controls[control_name].size = (mgs.autoplace_controls[control_name].size or 0) * size_formula(0)
+						mgs.autoplace_controls[control_name].richness = (mgs.autoplace_controls[control_name].richness or 0) * richness_formula(0)
+						s.map_gen_settings = mgs
+					end
+				end
+			end
+		end
+
 		for _, s in pairs(storage.subsurfaces) do
-			remote.call("blackmap", "register", s)
+			local mgs = s.map_gen_settings
+			copy_resource_data(mgs, get_top_surface(s), get_subsurface_depth(s))
+			s.map_gen_settings = mgs
 		end
 	end
 	
