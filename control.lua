@@ -327,7 +327,7 @@ script.on_event(defines.events.on_tick, function(event)
 	
 	-- handle prospectors
 	for i, p in ipairs(storage.prospectors) do
-		if p.valid and p.products_finished == 1 then
+		if p.valid and is_subsurface(p.surface) and p.products_finished == 1 then
 			p.active = false
 			prospect_resources(p)
 			table.remove(storage.prospectors, i)
