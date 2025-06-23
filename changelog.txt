@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.6
+Date: 2025-06-23
+  Features:
+    - Added steel supports
+  Bugfixes:
+    - Fixed crash when prospecting top surfaces
+    - Fixed subway issues with mini trains
+---------------------------------------------------------------------------------------------------
 Version: 1.1.5
 Date: 2025-05-19
   Features:
