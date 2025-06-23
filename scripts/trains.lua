@@ -88,7 +88,7 @@ function handle_subways()
 			
 			local carriage = v.stop.surface.find_entities_filtered{type = rolling_stock_types, position = offset_position(v.stop, {-2, 1})}[1]
 			
-			local teleport_pos = offset_position(storage.train_subways[v.connection.unit_number].stop, {-2, 4})
+			local teleport_pos = offset_position(storage.train_subways[v.connection.unit_number].stop, {-2, 4.1})
 			teleport_pos[1] = teleport_pos.x
 			teleport_pos[2] = teleport_pos.y
 
@@ -213,7 +213,7 @@ function handle_subways()
 					storage.train_transport[next_carriage.train.id] = data
 					storage.train_transport[old_train_id] = nil
 				else
-					data.finished = {data.leaving_speed > 0, storage.train_subways[v.connection.unit_number].rails[4]}
+					data.finished = {data.leaving_speed > 0, storage.train_subways[v.connection.unit_number].rails[4], v.connection.orientation}
 				end
 				
 			end
@@ -226,7 +226,7 @@ function handle_subways()
 			t.leaving_train.manual_mode = true
 		end
 		if t.arriving_train and t.arriving_train.valid then
-			if t.finished and (t.finished[1] and t.arriving_train.back_end or t.arriving_train.front_end).rail == t.finished[2] then
+			if t.finished and t.finished[3] == to_orientation(math2d.position.subtract(t.finished[2].position, (t.finished[1] and t.arriving_train.back_end or t.arriving_train.front_end).rail.position)) then
 				if not t.manual and t.next_station then
 					t.arriving_train.go_to_station(t.next_station)
 					t.arriving_train.speed = t.arriving_speed
