@@ -528,7 +528,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		build_safe(event, function()
 			table.insert(storage.air_vents, entity)
 		end, false)
-	elseif entity.name == "wooden-support" then
+	elseif entity.name == "wooden-support" or entity.name == "steel-support" then
 		script.register_on_object_destroyed(entity)
 		storage.support_lamps[entity.unit_number] = entity.surface.create_entity{name = "support-lamp", position = entity.position, quality = entity.quality, force = entity.force}
 	elseif entity.name == "subway" then

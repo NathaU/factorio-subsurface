@@ -440,6 +440,7 @@ data:extend(
   {
 	type = "electric-pole",
 	name = "wooden-support",
+	localised_description = {"entity-description.support"},
 	icon = "__Subsurface__/graphics/icons/wooden-support.png",
 	flags = {"placeable-neutral", "player-creation"},
 	minable = {mining_time = 0.1, result = "wooden-support"},
@@ -460,60 +461,61 @@ data:extend(
 	pictures = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].pictures),
 	connection_points = {
 	  {
-		shadow =
-		{
-		  copper = util.by_pixel(97, -0.5),
-		  red = util.by_pixel(98.5, -0.5),
-		  green = util.by_pixel(95.5, -0.5)
-		},
-		wire =
-		{
-		  copper = util.by_pixel(9.5, -70),
-		  red = util.by_pixel(11, -70),
-		  green = util.by_pixel(8.0, -70)
-		}
+		shadow = {copper = util.by_pixel(97, -0.5), red = util.by_pixel(98.5, -0.5), green = util.by_pixel(95.5, -0.5)},
+		wire = {copper = util.by_pixel(9.5, -70), red = util.by_pixel(11, -70), green = util.by_pixel(8.0, -70)}
 	  },
 	  {
-		shadow =
-		{
-		  copper = util.by_pixel(76, 1),
-		  red = util.by_pixel(77.5, 2.5),
-		  green = util.by_pixel(74.5, -0.5)
-		},
-		wire =
-		{
-		  copper = util.by_pixel(-9.5, -73),
-		  red = util.by_pixel(-7, -73),
-		  green = util.by_pixel(-11.0, -73)
-		}
+		shadow = {copper = util.by_pixel(76, 1), red = util.by_pixel(77.5, 2.5), green = util.by_pixel(74.5, -0.5)},
+		wire = {copper = util.by_pixel(-9.5, -73), red = util.by_pixel(-7, -73), green = util.by_pixel(-11.0, -73)}
 	  },
 	  {
-		shadow =
-		{
-		  copper = util.by_pixel(83, 1),
-		  red = util.by_pixel(83, -0.5),
-		  green = util.by_pixel(83, 2.5)
-		},
-		wire =
-		{
-		  copper = util.by_pixel(-1, -74),
-		  red = util.by_pixel(1.0, -74),
-		  green = util.by_pixel(-3.5, -74)
-		}
+		shadow = {copper = util.by_pixel(83, 1), red = util.by_pixel(83, -0.5), green = util.by_pixel(83, 2.5)},
+		wire = {copper = util.by_pixel(-1, -74), red = util.by_pixel(1.0, -74), green = util.by_pixel(-3.5, -74)}
 	  },
 	  {
-		shadow =
-		{
-		  copper = util.by_pixel(81.5, 3.5),
-		  red = util.by_pixel(80, 3.5),
-		  green = util.by_pixel(83, 3.5)
-		},
-		wire =
-		{
-		  copper = util.by_pixel(-0.5, -66),
-		  red = util.by_pixel(-3, -66),
-		  green = util.by_pixel(2, -66)
-		}
+		shadow = {copper = util.by_pixel(81.5, 3.5), red = util.by_pixel(80, 3.5), green = util.by_pixel(83, 3.5)},
+		wire = {copper = util.by_pixel(-0.5, -66), red = util.by_pixel(-3, -66), green = util.by_pixel(2, -66)}
+	  }
+	},
+	radius_visualisation_picture = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].radius_visualisation_picture),
+  },
+  {
+	type = "electric-pole",
+	name = "steel-support",
+	icon = "__Subsurface__/graphics/icons/steel-support.png",
+	flags = {"placeable-neutral", "player-creation"},
+	minable = {mining_time = 0.1, result = "steel-support"},
+	surface_conditions = feature_flags["space_travel"] and {{property = "subsurface-level", min = 1}} or nil,
+	max_health = 100,
+	corpse = "small-electric-pole-remnants",
+	dying_explosion = "small-electric-pole-explosion",
+	collision_box = {{-0.15, -0.15}, {0.15, 0.15}},
+	selection_box = {{-0.4, -0.4}, {0.4, 0.4}},
+	damaged_trigger_effect = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].damaged_trigger_effect),
+	drawing_box = {{-0.5, -2.6}, {0.5, 0.5}},
+	maximum_wire_distance = 9.5,
+	supply_area_distance = 4.5,
+	vehicle_impact_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].vehicle_impact_sound),
+	open_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].open_sound),
+	close_sound = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].close_sound),
+	track_coverage_during_build_by_moving = true,
+	pictures = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].pictures),
+	connection_points = {
+	  {
+		shadow = {copper = util.by_pixel(97, -0.5), red = util.by_pixel(98.5, -0.5), green = util.by_pixel(95.5, -0.5)},
+		wire = {copper = util.by_pixel(9.5, -70), red = util.by_pixel(11, -70), green = util.by_pixel(8.0, -70)}
+	  },
+	  {
+		shadow = {copper = util.by_pixel(76, 1), red = util.by_pixel(77.5, 2.5), green = util.by_pixel(74.5, -0.5)},
+		wire = {copper = util.by_pixel(-9.5, -73), red = util.by_pixel(-7, -73), green = util.by_pixel(-11.0, -73)}
+	  },
+	  {
+		shadow = {copper = util.by_pixel(83, 1), red = util.by_pixel(83, -0.5), green = util.by_pixel(83, 2.5)},
+		wire = {copper = util.by_pixel(-1, -74), red = util.by_pixel(1.0, -74), green = util.by_pixel(-3.5, -74)}
+	  },
+	  {
+		shadow = {copper = util.by_pixel(81.5, 3.5), red = util.by_pixel(80, 3.5), green = util.by_pixel(83, 3.5)},
+		wire = {copper = util.by_pixel(-0.5, -66), red = util.by_pixel(-3, -66), green = util.by_pixel(2, -66)}
 	  }
 	},
 	radius_visualisation_picture = table.deepcopy(data.raw["electric-pole"]["small-electric-pole"].radius_visualisation_picture),
@@ -807,5 +809,7 @@ for _, o in ipairs({"north", "west", "south", "east"}) do
 	data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation[o].layers[2].scale = 1
 end
 
-data.raw["electric-pole"]["wooden-support"].pictures.layers[1].filename = "__Subsurface__/graphics/entities/wooden-support/wooden-support.png"
-data.raw["electric-pole"]["wooden-support"].pictures.layers[2].filename = "__Subsurface__/graphics/entities/wooden-support/wooden-support-shadow.png"
+data.raw["electric-pole"]["wooden-support"].pictures.layers[1].filename = "__Subsurface__/graphics/entities/support/wooden-support.png"
+data.raw["electric-pole"]["wooden-support"].pictures.layers[2].filename = "__Subsurface__/graphics/entities/support/wooden-support-shadow.png"
+data.raw["electric-pole"]["steel-support"].pictures.layers[1].filename = "__Subsurface__/graphics/entities/support/steel-support.png"
+data.raw["electric-pole"]["steel-support"].pictures.layers[2].filename = "__Subsurface__/graphics/entities/support/wooden-support-shadow.png"

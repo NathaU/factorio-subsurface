@@ -130,6 +130,15 @@ data:extend(
 	place_result = "wooden-support",
 	stack_size = 50
   },
+  {
+	type = "item",
+	name = "steel-support",
+	icon = "__Subsurface__/graphics/icons/steel-support.png",
+	subgroup = "inter-surface-transport",
+	order = "a-b",
+	place_result = "steel-support",
+	stack_size = 50
+  },
 
   {
 	type = "item",
