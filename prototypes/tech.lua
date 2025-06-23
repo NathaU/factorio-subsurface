@@ -14,6 +14,7 @@ data:extend(
 	{
 	  {type = "unlock-recipe", recipe = "surface-drill"},
 	  {type = "unlock-recipe", recipe = "wooden-support"},
+	  {type = "unlock-recipe", recipe = "steel-support"},
 	  {type = "unlock-recipe", recipe = "cave-sealing"},
 	  {type = "unlock-recipe", recipe = "prospector"},
 	},

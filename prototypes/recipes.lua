@@ -129,6 +129,17 @@ data:extend(
 	},
 	results = {{type = "item", name = "wooden-support", amount = 1}}
   },
+  {
+	type = "recipe",
+	name = "steel-support",
+	enabled = false,
+	ingredients =
+	{
+	  {type = "item", name = "medium-electric-pole", amount = 1},
+	  {type = "item", name = "small-lamp", amount = 1},
+	},
+	results = {{type = "item", name = "steel-support", amount = 1}}
+  },
 
   {
 	type = "recipe",
