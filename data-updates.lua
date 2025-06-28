@@ -26,7 +26,8 @@ for t, _ in pairs(data.raw["transport-belt"]) do
 	else
 		item_elevator.icons = {
 		  {
-			icon = data.raw["underground-belt"][b].icon
+			icon = data.raw["underground-belt"][b].icon,
+			icon_size = data.raw["underground-belt"][b].icon_size
 		  }
 		}
 	end
