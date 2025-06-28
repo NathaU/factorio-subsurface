@@ -92,7 +92,7 @@ function handle_subways()
 			teleport_pos[1] = teleport_pos.x
 			teleport_pos[2] = teleport_pos.y
 
-			if carriage and ((carriage.train.front_end.rail == v.rails[2] and carriage.train.speed > 0) or (carriage.train.back_end.rail == v.rails[2] and carriage.train.speed < 0)) and not v.connection.surface.entity_prototype_collides(carriage.name, teleport_pos, false, carriage.direction) then
+			if carriage and ((carriage.train.speed > 0 and (carriage.train.front_end.rail == v.rails[1] or carriage.train.front_end.rail == v.rails[2])) or (carriage.train.speed < 0 and (carriage.train.back_end.rail == v.rails[1] or carriage.train.back_end.rail == v.rails[2]))) and not v.connection.surface.entity_prototype_collides(carriage.name, teleport_pos, false, carriage.direction) then
 				-- teleport if there is rolling stock moving towards the entrance and the exit is free
 				local old_train_id = carriage.train.id
 				local data = storage.train_transport[old_train_id]
