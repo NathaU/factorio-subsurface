@@ -118,6 +118,12 @@ function handle_subways()
 					if previous_speed_sign ~= new_speed_sign then data.arriving_speed = -data.arriving_speed end
 				else -- this is the first carriage to be teleported
 					if carriage.train.schedule and #carriage.train.schedule.records > 0 then
+						for i = #carriage.train.schedule.records, 1, -1 do
+							local rec = carriage.train.schedule.records[i]
+							if rec.rail then carriage.train.get_schedule().remove_record({schedule_index = i}) end
+						end
+					end
+					if carriage.train.schedule and #carriage.train.schedule.records > 0 then
 						e.train.schedule = carriage.train.schedule
 						local next = e.train.schedule.current + 1
 						if next > #e.train.schedule.records then next = 1 end
