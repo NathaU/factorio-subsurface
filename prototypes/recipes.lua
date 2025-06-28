@@ -73,12 +73,25 @@ data:extend(
 	enabled = false,
 	ingredients =
 	{
+	  {type = "item", name = "iron-stick", amount = 10},
+	  {type = "item", name = "steel-plate", amount = 5},
+	  {type = "item", name = "iron-gear-wheel", amount = 5},
+	  {type = "item", name = "electronic-circuit", amount = 2},
+	},
+	results = {{type = "item", name = "active-air-vent", amount = 1}}
+  },
+  {
+	type = "recipe",
+	name = "active-air-vent-2",
+	enabled = false,
+	ingredients =
+	{
 	  {type = "item", name = "plastic-bar", amount = 10},
 	  {type = "item", name = "steel-plate", amount = 5},
 	  {type = "item", name = "iron-gear-wheel", amount = 5},
 	  {type = "item", name = "advanced-circuit", amount = 10},
 	},
-	results = {{type = "item", name = "active-air-vent", amount = 1}}
+	results = {{type = "item", name = "active-air-vent-2", amount = 1}}
   },
   {
 	type = "recipe",

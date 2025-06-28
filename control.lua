@@ -9,7 +9,6 @@ require "scripts.elevators"
 require "scripts.enemies"
 require "scripts.trains"
 
-max_pollution_move_active = 128 -- the max amount of pollution that can be moved per 64 ticks from one surface to the above
 max_pollution_move_passive = 64
 
 suffocation_threshold = 400
@@ -374,24 +373,8 @@ script.on_event(defines.events.on_tick, function(event)
 		-- next, move pollution using air vents
 		for i, vent in ipairs(storage.air_vents) do
 			if vent.valid then
-				local subsurface = get_subsurface(vent.surface)
-				if vent.name == "active-air-vent" and vent.energy > 0 then
-					local current_energy = vent.energy -- 918.5285 if full
-					local max_energy = 918.5285
-					local max_movable_pollution = max_pollution_move_active * (0.8 ^ (get_subsurface_depth(subsurface) - 1)) * current_energy / max_energy -- how much polution can be moved with the current available energy
-					
-					local pollution_to_move = math.min(max_movable_pollution, subsurface.get_pollution(vent.position))
-					
-					subsurface.pollute(vent.position, -pollution_to_move, vent.name)
-					vent.surface.pollute(vent.position, pollution_to_move, vent.name)
-					
-					if pollution_to_move > 0 then
-						vent.active = true
-						vent.surface.create_trivial_smoke{name = "light-smoke", position = {vent.position.x+0.25, vent.position.y}, force = game.forces.neutral}
-					else
-						vent.active = false
-					end
-				elseif vent.name == "air-vent" then
+				local subsurface = get_subsurface(vent.surface, false)
+				if subsurface and vent.name == "air-vent" then
 					local pollution_surface = vent.surface.get_pollution(vent.position)
 					local pollution_subsurface = subsurface.get_pollution(vent.position)
 					local diff = pollution_surface - pollution_subsurface
@@ -407,6 +390,19 @@ script.on_event(defines.events.on_tick, function(event)
 
 					vent.surface.pollute(vent.position, -diff, vent.name)
 					subsurface.pollute(vent.position, diff, vent.name)
+				elseif subsurface and vent.energy > 0 then
+					local current_energy = vent.energy
+					local max_energy = vent.prototype.electric_energy_source_prototype.buffer_capacity
+					local max_movable_pollution = vent.crafting_speed * (0.8 ^ (get_subsurface_depth(subsurface) - 1)) * current_energy / max_energy -- how much polution can be moved with the current available energy
+					
+					local pollution_to_move = math.min(max_movable_pollution, subsurface.get_pollution(vent.position))
+					
+					subsurface.pollute(vent.position, -pollution_to_move, vent.name)
+					vent.surface.pollute(vent.position, pollution_to_move, vent.name)
+					
+					if pollution_to_move > 0 then
+						vent.surface.create_trivial_smoke{name = "light-smoke", position = {vent.position.x+0.25, vent.position.y}, force = game.forces.neutral}
+					end
 				end
 			else
 				table.remove(storage.air_vents, i)
@@ -524,10 +520,8 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 	elseif entity.name == "heat-elevator" then
 		entity.operable = false
 		elevator_built(entity)
-	elseif entity.name == "air-vent" or entity.name == "active-air-vent" then
-		build_safe(event, function()
-			table.insert(storage.air_vents, entity)
-		end, false)
+	elseif entity.name == "air-vent" or entity.name == "active-air-vent" or entity.name == "active-air-vent-2" then
+		table.insert(storage.air_vents, entity)
 	elseif entity.name == "wooden-support" or entity.name == "steel-support" then
 		script.register_on_object_destroyed(entity)
 		storage.support_lamps[entity.unit_number] = entity.surface.create_entity{name = "support-lamp", position = entity.position, quality = entity.quality, force = entity.force}
