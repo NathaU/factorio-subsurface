@@ -20,7 +20,7 @@ for i = 0, 3 do
 	sealed_entrance.selection_box = {{0, 0}, {0, 0}}
 	sealed_entrance.collision_box = {{-1.4, -0.8}, {1.4, 1}}
 	if i == 3 then
-		sealed_entrance.collision_mask = {layers = {water_tile = true}}
+		sealed_entrance.collision_mask = {layers = {doodad = true}}
 		sealed_entrance.render_layer = "ground-patch"
 	end
 	sealed_entrance.pictures = {
