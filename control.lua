@@ -21,6 +21,8 @@ aai_miners = script.active_mods["aai-vehicles-miner"] ~= nil
 subsurface_wall_expressions = {}
 subsurface_wall_names = {"subsurface-wall"}
 
+blacklist = {}
+
 function setup_globals()
 	storage.subsurfaces = storage.subsurfaces or {}
 	storage.pole_links = storage.pole_links or {}
@@ -430,6 +432,10 @@ end)
 function allow_subsurfaces(surface)
 	if string.find(surface.name, "[Ff]actory[- ]floor") or 0 > 1 then -- prevent placement in factorissimo
 		return false
+	else
+		for _, b in ipairs(blacklist) do
+			if surface.name == b then return false end
+		end
 	end
 	return true
 end
