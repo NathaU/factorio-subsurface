@@ -1,4 +1,19 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.7
+Date: 2025-?
+  Features:
+    - Added subsurface wall scanner
+  Changes:
+    - New active air vent tier which can move more pollution than tier 1
+    - Sealed entrance can be built on
+    - Added upgrade to supports
+  Bugfixes:
+    - Fixed issue with item elevator icon sizes
+    - Fixed mini trains being too fast for subway traveling
+    - Fixed crash when trains in subways copied schedule records with rail destination (like temporary stops)
+  Modding:
+    - Added remote function for blacklisting surfaces
+---------------------------------------------------------------------------------------------------
 Version: 1.1.6
 Date: 2025-06-23
   Features:
