@@ -79,170 +79,167 @@ function subway_entity_destroyed(unit_number)
 end
 
 function handle_subways()
-	for _, v in pairs(storage.train_subways) do
+	for u, v in pairs(storage.train_subways) do
 		if v.connection then
 			local carriage_arriving_at_station = v.stop.surface.find_entities_filtered{type = rolling_stock_types, position = v.rails[5].position}[1]
 			if carriage_arriving_at_station and carriage_arriving_at_station.train.state == defines.train_state.arrive_station and carriage_arriving_at_station.train.path_end_stop == v.stop then
-				storage.train_transport[carriage_arriving_at_station.train.id] = {leaving_train = carriage_arriving_at_station.train, leaving_speed = carriage_arriving_at_station.train.speed, manual = false}
+				-- capture trains in auto mode early to prevent decelerating
+				storage.train_transport[u] = {leaving_train = carriage_arriving_at_station.train, leaving_speed = carriage_arriving_at_station.train.speed, manual = false}
 			end
 			
 			local carriage = v.stop.surface.find_entities_filtered{type = rolling_stock_types, position = offset_position(v.stop, {-2, 1})}[1]
 			
-			local teleport_pos = offset_position(storage.train_subways[v.connection.unit_number].stop, {-2, 4.1})
-			teleport_pos[1] = teleport_pos.x
-			teleport_pos[2] = teleport_pos.y
-
-			if carriage and ((carriage.train.speed > 0 and (carriage.train.front_end.rail == v.rails[1] or carriage.train.front_end.rail == v.rails[2])) or (carriage.train.speed < 0 and (carriage.train.back_end.rail == v.rails[1] or carriage.train.back_end.rail == v.rails[2]))) and not v.connection.surface.entity_prototype_collides(carriage.name, teleport_pos, false, carriage.direction) then
-				-- teleport if there is rolling stock moving towards the entrance and the exit is free
-				local old_train_id = carriage.train.id
-				local data = storage.train_transport[old_train_id]
-				if not data then
-					local sign = carriage.train.speed < 0 and -1 or 1
-					local manual = carriage.train.manual_mode
-					for _, t in pairs(storage.train_transport) do
-						-- if the train is goig through multiple subways, then copy from the original one
-						if t.arriving_train == carriage.train then manual = t.manual end
+			if carriage then
+				-- teleport position is the position where the carriage touches the rail end
+				local teleport_pos = offset_position(storage.train_subways[v.connection.unit_number].stop, {-2, math.max(math.abs(carriage.prototype.collision_box.left_top.y), math.abs(carriage.prototype.collision_box.right_bottom.y)) - 1})
+				
+				if ((carriage.train.speed > 0 and (carriage.train.front_end.rail == v.rails[1] or carriage.train.front_end.rail == v.rails[2])) or (carriage.train.speed < 0 and (carriage.train.back_end.rail == v.rails[1] or carriage.train.back_end.rail == v.rails[2]))) and v.connection.surface.can_place_entity{name = carriage.name, position = teleport_pos, direction = carriage.direction, force = carriage.force} then
+					-- teleport if there is rolling stock moving towards the entrance and the exit is free
+					local data = storage.train_transport[u]
+					if not data then
+						local manual = carriage.train.manual_mode
+						for _, t in pairs(storage.train_transport) do
+							-- if the train is going through multiple subways, then copy mode from the original one
+							if t.arriving_train == carriage.train then manual = t.manual end
+						end
+						local sign = carriage.train.speed < 0 and -1 or 1
+						data = {leaving_train = carriage.train, leaving_speed = math.min(math.max(0.1, math.abs(carriage.train.speed)), 6) * sign, manual = manual}
+						storage.train_transport[u] = data
 					end
-					data = {leaving_train = carriage.train, leaving_speed = math.max(0.1, math.abs(carriage.train.speed)) * sign, manual = manual}
-					storage.train_transport[old_train_id] = data
-				end
-				
-				local e = v.connection.surface.create_entity{name = carriage.name, direction = carriage.direction, orientation = carriage.orientation, position = teleport_pos, force = carriage.force, quality = carriage.quality}
-				
-				local front_out = v.connection.orientation == to_orientation(math2d.position.subtract(e.train.back_end.rail.position, e.train.front_end.rail.position)) -- example: exit points to south (0.5), position of back rail - front rail is also 0.5 if the train front is heading
-				
-				if data.arriving_train then
-					local previous_speed_sign = data.arriving_speed < 0 and -1 or 1
-					e.connect_rolling_stock(front_out and defines.rail_direction.front or defines.rail_direction.back)
-					local new_speed_sign = e.train.speed < 0 and -1 or 1
-					if previous_speed_sign ~= new_speed_sign then data.arriving_speed = -data.arriving_speed end
-				else -- this is the first carriage to be teleported
-					if carriage.train.schedule and #carriage.train.schedule.records > 0 then
-						for i = #carriage.train.schedule.records, 1, -1 do
-							local rec = carriage.train.schedule.records[i]
-							if rec.rail then carriage.train.get_schedule().remove_record({schedule_index = i}) end
+					
+					if data.arriving_train then -- if the train is already arriving, then we need to move the teleport position that the trains can connect
+						while v.connection.surface.can_place_entity{name = carriage.name, position = teleport_pos, direction = carriage.direction, force = carriage.force} do
+							teleport_pos = math2d.position.add(teleport_pos, math2d.vector.from_orientation(storage.train_subways[v.connection.unit_number].stop.orientation, -0.25))
+						end
+						teleport_pos = math2d.position.add(teleport_pos, math2d.vector.from_orientation(storage.train_subways[v.connection.unit_number].stop.orientation, 0.25))
+					end
+					
+					local e = v.connection.surface.create_entity{name = carriage.name, orientation = carriage.orientation, position = teleport_pos, force = carriage.force, quality = carriage.quality}
+					
+					if data.arriving_train then
+						local previous_speed_sign = data.arriving_speed < 0 and -1 or 1
+						local new_speed_sign = e.train.speed < 0 and -1 or 1
+						if previous_speed_sign ~= new_speed_sign then data.arriving_speed = -data.arriving_speed end
+					else -- this is the first carriage to be teleported
+						if carriage.train.schedule and #carriage.train.schedule.records > 0 then
+							for i = #carriage.train.schedule.records, 1, -1 do
+								local rec = carriage.train.schedule.records[i]
+								if rec.rail then carriage.train.get_schedule().remove_record({schedule_index = i}) end
+							end
+						end
+						if carriage.train.schedule and #carriage.train.schedule.records > 0 then
+							e.train.schedule = carriage.train.schedule
+							local next = e.train.schedule.current + 1
+							if next > #e.train.schedule.records then next = 1 end
+							data.next_station = next
+						end
+
+						local front_out = v.connection.orientation == to_orientation(math2d.position.subtract(e.train.back_end.rail.position, e.train.front_end.rail.position)) -- example: exit points to south (0.5), position of back rail - front rail is also 0.5 if the train front is heading
+						data.arriving_speed = (front_out and 1 or -1) * math.abs(data.leaving_speed)
+					end
+					data.arriving_train = e.train
+					
+					e.copy_settings(carriage)
+					
+					local driver = carriage.get_driver()
+					if driver and (not driver.is_player() or (driver.is_player() and driver.controller_type == defines.controllers.character)) then
+						driver.teleport(v.connection.surface.find_non_colliding_position((driver.is_player() and driver.character or driver).name, e.position, 10, 0.5), v.connection.surface)
+						e.set_driver(driver)
+					end
+
+					-- COPY ENTITY CONTENTS ETC
+
+					local inventory = carriage.get_inventory(defines.inventory.fuel)
+					if inventory ~= nil then
+						local to_inventory = e.get_inventory(defines.inventory.fuel)
+						for i = 1, #inventory do to_inventory[i].set_stack(inventory[i]) end
+					end
+					inventory = carriage.get_inventory(defines.inventory.burnt_result)
+					if inventory ~= nil then
+						local to_inventory = e.get_inventory(defines.inventory.burnt_result)
+						for i = 1, #inventory do to_inventory[i].set_stack(inventory[i]) end
+					end
+					inventory = carriage.get_inventory(defines.inventory.cargo_wagon)
+					if inventory ~= nil then
+						local to_inventory = e.get_inventory(defines.inventory.cargo_wagon)
+						if inventory.supports_filters() then
+							for i = 1, #inventory do
+								to_inventory.set_filter(i, inventory.get_filter(i))
+							end
+						end
+						for i = 1, #inventory do to_inventory[i].set_stack(inventory[i]) end
+						if inventory.supports_bar() then to_inventory.set_bar(inventory.get_bar()) end
+					end
+					inventory = carriage.get_inventory(defines.inventory.artillery_wagon_ammo)
+					if inventory ~= nil then
+						local to_inventory = e.get_inventory(defines.inventory.artillery_wagon_ammo)
+						for i = 1, #inventory do to_inventory[i].set_stack(inventory[i]) end
+					end
+					for i = 1, carriage.fluids_count do
+						e.set_fluid(i, carriage.get_fluid(i))
+					end
+
+					e.color = carriage.color
+					e.health = carriage.health
+
+					if carriage.energy > 0 then
+						e.energy = carriage.energy
+						if carriage.burner then
+							e.burner.currently_burning = carriage.burner.currently_burning
+							e.burner.remaining_burning_fuel = carriage.burner.remaining_burning_fuel
 						end
 					end
-					if carriage.train.schedule and #carriage.train.schedule.records > 0 then
-						e.train.schedule = carriage.train.schedule
-						local next = e.train.schedule.current + 1
-						if next > #e.train.schedule.records then next = 1 end
-						data.next_station = next
-					end
-					data.arriving_speed = (front_out and 1 or -1) * math.abs(data.leaving_speed)
-				end
-				data.arriving_train = e.train
-				data.last_carriage = e
-				
-				e.copy_settings(carriage)
-				
-				local driver = carriage.get_driver()
-				if driver and (not driver.is_player() or (driver.is_player() and driver.controller_type == defines.controllers.character)) then
-					driver.teleport(v.connection.surface.find_non_colliding_position((driver.is_player() and driver.character or driver).name, e.position, 10, 0.5), v.connection.surface)
-					e.set_driver(driver)
-				end
+					
+					if carriage.grid then
+						for _, equip in pairs(carriage.grid.equipment) do
+							local toEquip = e.grid.put{name = equip.name, position = equip.position, quality = equip.quality}
+							
+							if equip.prototype.type == "energy-shield-equipment" then toEquip.shield = equip.shield	end
+							toEquip.energy = equip.energy
+							if equip.burner then
+								toEquip.burner.heat = equip.burner.heat
 
-				-- COPY ENTITY CONTENTS ETC
-
-				local inventory = carriage.get_inventory(defines.inventory.fuel)
-				if inventory ~= nil then
-					local to_inventory = e.get_inventory(defines.inventory.fuel)
-					for i = 1, #inventory do to_inventory[i].set_stack(inventory[i]) end
-				end
-				inventory = carriage.get_inventory(defines.inventory.burnt_result)
-				if inventory ~= nil then
-					local to_inventory = e.get_inventory(defines.inventory.burnt_result)
-					for i = 1, #inventory do to_inventory[i].set_stack(inventory[i]) end
-				end
-				inventory = carriage.get_inventory(defines.inventory.cargo_wagon)
-				if inventory ~= nil then
-					local to_inventory = e.get_inventory(defines.inventory.cargo_wagon)
-					if inventory.supports_filters() then
-						for i = 1, #inventory do
-							to_inventory.set_filter(i, inventory.get_filter(i))
+								for i = 1, #equip.burner.inventory do toEquip.burner.inventory[i].set_stack(equip.burner.inventory[i]) end
+								for i = 1, #equip.burner.burnt_result_inventory do toEquip.burner.urnt_result_inventory[i].set_stack(equip.burner.burnt_result_inventory[i]) end
+							end
 						end
 					end
-					for i = 1, #inventory do to_inventory[i].set_stack(inventory[i]) end
-					if inventory.supports_bar() then to_inventory.set_bar(inventory.get_bar()) end
-				end
-				inventory = carriage.get_inventory(defines.inventory.artillery_wagon_ammo)
-				if inventory ~= nil then
-					local to_inventory = e.get_inventory(defines.inventory.artillery_wagon_ammo)
-					for i = 1, #inventory do to_inventory[i].set_stack(inventory[i]) end
-				end
-				for i = 1, carriage.fluids_count do
-					e.set_fluid(i, carriage.get_fluid(i))
-				end
+					
+					-- END
+					
+					local next_carriage = carriage.get_connected_rolling_stock(defines.rail_direction.front) or carriage.get_connected_rolling_stock(defines.rail_direction.back)
+					local previus_speed_sign = data.leaving_speed < 0 and -1 or 1
 
-				e.color = carriage.color
-				e.health = carriage.health
+					carriage.destroy()
+					
+					if next_carriage then
+						data.leaving_train = next_carriage.train
 
-				if carriage.energy > 0 then
-					e.energy = carriage.energy
-					if carriage.burner then
-						e.burner.currently_burning = carriage.burner.currently_burning
-						e.burner.remaining_burning_fuel = carriage.burner.remaining_burning_fuel
-					end
-				end
-				
-				if carriage.grid then
-					for _, equip in pairs(carriage.grid.equipment) do
-						local toEquip = e.grid.put{name = equip.name, position = equip.position, quality = equip.quality}
-						
-						if equip.prototype.type == "energy-shield-equipment" then toEquip.shield = equip.shield	end
-						toEquip.energy = equip.energy
-						if equip.burner then
-							toEquip.burner.heat = equip.burner.heat
-
-							for i = 1, #equip.burner.inventory do toEquip.burner.inventory[i].set_stack(equip.burner.inventory[i]) end
-							for i = 1, #equip.burner.burnt_result_inventory do toEquip.burner.urnt_result_inventory[i].set_stack(equip.burner.burnt_result_inventory[i]) end
+						local new_speed_sign = next_carriage.train.speed < 0 and -1 or 1
+						if previus_speed_sign ~= new_speed_sign then -- leaving train changed front and back due to disconnecting
+							data.leaving_speed = -data.leaving_speed
 						end
+					else
+						if not data.manual and data.next_station then
+							data.arriving_train.go_to_station(data.next_station)
+						end
+						data.arriving_train.manual_mode = data.manual
+						data.arriving_train.speed = data.arriving_speed
+						storage.train_transport[u] = nil
 					end
 				end
-				
-				-- END
-				
-				local next_carriage = carriage == carriage.train.front_stock and carriage.train.carriages[2] or carriage.train.carriages[#carriage.train.carriages - 1]
-				local previus_speed_sign = data.leaving_speed < 0 and -1 or 1
-
-				carriage.disconnect_rolling_stock(carriage == carriage.train.front_stock and defines.rail_direction.back or defines.rail_direction.front)
-				carriage.destroy()
-				
-				if next_carriage then
-					data.leaving_train = next_carriage.train
-
-					local new_speed_sign = next_carriage.train.speed < 0 and -1 or 1
-					if previus_speed_sign ~= new_speed_sign then -- leaving train changed front and back due to disconnecting
-						data.leaving_speed = -data.leaving_speed
-					end
-
-					storage.train_transport[next_carriage.train.id] = data
-					storage.train_transport[old_train_id] = nil
-				else
-					data.finished = {data.leaving_speed > 0, storage.train_subways[v.connection.unit_number].rails[4], v.connection.orientation}
-				end
-				
 			end
 		end
 	end
 
-	for u, t in pairs(storage.train_transport) do
+	for _, t in pairs(storage.train_transport) do
 		if t.leaving_train.valid then
 			t.leaving_train.speed = t.leaving_speed
 			t.leaving_train.manual_mode = true
 		end
 		if t.arriving_train and t.arriving_train.valid then
-			if t.finished and t.finished[3] == to_orientation(math2d.position.subtract(t.finished[2].position, (t.finished[1] and t.arriving_train.back_end or t.arriving_train.front_end).rail.position)) then
-				if not t.manual and t.next_station then
-					t.arriving_train.go_to_station(t.next_station)
-					t.arriving_train.speed = t.arriving_speed
-				end
-				t.arriving_train.manual_mode = t.manual
-				storage.train_transport[u] = nil
-			else
-				t.arriving_train.speed = t.arriving_speed
-				t.arriving_train.manual_mode = true
-			end
+			t.arriving_train.speed = t.arriving_speed
+			t.arriving_train.manual_mode = true
 		end
 	end
 end
