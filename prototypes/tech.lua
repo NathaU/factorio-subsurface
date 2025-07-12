@@ -17,6 +17,7 @@ data:extend(
 	  {type = "unlock-recipe", recipe = "steel-support"},
 	  {type = "unlock-recipe", recipe = "cave-sealing"},
 	  {type = "unlock-recipe", recipe = "prospector"},
+	  {type = "unlock-recipe", recipe = "subsurface-wall-scanner"},
 	},
 	prerequisites = {"automation-2"},
 	unit = {

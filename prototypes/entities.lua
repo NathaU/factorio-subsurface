@@ -843,6 +843,85 @@ data:extend(
 	tile_height = 2,
 	hidden = true,
 	alert_icon_scale = 0,
+  },
+
+  {
+	type = "radar",
+	name = "subsurface-wall-scanner",
+	icon = "__Subsurface__/graphics/icons/wall-scanner.png",
+	flags = {"placeable-player", "player-creation"},
+	minable = {mining_time = 0.1, result = "subsurface-wall-scanner"},
+	max_health = 250,
+	corpse = "radar-remnants",
+	dying_explosion = "radar-explosion",
+	resistances =
+	{
+	  {type = "fire", percent = 70},
+	  {type = "impact", percent = 30}
+	},
+	collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
+	selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
+	energy_per_sector = "10MJ",
+    max_distance_of_sector_revealed = 1,
+    max_distance_of_nearby_sector_revealed = 1,
+    energy_per_nearby_scan = "250kJ",
+    energy_source =
+    {
+      type = "electric",
+      usage_priority = "secondary-input"
+    },
+    energy_usage = "150kW",
+    integration_patch =
+    {
+      filename = "__base__/graphics/entity/radar/radar-integration.png",
+      priority = "low",
+      width = 238,
+      height = 216,
+      shift = util.by_pixel(1.5, 4.0),
+      scale = 0.5
+    },
+    pictures =
+    {
+      layers =
+      {
+        {
+          filename = "__Subsurface__/graphics/entities/wall-scanner.png",
+          priority = "low",
+          width = 196,
+          height = 254,
+          apply_projection = false,
+          direction_count = 64,
+          line_length = 8,
+          shift = util.by_pixel(1.0, -16.0),
+          scale = 0.5
+        },
+        {
+          filename = "__Subsurface__/graphics/entities/wall-scanner-shadow.png",
+          priority = "low",
+          width = 336,
+          height = 170,
+          apply_projection = false,
+          direction_count = 64,
+          line_length = 8,
+          shift = util.by_pixel(39.0, 6.0),
+          draw_as_shadow = true,
+          scale = 0.5
+        }
+      }
+    },
+    impact_category = "metal",
+    working_sound =
+    {
+      sound = {filename = "__base__/sound/radar.ogg", volume = 0.8, modifiers = volume_multiplier("main-menu", 2.0)},
+      max_sounds_per_prototype = 3,
+      use_doppler_shift = false
+    },
+    radius_minimap_visualisation_color = {0.059, 0.092, 0.235, 0.275},
+    rotation_speed = 0.01,
+    is_military_target = false,
+    circuit_connector = circuit_connector_definitions["radar"],
+    circuit_wire_max_distance = 0,
+	connects_to_other_radars = false
   }
 })
 

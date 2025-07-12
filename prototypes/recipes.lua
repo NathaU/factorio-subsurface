@@ -31,6 +31,16 @@ data:extend(
 	},
 	results = {{type = "item", name = "prospector", amount = 1}}
   },
+  {
+	type = "recipe",
+	name = "subsurface-wall-scanner",
+	enabled = false,
+	ingredients =
+	{
+	  {type = "item", name = "radar", amount = 1},
+	},
+	results = {{type = "item", name = "subsurface-wall-scanner", amount = 1}}
+  },
   
   {
 	type = "recipe",

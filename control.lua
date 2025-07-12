@@ -40,6 +40,7 @@ function setup_globals()
 	storage.train_subways = storage.train_subways or {}
 	storage.train_transport = storage.train_transport or {}
 	storage.train_stop_clones = storage.train_stop_clones or {}
+	storage.wall_scanners = storage.wall_scanners or {}
 end
 
 function register_subsurface_walls()
@@ -334,6 +335,24 @@ script.on_event(defines.events.on_tick, function(event)
 			table.remove(storage.prospectors, i)
 		end
 	end
+
+	-- handle wall scanners
+	for i, scanner in ipairs(storage.wall_scanners) do
+		if scanner.valid and is_subsurface(scanner.surface) then
+			if event.tick % 60 == 0 then
+				local walls = scanner.surface.find_entities_filtered{name = subsurface_wall_names, position = scanner.position, radius = 32}
+				if #walls > 0 then
+					for _, w in ipairs(walls) do
+						w.order_deconstruction(scanner.force)
+					end
+				else
+					scanner.order_deconstruction(scanner.force)
+				end
+			end
+		else
+			table.remove(storage.wall_scanners, i)
+		end
+	end
 	
 	handle_elevators(event.tick)
 
@@ -519,6 +538,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		else cancel_placement(event, text)
 		end
 	elseif entity.name == "prospector" then table.insert(storage.prospectors, entity)
+	elseif entity.name == "subsurface-wall-scanner" then table.insert(storage.wall_scanners, entity)
 	elseif string.sub(entity.name, 1, 13) == "item-elevator" then elevator_built(entity)
 	elseif entity.name == "fluid-elevator-input" then
 		if event.tags and event.tags.output then entity = switch_elevator(entity) end

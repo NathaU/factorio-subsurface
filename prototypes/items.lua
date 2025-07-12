@@ -26,6 +26,15 @@ data:extend(
 	place_result = "prospector",
 	stack_size = 50
   },
+  {
+	type = "item",
+	name = "subsurface-wall-scanner",
+	icon = "__Subsurface__/graphics/icons/wall-scanner.png",
+	subgroup = "production-machine",
+	order = "z",
+	place_result = "subsurface-wall-scanner",
+	stack_size = 50
+  },
   
   {
 	type = "item",
