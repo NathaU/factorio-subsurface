@@ -19,6 +19,7 @@ remote.add_interface("subsurface", {
 	end,
 
 	on_unit_change_mode = function(data) return aai_on_unit_change_mode(data.unit, data.new_mode, data.old_mode) end,
+	on_unit_given_order = function(data) return aai_on_unit_given_order(data.unit, data.order) end,
 
 	blacklist_surface = function(name) table.insert(blacklist, name) end
 })

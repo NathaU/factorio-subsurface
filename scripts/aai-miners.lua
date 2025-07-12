@@ -40,7 +40,7 @@ end
 
 function aai_on_unit_change_mode(unit, new_mode, old_mode)
 	if storage.aai_digging_miners[unit.unit_id] then
-		if new_mode == "unit" then -- when "unit" and path exists, it arrived at a waypoint to continue the path
+		if new_mode == "unit" then -- when "unit" and path exists, it arrived at the first waypoint to follow the path
 			if unit.path then
 				storage.aai_digging_miners[unit.unit_id] = {unit.path.path_id, unit.path.waypoint_id} -- waypoint_id is the next waypoint
 				local path = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index = unit.surface_index, force_name = unit.vehicle.force.name})[unit.path.path_id]
@@ -51,7 +51,26 @@ function aai_on_unit_change_mode(unit, new_mode, old_mode)
 			else
 				storage.aai_digging_miners[unit.unit_id] = {}
 			end
+		elseif new_mode == "vehicle" and storage.aai_digging_miners[unit.unit_id][1] or 0 > 0 then -- when mode is "vehicle", then it may have arrived at the target position
+			local path = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index = unit.surface_index, force_name = unit.vehicle.force.name})[storage.aai_digging_miners[unit.unit_id][1]]
+			if math2d.position.distance(unit.vehicle.position, path.waypoints[storage.aai_digging_miners[unit.unit_id][2]].position) < 1 then
+				local next_waypoint = path.first_waypoint_id
+				for i, _ in pairs(path.waypoints) do
+					if next_waypoint == path.first_waypoint_id and i > storage.aai_digging_miners[unit.unit_id][2] and path.waypoints[i] and path.waypoints[i].type == "position" then
+						next_waypoint = i -- take the first waypoint after the current one that is a position
+					end
+				end
+				storage.aai_digging_miners[unit.unit_id][2] = next_waypoint
+			end
+			remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id = unit.unit_id, target_position_direct = path.waypoints[storage.aai_digging_miners[unit.unit_id][2]].position})
 		end
+	end
+end
+
+function aai_on_unit_given_order(unit, order)
+	if order.target_position and storage.aai_digging_miners[unit.unit_id] then
+		remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id = unit.unit_id, target_speed = 0})
+		remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id = unit.unit_id, target_position_direct = order.target_position})
 	end
 end
 
@@ -70,18 +89,6 @@ function handle_miners(tick)
 						if tick % 300 == 0 then p.create_local_flying_text{text = {"subsurface.miner-inventory-full"}, position = miner.position, time_to_live = 75} end
 					end
 					remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id = unit.unit_id, target_speed = 0})
-				elseif unit.mode == "vehicle" and storage.aai_digging_miners[unit.unit_id] and storage.aai_digging_miners[unit.unit_id][1] or 0 > 0 then -- when mode is "vehicle", then it may have arrived at the target position
-					local path = remote.call("aai-programmable-vehicles", "get_surface_paths", {surface_index = unit.surface_index, force_name = unit.vehicle.force.name})[storage.aai_digging_miners[unit.unit_id][1]]
-					if math2d.position.distance(unit.vehicle.position, path.waypoints[storage.aai_digging_miners[unit.unit_id][2]].position) < 1 then
-						local next_waypoint = path.first_waypoint_id
-						for i, w in pairs(path.waypoints) do
-							if next_waypoint == path.first_waypoint_id and i > storage.aai_digging_miners[unit.unit_id][2] and path.waypoints[i] and path.waypoints[i].type == "position" then
-								next_waypoint = i -- take the first waypoint after the current one that is a position
-							end
-						end
-						storage.aai_digging_miners[unit.unit_id][2] = next_waypoint
-					end
-					remote.call("aai-programmable-vehicles", "set_unit_command", {unit_id = unit.unit_id, target_position_direct = path.waypoints[storage.aai_digging_miners[unit.unit_id][2]].position})
 				end
 			end
 			
