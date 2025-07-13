@@ -61,3 +61,5 @@ end
 -----------------------
 
 data.raw.resource["subsurface-hole"].infinite = false
+data.raw["straight-rail"]["subway-rail"].next_upgrade = nil
+data.raw["straight-rail"]["subway-rail"].fast_replaceable_group = nil
