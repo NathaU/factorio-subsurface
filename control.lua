@@ -40,6 +40,7 @@ function setup_globals()
 	storage.train_subways = storage.train_subways or {}
 	storage.train_transport = storage.train_transport or {}
 	storage.train_stop_clones = storage.train_stop_clones or {}
+	storage.deconstruction_queue = storage.deconstruction_queue or {}
 end
 
 function register_subsurface_walls()
@@ -427,6 +428,35 @@ script.on_event(defines.events.on_tick, function(event)
 	if aai_miners and event.tick % 10 == 0 then handle_miners(event.tick) end
 	
 	if event.tick % 20 == 0 and not settings.global["disable-autoplace-manipulation"].value and game.map_settings.enemy_expansion.enabled then handle_enemies(event.tick) end
+	
+	if event.tick % 60 == 0 then
+		for f, _ in pairs(storage.deconstruction_queue) do
+			for si, _ in pairs(storage.deconstruction_queue[f]) do
+				for x, _ in pairs(storage.deconstruction_queue[f][si]) do
+					for y, c in pairs(storage.deconstruction_queue[f][si][x]) do
+						local surface = game.get_surface(si)
+						if surface.get_tile(x, y).name == "out-of-map" then
+							if not game.forces[f].find_logistic_network_by_position({x, y}, surface) then
+								c[1].destroy()
+								c[2].destroy()
+								storage.deconstruction_queue[f][si][x][y] = nil
+							elseif surface.find_entity("subsurface-wall", {x, y}) then
+								-- if there is a subsurface wall, we don't destroy it
+								c[1].destroy()
+								c[2].destroy()
+								storage.deconstruction_queue[f][si][x][y] = nil
+								surface.find_entity("subsurface-wall", {x, y}).order_deconstruction(game.forces[f])
+							end
+						else
+							c[1].destroy()
+							c[2].destroy()
+							storage.deconstruction_queue[f][si][x][y] = nil
+						end
+					end
+				end
+			end
+		end
+	end
 end)
 
 function allow_subsurfaces(surface)
@@ -582,6 +612,27 @@ script.on_event(defines.events.on_selected_entity_changed, function(event)
 		r.destroy()
 	end
 	if player.selected then elevator_selected(player, player.selected) end
+end)
+
+script.on_event(defines.events.on_player_deconstructed_area, function(event)
+	if is_subsurface(event.surface) then
+		event.area.left_top.x = math.ceil(event.area.left_top.x)
+		event.area.left_top.y = math.ceil(event.area.left_top.y)
+		event.area.right_bottom.x = math.floor(event.area.right_bottom.x)
+		event.area.right_bottom.y = math.floor(event.area.right_bottom.y)
+		local force = game.get_player(event.player_index).force
+		for x, y in iarea(event.area) do
+			if event.surface.get_tile(x, y).name == "out-of-map" and force.find_logistic_network_by_position({x, y}, event.surface) then
+				local r1 = rendering.draw_sprite{sprite = "utility/deconstruction_mark", surface = event.surface, target = {x, y}, x_scale = 0.4, y_scale = 0.4, forces = force}
+				local r2 = rendering.draw_sprite{sprite = "utility/clock", surface = event.surface, target = {x + 0.25, y + 0.25}, x_scale = 0.5, y_scale = 0.5, forces = force}
+				
+				storage.deconstruction_queue[force.name] = storage.deconstruction_queue[force.name] or {}
+				storage.deconstruction_queue[force.name][event.surface.index] = storage.deconstruction_queue[force.name][event.surface.index] or {}
+				storage.deconstruction_queue[force.name][event.surface.index][x] = storage.deconstruction_queue[force.name][event.surface.index][x] or {}
+				storage.deconstruction_queue[force.name][event.surface.index][x][y] = {r1, r2}
+			end
+		end
+	end
 end)
 
 script.on_event(defines.events.on_entity_died, function(event)
