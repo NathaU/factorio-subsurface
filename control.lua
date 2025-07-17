@@ -41,6 +41,7 @@ function setup_globals()
 	storage.train_transport = storage.train_transport or {}
 	storage.train_stop_clones = storage.train_stop_clones or {}
 	storage.deconstruction_queue = storage.deconstruction_queue or {}
+	storage.exposed_chunks = storage.exposed_chunks or {}
 end
 
 function register_subsurface_walls()
@@ -215,6 +216,7 @@ function get_subsurface(surface, create)
 			if remote.interfaces["blackmap"] then remote.call("blackmap", "register", subsurface) end
 			
 			storage.enemies_above_exposed_underground[surface.index] = {}
+			storage.exposed_chunks[surface.index] = {}
 			
 		end
 		storage.subsurfaces[surface.index] = subsurface
@@ -320,7 +322,20 @@ function clear_subsurface(surface, pos, radius, clearing_radius, return_inventor
 	create_walls(surface, new_wall_positions)
 	
 	find_enemies_above(surface, pos, radius)
-	
+
+	-- expose chunks
+	area.left_top.x = math.floor(area.left_top.x / 32)
+	area.left_top.y = math.floor(area.left_top.y / 32)
+	area.right_bottom.x = math.floor(area.right_bottom.x / 32)
+	area.right_bottom.y = math.floor(area.right_bottom.y / 32)
+	for cx, cy in iarea(area) do
+		storage.exposed_chunks[surface.index][spiral({cx, cy})] = {2, {cx, cy}}
+		storage.exposed_chunks[surface.index][spiral({cx, cy - 1})] = storage.exposed_chunks[surface.index][spiral({cx, cy - 1})] or {1, {cx, cy - 1}}
+		storage.exposed_chunks[surface.index][spiral({cx, cy + 1})] = storage.exposed_chunks[surface.index][spiral({cx, cy + 1})] or {1, {cx, cy + 1}}
+		storage.exposed_chunks[surface.index][spiral({cx - 1, cy})] = storage.exposed_chunks[surface.index][spiral({cx - 1, cy})] or {1, {cx - 1, cy}}
+		storage.exposed_chunks[surface.index][spiral({cx + 1, cy})] = storage.exposed_chunks[surface.index][spiral({cx + 1, cy})] or {1, {cx + 1, cy}}
+	end
+
 	if return_inventory then return inventory
 	else inventory.destroy() end
 end
@@ -341,25 +356,27 @@ script.on_event(defines.events.on_tick, function(event)
 	handle_subways()
 	
 	-- POLLUTION (since there is no mechanic to just reflect pollution (no absorption but also no spread) we have to do it for our own. The game's mechanic can't be changed so we need to consider it)
-	if (event.tick - 1) % 64 == 0 then
+	if (event.tick + 1) % 64 == 0 then
 		
 		for _, subsurface in pairs(storage.subsurfaces) do
-			for chunk in subsurface.get_chunks() do
-				local cx = chunk.x
-				local cy = chunk.y
-				local pollution = subsurface.get_pollution{cx*32, cy*32}
-				if pollution > 0 and subsurface.count_tiles_filtered{area = chunk.area, name = "out-of-map"} == 1024 then
-					local north = subsurface.get_pollution{cx*32, (cy-1)*32}
-					local south = subsurface.get_pollution{cx*32, (cy+1)*32}
-					local east = subsurface.get_pollution{(cx+1)*32, cy*32}
-					local west = subsurface.get_pollution{(cx-1)*32, cy*32}
-					local total = north + south + east + west
-					if total > 0 then
-						subsurface.pollute({cx*32, (cy-1)*32}, pollution*north/total)
-						subsurface.pollute({cx*32, (cy+1)*32}, pollution*south/total)
-						subsurface.pollute({(cx+1)*32, cy*32}, pollution*east/total)
-						subsurface.pollute({(cx-1)*32, cy*32}, pollution*west/total)
-						subsurface.pollute({cx*32, cy*32}, -pollution)
+			for _, chunk in pairs(storage.exposed_chunks[subsurface.index]) do
+				if chunk[1] == 1 then
+					local cx = chunk[2][1]
+					local cy = chunk[2][2]
+					local pollution = subsurface.get_pollution{cx * 32, cy * 32}
+					if pollution > 0 then
+						local north = subsurface.get_pollution{cx * 32, (cy - 1) * 32}
+						local south = subsurface.get_pollution{cx * 32, (cy + 1) * 32}
+						local east = subsurface.get_pollution{(cx + 1) * 32, cy * 32}
+						local west = subsurface.get_pollution{(cx - 1) * 32, cy * 32}
+						local total = north + south + east + west
+						if total > 0 then
+							subsurface.pollute({cx * 32, (cy - 1) * 32}, pollution * north / total)
+							subsurface.pollute({cx * 32, (cy + 1) * 32}, pollution * south / total)
+							subsurface.pollute({(cx + 1) * 32, cy * 32}, pollution * east / total)
+							subsurface.pollute({(cx - 1) * 32, cy * 32}, pollution * west / total)
+							subsurface.pollute({cx * 32, cy * 32}, -pollution)
+						end
 					end
 				end
 			end
