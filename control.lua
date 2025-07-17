@@ -329,15 +329,24 @@ function clear_subsurface(surface, pos, radius, clearing_radius, return_inventor
 	area.right_bottom.x = math.floor(area.right_bottom.x / 32)
 	area.right_bottom.y = math.floor(area.right_bottom.y / 32)
 	for cx, cy in iarea(area) do
-		storage.exposed_chunks[surface.index][spiral({cx, cy})] = {2, {cx, cy}}
-		storage.exposed_chunks[surface.index][spiral({cx, cy - 1})] = storage.exposed_chunks[surface.index][spiral({cx, cy - 1})] or {1, {cx, cy - 1}}
-		storage.exposed_chunks[surface.index][spiral({cx, cy + 1})] = storage.exposed_chunks[surface.index][spiral({cx, cy + 1})] or {1, {cx, cy + 1}}
-		storage.exposed_chunks[surface.index][spiral({cx - 1, cy})] = storage.exposed_chunks[surface.index][spiral({cx - 1, cy})] or {1, {cx - 1, cy}}
-		storage.exposed_chunks[surface.index][spiral({cx + 1, cy})] = storage.exposed_chunks[surface.index][spiral({cx + 1, cy})] or {1, {cx + 1, cy}}
+		storage.exposed_chunks[surface.index][spiral({cx, cy})] = {cx, cy}
 	end
 
 	if return_inventory then return inventory
 	else inventory.destroy() end
+end
+
+local pollution_map = {}
+local pollution_values = {}
+function process_chunk(s, cx, cy)
+	if not pollution_map[s.index][spiral({cx, cy})] and not storage.exposed_chunks[s.index][spiral({cx, cy})] then
+		pollution_map[s.index][spiral({cx, cy})] = {s.get_pollution{cx * 32, cy * 32}, cx, cy}
+		pollution_values[s.index].total = pollution_values[s.index].total + pollution_map[s.index][spiral({cx, cy})][1]
+		if s.get_pollution{cx * 32, (cy - 1) * 32} > 0 then process_chunk(s, cx, cy - 1) end
+		if s.get_pollution{cx * 32, (cy + 1) * 32} > 0 then process_chunk(s, cx, cy + 1) end
+		if s.get_pollution{(cx - 1) * 32, cy * 32} > 0 then process_chunk(s, cx - 1, cy) end
+		if s.get_pollution{(cx + 1) * 32, cy * 32} > 0 then process_chunk(s, cx + 1, cy) end
+	end
 end
 
 script.on_event(defines.events.on_tick, function(event)
@@ -354,40 +363,38 @@ script.on_event(defines.events.on_tick, function(event)
 	handle_elevators(event.tick)
 
 	handle_subways()
-	
+
 	-- POLLUTION (since there is no mechanic to just reflect pollution (no absorption but also no spread) we have to do it for our own. The game's mechanic can't be changed so we need to consider it)
-	if (event.tick + 1) % 64 == 0 then
-		
+	if (event.tick - 1) % 64 == 0 then
 		for _, subsurface in pairs(storage.subsurfaces) do
+			pollution_values[subsurface.index] = {total = 0, total_exposed = 0}
+			pollution_map[subsurface.index] = {}
 			for _, chunk in pairs(storage.exposed_chunks[subsurface.index]) do
-				if chunk[1] == 1 then
-					local cx = chunk[2][1]
-					local cy = chunk[2][2]
-					local pollution = subsurface.get_pollution{cx * 32, cy * 32}
-					if pollution > 0 then
-						local north = subsurface.get_pollution{cx * 32, (cy - 1) * 32}
-						local south = subsurface.get_pollution{cx * 32, (cy + 1) * 32}
-						local east = subsurface.get_pollution{(cx + 1) * 32, cy * 32}
-						local west = subsurface.get_pollution{(cx - 1) * 32, cy * 32}
-						local total = north + south + east + west
-						if total > 0 then
-							subsurface.pollute({cx * 32, (cy - 1) * 32}, pollution * north / total)
-							subsurface.pollute({cx * 32, (cy + 1) * 32}, pollution * south / total)
-							subsurface.pollute({(cx + 1) * 32, cy * 32}, pollution * east / total)
-							subsurface.pollute({(cx - 1) * 32, cy * 32}, pollution * west / total)
-							subsurface.pollute({cx * 32, cy * 32}, -pollution)
-						end
+				if subsurface.get_pollution{chunk[1] * 32, (chunk[2] - 1) * 32} > 0 then process_chunk(subsurface, chunk[1], chunk[2] - 1) end
+				if subsurface.get_pollution{chunk[1] * 32, (chunk[2] + 1) * 32} > 0 then process_chunk(subsurface, chunk[1], chunk[2] + 1) end
+				if subsurface.get_pollution{(chunk[1] - 1) * 32, chunk[2] * 32} > 0 then process_chunk(subsurface, chunk[1] - 1, chunk[2]) end
+				if subsurface.get_pollution{(chunk[1] + 1) * 32, chunk[2] * 32} > 0 then process_chunk(subsurface, chunk[1] + 1, chunk[2]) end
+				pollution_values[subsurface.index].total_exposed = pollution_values[subsurface.index].total_exposed + subsurface.get_pollution{chunk[1] * 32, chunk[2] * 32}
+			end
+		end
+	elseif (event.tick - 2) % 64 == 0 then
+		for _, subsurface in pairs(storage.subsurfaces) do
+			if pollution_values[subsurface.index].total_exposed > 0 then
+				for _, chunk in pairs(pollution_map[subsurface.index]) do
+					subsurface.set_pollution({chunk[2] * 32, chunk[3] * 32}, 0)
+				end
+				for _, chunk in pairs(storage.exposed_chunks[subsurface.index]) do
+					local cur = subsurface.get_pollution{chunk[1] * 32, chunk[2] * 32}
+					subsurface.set_pollution({chunk[1] * 32, chunk[2] * 32}, cur + cur * pollution_values[subsurface.index].total / pollution_values[subsurface.index].total_exposed)
+				end
+				
+				-- machine inefficiency due to pollution
+				if not settings.global["disable-autoplace-manipulation"].value then
+					for _, e in ipairs(subsurface.find_entities_filtered{type = attrition_types}) do
+						if subsurface.get_pollution(e.position) > attrition_threshold and math.random(5) == 1 then e.damage(e.max_health * 0.01, game.forces.neutral, "physical") end
 					end
 				end
 			end
-			
-			-- machine inefficiency due to pollution
-			if not settings.global["disable-autoplace-manipulation"].value then
-				for _, e in ipairs(subsurface.find_entities_filtered{type = attrition_types}) do
-					if subsurface.get_pollution(e.position) > attrition_threshold and math.random(5) == 1 then e.damage(e.max_health * 0.01, game.forces.neutral, "physical") end
-				end
-			end
-			
 		end
 		
 		-- next, move pollution using air vents
