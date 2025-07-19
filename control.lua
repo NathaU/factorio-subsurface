@@ -436,12 +436,7 @@ script.on_event(defines.events.on_tick, function(event)
 					for y, c in pairs(storage.deconstruction_queue[f][si][x]) do
 						local surface = game.get_surface(si)
 						if surface.get_tile(x, y).name == "out-of-map" then
-							if not game.forces[f].find_logistic_network_by_position({x, y}, surface) then
-								c[1].destroy()
-								c[2].destroy()
-								storage.deconstruction_queue[f][si][x][y] = nil
-							elseif surface.find_entity("subsurface-wall", {x, y}) then
-								-- if there is a subsurface wall, we don't destroy it
+							if surface.find_entity("subsurface-wall", {x, y}) then
 								c[1].destroy()
 								c[2].destroy()
 								storage.deconstruction_queue[f][si][x][y] = nil
@@ -622,9 +617,9 @@ script.on_event(defines.events.on_player_deconstructed_area, function(event)
 		event.area.right_bottom.y = math.floor(event.area.right_bottom.y)
 		local force = game.get_player(event.player_index).force
 		for x, y in iarea(event.area) do
-			if event.surface.get_tile(x, y).name == "out-of-map" and force.find_logistic_network_by_position({x, y}, event.surface) then
-				local r1 = rendering.draw_sprite{sprite = "utility/deconstruction_mark", surface = event.surface, target = {x, y}, x_scale = 0.4, y_scale = 0.4, forces = force}
-				local r2 = rendering.draw_sprite{sprite = "utility/clock", surface = event.surface, target = {x + 0.25, y + 0.25}, x_scale = 0.5, y_scale = 0.5, forces = force}
+			if event.surface.get_tile(x, y).name == "out-of-map" then
+				local r1 = rendering.draw_sprite{sprite = "utility/deconstruction_mark", surface = event.surface, target = {x, y}, x_scale = 0.4, y_scale = 0.4, tint = {0.5, 0.5, 0.5}, forces = force}
+				local r2 = rendering.draw_sprite{sprite = "utility/clock", surface = event.surface, target = {x + 0.25, y + 0.25}, x_scale = 0.5, y_scale = 0.5, tint = {0.5, 0.5, 0.5}, forces = force}
 				
 				storage.deconstruction_queue[force.name] = storage.deconstruction_queue[force.name] or {}
 				storage.deconstruction_queue[force.name][event.surface.index] = storage.deconstruction_queue[force.name][event.surface.index] or {}
