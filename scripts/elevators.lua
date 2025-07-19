@@ -118,10 +118,10 @@ function elevator_on_cursor_stack_changed(player)
 	if player.is_cursor_blueprint() then
 		local blueprint = player.cursor_record or player.cursor_stack
 		if player.cursor_record then
-			while blueprint.type == "blueprint-book" do
+			while blueprint and blueprint.type == "blueprint-book" do
 				blueprint = blueprint.contents[blueprint.get_active_index(player)]
 			end
-			if blueprint.is_blueprint_preview then return end
+			if not blueprint or blueprint.is_blueprint_preview then return end
 		else
 			while blueprint.is_blueprint_book do
 				blueprint = blueprint.get_inventory(defines.inventory.item_main)[blueprint.active_index]
