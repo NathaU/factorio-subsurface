@@ -297,6 +297,7 @@ data:extend(
 	graphics_set = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].graphics_set),
 	circuit_connector = ccd,
 	circuit_wire_max_distance = default_circuit_wire_max_distance,
+	uses_force_mining_productivity_bonus = false,
   },
   {
 	-- this dummy is needed to allow placement everywhere, not only over resources
