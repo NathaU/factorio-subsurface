@@ -3,13 +3,8 @@ data:extend(
   {
 	type = "technology",
 	name = "surface-drilling",
-	icons = {
-	  {icon = "__base__/graphics/icons/burner-mining-drill.png"},
-	  {
-		icon = "__Subsurface__/graphics/icons/elevator.png",
-		icon_size = 32,
-	  }
-	},
+	icon = "__Subsurface__/graphics/subsurface-tech.png",
+	icon_size = 256,
 	effects =
 	{
 	  {type = "unlock-recipe", recipe = "surface-drill"},
@@ -32,8 +27,8 @@ data:extend(
   {
 	type = "technology",
 	name = "inter-surface-transport",
-	icon = "__base__/graphics/icons/electric-mining-drill.png",
-	icon_size = 32,
+	icon = "__Subsurface__/graphics/transport-tech.png",
+	icon_size = 256,
 	effects =
 	{
 	  {type = "unlock-recipe", recipe = "fluid-elevator"},
