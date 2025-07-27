@@ -4,7 +4,7 @@ for proto, _ in pairs(prototypes.get_entity_filtered({{filter = "type", type = "
 end
 
 function calculate_resources(surface, pos_arr)
-	local properties = {"subsurface_random"}
+	local properties = {"subsurface_random", "subsurface_richness_multiplier"}
 	for proto, _ in pairs((surface.map_gen_settings.autoplace_settings.entity or {settings = {}}).settings or {}) do
 		if (prototypes.entity[proto] or {}).type == "resource" then
 			table.insert(properties, "entity:" .. proto .. ":richness")
@@ -21,9 +21,9 @@ function calculate_resources(surface, pos_arr)
 		local pos_i = get_position_index_in_chunk(pos)
 		if not stored_results[chunk_id] then stored_results[chunk_id] = surface.calculate_tile_properties(properties, get_chunk_positions(pos)) end
 		for _, proto in ipairs(resources) do
-			if (stored_results[chunk_id]["entity:"..proto..":richness"] or {[pos_i] = 0})[pos_i] > 0
+			if (stored_results[chunk_id]["entity:"..proto..":richness"] or {[pos_i] = 0})[pos_i] * stored_results[chunk_id]["subsurface_richness_multiplier"][pos_i] > 0
 			and (stored_results[chunk_id][proto.."-probability"] or stored_results[chunk_id]["subsurface_random"])[pos_i] <= stored_results[chunk_id]["entity:"..proto..":probability"][pos_i] then
-				if not result[i] then result[i] = {proto, math.ceil(stored_results[chunk_id]["entity:"..proto..":richness"][pos_i])} end
+				if not result[i] then result[i] = {proto, math.ceil(stored_results[chunk_id]["entity:"..proto..":richness"][pos_i] * stored_results[chunk_id]["subsurface_richness_multiplier"][pos_i])} end
 			end
 		end
 	end
@@ -52,9 +52,6 @@ end
 function size_formula(level)
 	return 2 - 2 / (1 + 2 ^ (-0.8 * level))
 end
-function richness_formula(level)
-	return (math.log(level + 1) / math.log(2)) + 0.1
-end
 
 local meta = {
 	__index = function(self, key) return {size = 0, frequency = 0, richness = 0} end,
@@ -75,16 +72,39 @@ function manipulate_resource_data(surface)
 	for control_name, data in pairs(mgs.autoplace_controls) do
 		if prototypes.autoplace_control[control_name].category == "resource" then
 			mgs.autoplace_controls[control_name].size = data.size * size_formula(0)
-			mgs.autoplace_controls[control_name].richness = data.richness * richness_formula(0)
 		end
 	end
 	
-	-- second, adjust all existing resources (only if the mod was added to an existing game)
-	for _, res in ipairs(surface.find_entities_filtered{type = "resource"}) do
-		res.amount = math.ceil(res.amount * richness_formula(0))
-	end
+	-- second, adjust all existing resources
+	manipulate_resource_entities(surface)
 	
 	surface.map_gen_settings = mgs
+end
+function manipulate_resource_entities(surface, area)
+
+	if area then
+		dummy_iter = function()
+			local i = 0
+			return function()
+				i = i + 1
+				if i == 1 then return {area = area} end
+			end
+		end
+	end
+	for chunk in area and dummy_iter() or surface.get_chunks() do
+		local entities_in_area = {}
+		for _, e in ipairs(surface.find_entities_filtered{type = "resource", area = chunk.area}) do
+			entities_in_area[get_position_index_in_chunk(e.position)] = e
+		end
+
+		local calc_result = surface.calculate_tile_properties({"subsurface_richness_multiplier", "surface_stone_probability_multiplier"}, get_chunk_positions(chunk.area.left_top))
+		for pos_i, e in pairs(entities_in_area) do
+			local amount = e.amount
+			amount = math.ceil(amount * (e.name == "stone" and calc_result.surface_stone_probability_multiplier[pos_i] or calc_result.subsurface_richness_multiplier[pos_i]))
+			if amount > 0 then e.amount = amount
+			else e.destroy() end
+		end
+	end
 end
 
 function copy_resource_data(mgs, from_surface, depth)
@@ -95,7 +115,7 @@ function copy_resource_data(mgs, from_surface, depth)
 			mgs.autoplace_controls[control_name] = {
 				frequency = data.frequency,
 				size = data.size * size_formula(depth) / size_formula(0),
-				richness = data.richness * richness_formula(depth) / richness_formula(0)
+				richness = data.richness
 			}
 		end
 	end
@@ -118,8 +138,12 @@ end
 
 -- When top surfaces are created (this is not called for nauvis)
 script.on_event(defines.events.on_surface_created, function(event)
-	if not is_subsurface(event.surface_index) and allow_subsurfaces(game.get_surface(event.surface_index)) then
-		manipulate_resource_data(game.get_surface(event.surface_index))
+	local surface = game.get_surface(event.surface_index)
+	if not is_subsurface(surface) and allow_subsurfaces(surface) then
+		local mgs = surface.map_gen_settings
+		mgs.property_expression_names["subsurface_level"] = get_subsurface_depth(surface)
+		surface.map_gen_settings = mgs
+		manipulate_resource_data(surface)
 	end
 end)
 
