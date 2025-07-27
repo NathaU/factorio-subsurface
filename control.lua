@@ -9,6 +9,8 @@ require "scripts.elevators"
 require "scripts.enemies"
 require "scripts.trains"
 
+migrations = require "migrations-on-update"
+
 max_pollution_move_passive = 64
 
 suffocation_threshold = 400
@@ -73,6 +75,12 @@ script.on_configuration_changed(function(config) -- TBC
 	setup_globals()
 	
 	if config.mod_changes then
+		if config.mod_changes["Subsurface"] and config.mod_changes["Subsurface"].old_version then
+			for v, f in pairs(migrations) do
+				if helpers.compare_versions(v, config.mod_changes["Subsurface"].old_version) == 1 then f() end
+			end
+		end
+		
 		if config.mod_changes["BlackMap-continued"] and not config.mod_changes["BlackMap-continued"].old_version then
 			for _, s in pairs(storage.subsurfaces) do
 				remote.call("blackmap", "register", s)
