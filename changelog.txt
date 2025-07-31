@@ -1,4 +1,17 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.8
+Date: 2025-07-31
+  Changes:
+    - Surface drill is not affected by mining productivity
+    - Better technology icons
+    - Starting patch resources are now 100% rich instead of 10%
+  Bugfixes:
+    - Fixed crash when active index of a blueprint book record was empty
+    - Removed logistic network requirement from deconstruction planner
+    - Fixed that deconstruction queue sprites weren't removed sometimes
+    - Decreased UPS consumption by pollution calculations
+    - Fixed that EverythingOnNauvis caused sealed entrances to appear
+---------------------------------------------------------------------------------------------------
 Version: 1.1.7
 Date: 2025-07-15
   Features:
