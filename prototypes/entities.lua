@@ -15,6 +15,7 @@ for i = 0, 3 do
 	sealed_entrance.name = "tunnel-entrance-sealed-"..i
 	sealed_entrance.flags = {"placeable-neutral", "not-deconstructable", "placeable-off-grid"}
 	sealed_entrance.count_as_rock_for_filtered_deconstruction = false
+	sealed_entrance.autoplace = nil
 	sealed_entrance.minable = nil
 	sealed_entrance.hidden = true
 	sealed_entrance.selection_box = {{0, 0}, {0, 0}}
