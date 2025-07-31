@@ -330,6 +330,7 @@ data:extend(
 	name = "subsurface-hole",
 	icon = "__base__/graphics/icons/stone.png",
 	category = "subsurface-hole",
+	hidden = true,
 	minable = {mining_time = 1, result = "stone", count = 20},
 	stages = {blank_image},
 	stage_counts = {0},
