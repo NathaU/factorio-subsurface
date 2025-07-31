@@ -9,6 +9,8 @@ require "scripts.elevators"
 require "scripts.enemies"
 require "scripts.trains"
 
+migrations = require "migrations-on-update"
+
 max_pollution_move_passive = 64
 
 suffocation_threshold = 400
@@ -59,6 +61,9 @@ end
 script.on_init(function()
 	setup_globals()
 	for _, s in pairs(game.surfaces) do
+		local mgs = s.map_gen_settings
+		mgs.property_expression_names["subsurface_level"] = get_subsurface_depth(s)
+		s.map_gen_settings = mgs
 		if allow_subsurfaces(s) then manipulate_resource_data(s) end
 	end
 	
@@ -74,6 +79,12 @@ script.on_configuration_changed(function(config) -- TBC
 	setup_globals()
 	
 	if config.mod_changes then
+		if config.mod_changes["Subsurface"] and config.mod_changes["Subsurface"].old_version then
+			for v, f in pairs(migrations) do
+				if helpers.compare_versions(v, config.mod_changes["Subsurface"].old_version) == 1 then f() end
+			end
+		end
+		
 		if config.mod_changes["BlackMap-continued"] and not config.mod_changes["BlackMap-continued"].old_version then
 			for _, s in pairs(storage.subsurfaces) do
 				remote.call("blackmap", "register", s)
@@ -87,7 +98,6 @@ script.on_configuration_changed(function(config) -- TBC
 					if not is_subsurface(s) and allow_subsurfaces(s) and s.map_gen_settings.autoplace_controls and s.map_gen_settings.autoplace_controls[control_name] then
 						local mgs = s.map_gen_settings
 						mgs.autoplace_controls[control_name].size = (mgs.autoplace_controls[control_name].size or 0) * size_formula(0)
-						mgs.autoplace_controls[control_name].richness = (mgs.autoplace_controls[control_name].richness or 0) * richness_formula(0)
 						s.map_gen_settings = mgs
 					end
 				end
@@ -735,6 +745,8 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 		for _, p in ipairs(set_hidden_tiles) do -- for performance reasons, first set the tiles and then the hidden tiles
 			event.surface.set_hidden_tile(p[2], p[1])
 		end
+	else
+		manipulate_resource_entities(event.surface, event.area)
 	end
 end)
 

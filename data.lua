@@ -130,6 +130,16 @@ data:extend({
 	name = "subsurface_random",
 	expression = "random_penalty(x, y, 1000000, subsurface_seed, 1000000) / 1000000",
   },
+  {
+	type = "noise-expression",
+	name = "subsurface_richness_multiplier",
+	expression = "if(distance > 130, log2(subsurface_level + 1) + 0.1, subsurface_level == 0)",
+  },
+  {
+	type = "noise-expression",
+	name = "surface_stone_probability_multiplier",
+	expression = "if(distance > 130, 0, 1)",
+  },
 
   {
 	type = "surface-property",
