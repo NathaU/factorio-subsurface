@@ -730,6 +730,11 @@ script.on_event(defines.events.on_resource_depleted, function(event)
 end)
 
 script.on_event(defines.events.on_chunk_generated, function(event)
+	if not event.surface.map_gen_settings.property_expression_names["subsurface_level"] then
+		local mgs = event.surface.map_gen_settings
+		mgs.property_expression_names["subsurface_level"] = get_subsurface_depth(event.surface)
+		event.surface.map_gen_settings = mgs
+	end
 	if is_subsurface(event.surface) then
 		local set_tiles = {}
 		local set_hidden_tiles = {}
@@ -745,7 +750,7 @@ script.on_event(defines.events.on_chunk_generated, function(event)
 		for _, p in ipairs(set_hidden_tiles) do -- for performance reasons, first set the tiles and then the hidden tiles
 			event.surface.set_hidden_tile(p[2], p[1])
 		end
-	else
+	elseif allow_subsurfaces(event.surface) then
 		manipulate_resource_entities(event.surface, event.area)
 	end
 end)
