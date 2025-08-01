@@ -618,9 +618,9 @@ script.on_event({defines.events.on_player_mined_entity, defines.events.on_robot_
 	end
 end)
 
-script.on_event(defines.events.on_player_configured_blueprint, function(event)
-	local item = game.get_player(event.player_index).cursor_stack
-	if item.valid_for_read then
+script.on_event(defines.events.on_player_setup_blueprint, function(event)
+	local item = event.record or event.stack
+	if item.object_name == "LuaItemStack" and item.valid_for_read or item.valid_for_write then
 		local contents = item.get_blueprint_entities()
 		for _, e in ipairs(contents or {}) do
 			if e.name == "surface-drill" then e.name = "surface-drill-placer"
