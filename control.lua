@@ -44,6 +44,8 @@ function setup_globals()
 	storage.train_stop_clones = storage.train_stop_clones or {}
 	storage.deconstruction_queue = storage.deconstruction_queue or {}
 	storage.exposed_chunks = storage.exposed_chunks or {}
+	storage.pollution_map = storage.pollution_map or {}
+	storage.pollution_values = storage.pollution_values or {}
 end
 
 function register_subsurface_walls()
@@ -345,12 +347,10 @@ function clear_subsurface(surface, pos, radius, clearing_radius, return_inventor
 	else inventory.destroy() end
 end
 
-local pollution_map = {}
-local pollution_values = {}
 function process_chunk_pollution(s, cx, cy)
-	if not pollution_map[s.index][spiral({cx, cy})] and not storage.exposed_chunks[s.index][spiral({cx, cy})] then
-		pollution_map[s.index][spiral({cx, cy})] = {s.get_pollution{cx * 32, cy * 32}, cx, cy}
-		pollution_values[s.index].total = pollution_values[s.index].total + pollution_map[s.index][spiral({cx, cy})][1]
+	if not storage.pollution_map[s.index][spiral({cx, cy})] and not storage.exposed_chunks[s.index][spiral({cx, cy})] then
+		storage.pollution_map[s.index][spiral({cx, cy})] = {s.get_pollution{cx * 32, cy * 32}, cx, cy}
+		storage.pollution_values[s.index].total = storage.pollution_values[s.index].total + storage.pollution_map[s.index][spiral({cx, cy})][1]
 		if s.get_pollution{cx * 32, (cy - 1) * 32} > 0 then process_chunk_pollution(s, cx, cy - 1) end
 		if s.get_pollution{cx * 32, (cy + 1) * 32} > 0 then process_chunk_pollution(s, cx, cy + 1) end
 		if s.get_pollution{(cx - 1) * 32, cy * 32} > 0 then process_chunk_pollution(s, cx - 1, cy) end
@@ -376,25 +376,25 @@ script.on_event(defines.events.on_tick, function(event)
 	-- POLLUTION (since there is no mechanic to just reflect pollution (no absorption but also no spread) we have to do it for our own. The game's mechanic can't be changed so we need to consider it)
 	if (event.tick - 1) % 64 == 0 then
 		for _, subsurface in pairs(storage.subsurfaces) do
-			pollution_values[subsurface.index] = {total = 0, total_exposed = 0}
-			pollution_map[subsurface.index] = {}
+			storage.pollution_values[subsurface.index] = {total = 0, total_exposed = 0}
+			storage.pollution_map[subsurface.index] = {}
 			for _, chunk in pairs(storage.exposed_chunks[subsurface.index]) do
 				if subsurface.get_pollution{chunk[1] * 32, (chunk[2] - 1) * 32} > 0 then process_chunk_pollution(subsurface, chunk[1], chunk[2] - 1) end
 				if subsurface.get_pollution{chunk[1] * 32, (chunk[2] + 1) * 32} > 0 then process_chunk_pollution(subsurface, chunk[1], chunk[2] + 1) end
 				if subsurface.get_pollution{(chunk[1] - 1) * 32, chunk[2] * 32} > 0 then process_chunk_pollution(subsurface, chunk[1] - 1, chunk[2]) end
 				if subsurface.get_pollution{(chunk[1] + 1) * 32, chunk[2] * 32} > 0 then process_chunk_pollution(subsurface, chunk[1] + 1, chunk[2]) end
-				pollution_values[subsurface.index].total_exposed = pollution_values[subsurface.index].total_exposed + subsurface.get_pollution{chunk[1] * 32, chunk[2] * 32}
+				storage.pollution_values[subsurface.index].total_exposed = storage.pollution_values[subsurface.index].total_exposed + subsurface.get_pollution{chunk[1] * 32, chunk[2] * 32}
 			end
 		end
 	elseif (event.tick - 2) % 64 == 0 then
 		for _, subsurface in pairs(storage.subsurfaces) do
-			if pollution_values[subsurface.index].total_exposed > 0 then
-				for _, chunk in pairs(pollution_map[subsurface.index]) do
+			if storage.pollution_values[subsurface.index].total_exposed > 0 then
+				for _, chunk in pairs(storage.pollution_map[subsurface.index]) do
 					subsurface.set_pollution({chunk[2] * 32, chunk[3] * 32}, 0)
 				end
 				for _, chunk in pairs(storage.exposed_chunks[subsurface.index]) do
 					local cur = subsurface.get_pollution{chunk[1] * 32, chunk[2] * 32}
-					subsurface.set_pollution({chunk[1] * 32, chunk[2] * 32}, cur + cur * pollution_values[subsurface.index].total / pollution_values[subsurface.index].total_exposed)
+					subsurface.set_pollution({chunk[1] * 32, chunk[2] * 32}, cur + cur * storage.pollution_values[subsurface.index].total / storage.pollution_values[subsurface.index].total_exposed)
 				end
 				
 				-- machine inefficiency due to pollution
