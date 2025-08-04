@@ -655,10 +655,14 @@ script.on_event(defines.events.on_player_deconstructed_area, function(event)
 				storage.deconstruction_queue[force.name][event.surface.index] = storage.deconstruction_queue[force.name][event.surface.index] or {}
 				storage.deconstruction_queue[force.name][event.surface.index][x] = storage.deconstruction_queue[force.name][event.surface.index][x] or {}
 				
-				if not storage.deconstruction_queue[force.name][event.surface.index][x][y] then
+				if not event.alt and not storage.deconstruction_queue[force.name][event.surface.index][x][y] then
 					local r1 = rendering.draw_sprite{sprite = "utility/deconstruction_mark", surface = event.surface, target = {x, y}, x_scale = 0.4, y_scale = 0.4, tint = {0.5, 0.5, 0.5}, forces = force}
 					local r2 = rendering.draw_sprite{sprite = "utility/clock", surface = event.surface, target = {x + 0.25, y + 0.25}, x_scale = 0.5, y_scale = 0.5, tint = {0.5, 0.5, 0.5}, forces = force}
 					storage.deconstruction_queue[force.name][event.surface.index][x][y] = {r1, r2}
+				elseif event.alt and storage.deconstruction_queue[force.name][event.surface.index][x][y] then
+					storage.deconstruction_queue[force.name][event.surface.index][x][y][1].destroy()
+					storage.deconstruction_queue[force.name][event.surface.index][x][y][2].destroy()
+					storage.deconstruction_queue[force.name][event.surface.index][x][y] = nil
 				end
 			end
 		end
