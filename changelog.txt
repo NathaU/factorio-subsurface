@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.9
+Date: 2025-08-07
+  Changes:
+    - Cancel void deconstruction queue
+  Bugfixes:
+    - Fixed crash with unknown variable subsurface_level
+    - Fixed crash when configuring blueprint while holding item
+    - Fixed crash when opening map that was saved between pollution calculations
+    - Item elevators are now compatible with Double Speed Belts
+---------------------------------------------------------------------------------------------------
 Version: 1.1.8
 Date: 2025-07-31
   Changes:
