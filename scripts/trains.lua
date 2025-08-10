@@ -85,6 +85,13 @@ function handle_subways()
 			if carriage_arriving_at_station and carriage_arriving_at_station.train.state == defines.train_state.arrive_station and carriage_arriving_at_station.train.path_end_stop == v.stop then
 				-- capture trains in auto mode early to prevent decelerating
 				storage.train_transport[u] = {leaving_train = carriage_arriving_at_station.train, leaving_speed = carriage_arriving_at_station.train.speed, manual = false}
+				local current_record = carriage_arriving_at_station.train.schedule.current
+				if carriage_arriving_at_station.train.schedule.records[current_record].temporary then
+					carriage_arriving_at_station.train.get_schedule().remove_record({schedule_index = current_record})
+				else
+					carriage_arriving_at_station.train.go_to_station(current_record + 1)
+				end
+				storage.train_transport[u].next_station = carriage_arriving_at_station.train.schedule.current
 			end
 			
 			local carriage = v.stop.surface.find_entities_filtered{type = rolling_stock_types, position = offset_position(v.stop, {-2, 1})}[1]
@@ -127,19 +134,17 @@ function handle_subways()
 								if rec.rail then carriage.train.get_schedule().remove_record({schedule_index = i}) end
 							end
 						end
-						if carriage.train.schedule and #carriage.train.schedule.records > 0 then
-							e.train.schedule = carriage.train.schedule
-							local next = e.train.schedule.current + 1
-							if next > #e.train.schedule.records then next = 1 end
-							data.next_station = next
-						end
+						if carriage.train.schedule then e.train.schedule = carriage.train.schedule end
 
 						local front_out = v.connection.orientation == to_orientation(math2d.position.subtract(e.train.back_end.rail.position, e.train.front_end.rail.position)) -- example: exit points to south (0.5), position of back rail - front rail is also 0.5 if the train front is heading
 						data.arriving_speed = (front_out and 1 or -1) * math.abs(data.leaving_speed)
 					end
 					data.arriving_train = e.train
-					
+
+					local schedule = data.arriving_train.schedule
 					e.copy_settings(carriage)
+					data.arriving_train.schedule = schedule
+					data.arriving_train.get_schedule().set_interrupts(carriage.train.get_schedule().get_interrupts())
 					
 					local driver = carriage.get_driver()
 					if driver and (not driver.is_player() or (driver.is_player() and driver.controller_type == defines.controllers.character)) then
@@ -220,9 +225,7 @@ function handle_subways()
 							data.leaving_speed = -data.leaving_speed
 						end
 					else
-						if not data.manual and data.next_station then
-							data.arriving_train.go_to_station(data.next_station)
-						end
+						if not data.manual and data.next_station then data.arriving_train.go_to_station(data.next_station) end
 						data.arriving_train.manual_mode = data.manual
 						data.arriving_train.speed = data.arriving_speed
 						storage.train_transport[u] = nil
