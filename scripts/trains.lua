@@ -82,23 +82,29 @@ function handle_subways()
 	for u, v in pairs(storage.train_subways) do
 		if v.connection then
 			local carriage_arriving_at_station = v.stop.surface.find_entities_filtered{type = rolling_stock_types, position = v.rails[5].position}[1]
-			if carriage_arriving_at_station and carriage_arriving_at_station.train.state == defines.train_state.arrive_station and carriage_arriving_at_station.train.path_end_stop == v.stop then
+			if carriage_arriving_at_station and carriage_arriving_at_station.train.path_end_stop == v.stop then
 				-- capture trains in auto mode early to prevent decelerating
 				storage.train_transport[u] = {leaving_train = carriage_arriving_at_station.train, leaving_speed = carriage_arriving_at_station.train.speed, manual = false}
 				local current_record = carriage_arriving_at_station.train.schedule.current
+				local subway_stop_name = carriage_arriving_at_station.train.schedule.records[current_record].station
 				if carriage_arriving_at_station.train.schedule.records[current_record].temporary then
 					carriage_arriving_at_station.train.get_schedule().remove_record({schedule_index = current_record})
 				else
-					carriage_arriving_at_station.train.go_to_station(current_record + 1)
+					if current_record == #carriage_arriving_at_station.train.schedule.records then current_record = 0 end
+					current_record = current_record + 1
 				end
-				storage.train_transport[u].next_station = carriage_arriving_at_station.train.schedule.current
+				while carriage_arriving_at_station.train.schedule.records[current_record].station == subway_stop_name do
+					carriage_arriving_at_station.train.get_schedule().remove_record({schedule_index = current_record})
+					if current_record > #carriage_arriving_at_station.train.schedule.records then current_record = 1 end
+				end
+				storage.train_transport[u].next_station = current_record
 			end
 			
 			local carriage = v.stop.surface.find_entities_filtered{type = rolling_stock_types, position = offset_position(v.stop, {-2, 1})}[1]
 			
 			if carriage then
 				-- teleport position is the position where the carriage touches the rail end
-				local teleport_pos = offset_position(storage.train_subways[v.connection.unit_number].stop, {-2, math.max(math.abs(carriage.prototype.collision_box.left_top.y), math.abs(carriage.prototype.collision_box.right_bottom.y)) - 1})
+				local teleport_pos = offset_position(storage.train_subways[v.connection.unit_number].stop, {-2, math.max(3, math.max(math.abs(carriage.prototype.collision_box.left_top.y), math.abs(carriage.prototype.collision_box.right_bottom.y)) - 1)})
 				
 				if ((carriage.train.speed > 0 and (carriage.train.front_end.rail == v.rails[1] or carriage.train.front_end.rail == v.rails[2])) or (carriage.train.speed < 0 and (carriage.train.back_end.rail == v.rails[1] or carriage.train.back_end.rail == v.rails[2]))) and v.connection.surface.can_place_entity{name = carriage.name, position = teleport_pos, direction = carriage.direction, force = carriage.force} then
 					-- teleport if there is rolling stock moving towards the entrance and the exit is free
