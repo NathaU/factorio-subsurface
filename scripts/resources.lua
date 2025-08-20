@@ -81,6 +81,7 @@ function manipulate_resource_data(surface)
 	surface.map_gen_settings = mgs
 end
 function manipulate_resource_entities(surface, area)
+	if settings.global["disable-autoplace-manipulation"].value then return end
 
 	if area then
 		dummy_iter = function()
