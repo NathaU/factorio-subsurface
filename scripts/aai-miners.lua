@@ -17,7 +17,7 @@ script.on_event(defines.events.on_player_selected_area, function(event)
 		
 		for _, frame in pairs(player.gui.left.remote_selected_units.remote_selected_units_frame.remote_selected_units_scroll.children) do
 			local unit_id = tonumber(frame.name)
-			if ai_miner_names[all_units[unit_id].unit_type] then
+			if ai_miner_names[all_units[unit_id].unit_type] and not frame.unit_digging then
 				local digging_button = frame.add{
                     type = "sprite-button", style = "aai_vehicles_unit-button-fixed",
                     name = "unit_digging",
