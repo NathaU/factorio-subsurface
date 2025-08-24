@@ -898,6 +898,11 @@ script.on_event(defines.events.on_gui_click, function(event)
 	end
 end)
 
+script.on_event(defines.events.on_player_driving_changed_state, function(event)
+	cutscene_on_player_driving_changed_state(event)
+	aai_on_player_driving_changed_state(event)
+end)
+
 function on_remote_view_started(player)
 	if remote.call("space-exploration", "remote_view_is_active", {player = player}) then
 		local character = remote.call("space-exploration", "get_player_character", {player = player})
