@@ -1,10 +1,10 @@
-script.on_event(defines.events.on_player_driving_changed_state, function(event)
+function cutscene_on_player_driving_changed_state(event)
 	if event.entity and storage.car_links[event.entity.unit_number] then
 		local player = game.get_player(event.player_index)
 		local waypoints = {{position = event.entity.position, transition_time = 30, time_to_wait = 0}}
 		player.set_controller{type = defines.controllers.cutscene, waypoints = waypoints}
 	end
-end)
+end
 
 script.on_event(defines.events.on_cutscene_finished, function(event)
 	local player = game.get_player(event.player_index)

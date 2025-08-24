@@ -11,8 +11,11 @@ non_ai_miner_names = {"vehicle-miner", "vehicle-miner-mk2", "vehicle-miner-mk3",
 non_ai_miner_names_k = {["vehicle-miner"] = 1, ["vehicle-miner-mk2"] = 1, ["vehicle-miner-mk3"] = 1, ["vehicle-miner-mk4"] = 1, ["vehicle-miner-mk5"] = 1}
 
 script.on_event(defines.events.on_player_selected_area, function(event)
+	if event.item == "unit-remote-control" then aai_on_player_driving_changed_state(event) end
+end)
+function aai_on_player_driving_changed_state(event)
 	local player = game.get_player(event.player_index)
-	if is_subsurface(event.surface) and player.gui.left.remote_selected_units then -- unit remote was used, it now shows selected units
+	if is_subsurface(event.surface or player.surface) and player.gui.left.remote_selected_units then -- unit remote was used, it now shows selected units
 		local all_units = remote.call("aai-programmable-vehicles", "get_units")
 		
 		for _, frame in pairs(player.gui.left.remote_selected_units.remote_selected_units_frame.remote_selected_units_scroll.children) do
@@ -29,7 +32,8 @@ script.on_event(defines.events.on_player_selected_area, function(event)
 			end
 		end
 	end
-end)
+end
+
 function aai_on_gui_click(event)
 	if event.element.toggled then
 		storage.aai_digging_miners[tonumber(event.element.parent.name)] = {}
