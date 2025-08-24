@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.10
+Date: 2025-08-24
+  Bugfixes:
+    - Trains now keep their schedule and interrupts correctly when passing subways
+    - Fixed that resource generation was manipulated even with disabled challenges
+    - Fixed that some mods (Creative Mod, Quantum Fabricator) instantly revive ghosts, resulting in the surface drill being a crafting machine
+    - Fixed that the digging button is already present in the AI vehicle selection GUI when using path remote
+---------------------------------------------------------------------------------------------------
 Version: 1.1.9
 Date: 2025-08-07
   Changes:
