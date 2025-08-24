@@ -498,6 +498,28 @@ function allow_subsurfaces(surface)
 	return true
 end
 
+function replace_surface_drill_dummy(entity)
+	local res_name = "subsurface-hole"
+	local res_amount = 100 * (2 ^ (get_subsurface_depth(entity.surface) - 1))
+	local res_prio = 0
+
+	for interface, functions in pairs(remote.interfaces) do
+		if functions["subsurface_hole_resource"] then
+			local prio, name, amount = remote.call(interface, "subsurface_hole_resource", entity.surface, get_subsurface_depth(entity.surface), entity.position)
+			if prio > res_prio then
+				res_name = name
+				res_amount = amount
+				res_prio = prio
+			end
+		end
+	end
+
+	entity.surface.create_entity{name = res_name, position = entity.position, amount = res_amount}
+	local real_drill = entity.surface.create_entity{name = "surface-drill", position = entity.position, direction = entity.direction, force = entity.force, player = entity.last_user, quality = entity.quality}
+	entity.destroy()
+	get_subsurface(real_drill.surface).request_to_generate_chunks(real_drill.position, 3)
+end
+
 function cancel_placement(event, text)
 	local entity = event.entity
 	if event.player_index then
@@ -553,27 +575,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 			text = "subsurface.not-allowed-here"
 		end
 		
-		if text == "" then
-
-			local res_name = "subsurface-hole"
-			local res_amount = 100 * (2 ^ (get_subsurface_depth(entity.surface) - 1))
-			local res_prio = 0
-
-			for interface, functions in pairs(remote.interfaces) do
-				if functions["subsurface_hole_resource"] then
-					local prio, name, amount = remote.call(interface, "subsurface_hole_resource", entity.surface, get_subsurface_depth(entity.surface), entity.position)
-					if prio > res_prio then
-						res_name = name
-						res_amount = amount
-						res_prio = prio
-					end
-				end
-			end
-
-			entity.surface.create_entity{name = res_name, position = entity.position, amount = res_amount}
-			local real_drill = entity.surface.create_entity{name = "surface-drill", position = entity.position, direction = entity.direction, force = entity.force, player = entity.last_user, quality = entity.quality}
-			entity.destroy()
-			get_subsurface(real_drill.surface).request_to_generate_chunks(real_drill.position, 3)
+		if text == "" then replace_surface_drill_dummy(entity)
 		else cancel_placement(event, text)
 		end
 	elseif entity.name == "prospector" then table.insert(storage.prospectors, entity)
@@ -607,6 +609,10 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		end
 	end
 end)
+
+script.on_event(defines.events.script_raised_revive, function(event)
+	replace_surface_drill_dummy(event.entity)
+end, {{filter = "name", name = "surface-drill-placer"}})
 
 script.on_event({defines.events.on_player_mined_entity, defines.events.on_robot_mined_entity}, function(event)
 	if event.entity.name == "surface-drill" then
