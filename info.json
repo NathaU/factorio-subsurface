@@ -5,6 +5,6 @@
   "author": "Natha",
   "homepage": "https://mods.factorio.com/mod/Subsurface",
   "factorio_version": "2.0",
-  "dependencies": ["base >= 2.0.33", "? alien-biomes", "? aai-vehicles-miner", "? aai-programmable-vehicles", "? space-exploration", "? BlackMap-continued"],
+  "dependencies": ["base >= 2.0.33", "? alien-biomes", "? aai-vehicles-miner", "? aai-programmable-vehicles", "? BlackMap-continued"],
   "description": "While everyone is looking up to space, other planets and the rest of the universe, there is a whole world buried directly underneath us..."
 }
