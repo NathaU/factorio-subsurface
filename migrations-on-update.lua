@@ -14,4 +14,7 @@ return {
 			s.map_gen_settings = mgs
 		end
 	end,
+	["1.1.11"] = function()
+		game.print("Subsurface 1.1.11 split the setting 'Disable challenges' into 'Enable resource generation' and 'Enable challenges'. If you had resources and challenges disabled in the previous version, please check your settings!", {sound = defines.print_sound.always, color = {1, 1, 0}})
+	end
 }
