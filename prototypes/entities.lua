@@ -304,6 +304,7 @@ data:extend(
 	-- this dummy is needed to allow placement everywhere, not only over resources
 	type = "assembling-machine",
 	name = "surface-drill-placer",
+	localised_name = {"entity-name.surface-drill"},
 	icons = {
 	  {
 		icon = "__base__/graphics/icons/burner-mining-drill.png"
