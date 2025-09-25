@@ -70,12 +70,6 @@ script.on_init(function()
 	end
 	
 	register_subsurface_walls()
-	
-	if remote.interfaces["space-exploration"] then
-		script.on_event("se-remote-view", function(event)
-			on_remote_view_started(game.get_player(event.player_index))
-		end)
-	end
 end)
 script.on_configuration_changed(function(config) -- TBC
 	setup_globals()
@@ -144,12 +138,6 @@ end)
 
 script.on_load(function()
 	register_subsurface_walls()
-	
-	if remote.interfaces["space-exploration"] then
-		script.on_event("se-remote-view", function(event)
-			on_remote_view_started(game.get_player(event.player_index))
-		end)
-	end
 end)
 
 function get_subsurface(surface, create)
@@ -885,15 +873,8 @@ script.on_event("subsurface-rotate", function(event)
 	end
 end)
 
-script.on_event(defines.events.on_lua_shortcut, function(event)
-	if event.prototype_name == "se-remote-view" then
-		on_remote_view_started(game.get_player(event.player_index))
-	end
-end)
 script.on_event(defines.events.on_gui_click, function(event)
-	if event.element.name == "se-overhead_satellite" then
-		on_remote_view_started(game.get_player(event.player_index))
-	elseif event.element.name == "unit_digging" then
+	if event.element.name == "unit_digging" then
 		aai_on_gui_click(event)
 	end
 end)
@@ -903,11 +884,12 @@ script.on_event(defines.events.on_player_driving_changed_state, function(event)
 	aai_on_player_driving_changed_state(event)
 end)
 
-function on_remote_view_started(player)
-	if remote.call("space-exploration", "remote_view_is_active", {player = player}) then
+script.on_event(defines.events.on_player_controller_changed, function(event)
+	local player = game.get_player(event.player_index)
+	if remote.interfaces["space-exploration"] and remote.call("space-exploration", "remote_view_is_active", {player = player}) then
 		local character = remote.call("space-exploration", "get_player_character", {player = player})
 		if is_subsurface(character.surface) then
-			remote.call("space-exploration", "remote_view_start", {player = player, zone_name = get_top_surface(character.surface).name, position = character.position})
+			remote.call("space-exploration", "remote_view_start", {player = player, zone_name = get_top_surface(character.surface).name})
 		end
 	end
-end
+end)
