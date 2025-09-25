@@ -386,7 +386,7 @@ script.on_event(defines.events.on_tick, function(event)
 				end
 				
 				-- machine inefficiency due to pollution
-				if not settings.global["disable-autoplace-manipulation"].value then
+				if settings.global["enable-challenges"].value then
 					for _, e in ipairs(subsurface.find_entities_filtered{type = attrition_types}) do
 						if subsurface.get_pollution(e.position) > attrition_threshold and math.random(5) == 1 then e.damage(e.max_health * 0.01, game.forces.neutral, "physical") end
 					end
@@ -434,7 +434,7 @@ script.on_event(defines.events.on_tick, function(event)
 		end
 		
 		-- player suffocation damage
-		if not settings.global["disable-autoplace-manipulation"].value then
+		if settings.global["enable-challenges"].value then
 			for _, p in pairs(game.players) do
 				if p.character and is_subsurface(p.surface) and p.surface.get_pollution(p.position) > suffocation_threshold then
 					p.character.damage(suffocation_damage, game.forces.neutral, "poison")
@@ -448,7 +448,7 @@ script.on_event(defines.events.on_tick, function(event)
 	-- handle miners
 	if aai_miners and event.tick % 10 == 0 then handle_miners(event.tick) end
 	
-	if event.tick % 20 == 0 and not settings.global["disable-autoplace-manipulation"].value and game.map_settings.enemy_expansion.enabled then handle_enemies(event.tick) end
+	if event.tick % 20 == 0 and settings.global["enable-challenges"].value and game.map_settings.enemy_expansion.enabled then handle_enemies(event.tick) end
 	
 	if event.tick % 60 == 0 then
 		for f, _ in pairs(storage.deconstruction_queue) do

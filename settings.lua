@@ -18,18 +18,28 @@ data:extend({
 	setting_type = "runtime-global",
 	name = "subsurface-limit",
 	default_value = 20,
-	minimum_value = 1
+	minimum_value = 1,
+	order = "d"
   },
   {
 	type = "bool-setting",
 	setting_type = "runtime-global",
-	name = "disable-autoplace-manipulation",
-	default_value = false
+	name = "generate-resources-underground",
+	default_value = true,
+	order = "a"
+  },
+  {
+	type = "bool-setting",
+	setting_type = "runtime-global",
+	name = "enable-challenges",
+	default_value = true,
+	order = "b"
   },
   {
 	type = "bool-setting",
 	setting_type = "runtime-global",
 	name = "enable-quality",
-	default_value = true
+	default_value = true,
+	order = "c"
   },
 })
