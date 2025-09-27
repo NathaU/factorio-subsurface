@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.11
+Date: 2025-09-27
+  Changes:
+    - Split the setting "Disable challenges" into "Generate resources underground" and "Enable challenges". Warning: Maps with previously disabled resources and challenges have them enabled now!
+  Bugfixes:
+    - Works with Space Exploration 0.7
+---------------------------------------------------------------------------------------------------
 Version: 1.1.10
 Date: 2025-08-24
   Bugfixes:
