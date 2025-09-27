@@ -4,7 +4,9 @@ function subway_built(entity)
 	storage.train_subways[entity.unit_number] = {rails = {}}
 	
 	for i = 4, -4, -2 do
-		local rail = entity.surface.create_entity{name = "subway-rail", position = util.moveposition({entity.position.x, entity.position.y}, entity.direction, i), direction = entity.direction, force = entity.force, player = entity.last_user}
+		local rail_pos = util.moveposition({entity.position.x, entity.position.y}, entity.direction, i)
+		local rail = entity.surface.create_entity{name = "subway-rail", position = rail_pos, direction = entity.direction, force = entity.force, player = entity.last_user}
+		if not rail then rail = entity.surface.find_entities_filtered{position = rail_pos, name = "subway-rail", direction = entity.direction, force = entity.force, limit = 1}[1] end
 		rail.minable_flag = false
 		rail.destructible = false
 		table.insert(storage.train_subways[entity.unit_number].rails, rail)
@@ -116,7 +118,7 @@ function handle_subways()
 							if t.arriving_train == carriage.train then manual = t.manual end
 						end
 						local sign = carriage.train.speed < 0 and -1 or 1
-						data = {leaving_train = carriage.train, leaving_speed = math.min(math.max(0.1, math.abs(carriage.train.speed)), 6) * sign, manual = manual}
+						data = {leaving_train = carriage.train, leaving_speed = math.min(math.max(0.1, math.abs(carriage.train.speed)), 6) * sign, manual = manual, stop1 = v.stop, stop2 = storage.train_subways[v.connection.unit_number].stop}
 						storage.train_transport[u] = data
 					end
 					
@@ -241,14 +243,20 @@ function handle_subways()
 		end
 	end
 
-	for _, t in pairs(storage.train_transport) do
-		if t.leaving_train.valid then
-			t.leaving_train.speed = t.leaving_speed
+	for u, t in pairs(storage.train_transport) do
+		if t.stop1.valid and t.stop2.valid then
+			if t.leaving_train.valid then
+				t.leaving_train.speed = t.leaving_speed
+				t.leaving_train.manual_mode = true
+			end
+			if t.arriving_train and t.arriving_train.valid then
+				t.arriving_train.speed = t.arriving_speed
+				t.arriving_train.manual_mode = true
+			end
+		else
+			if t.arriving_train and t.arriving_train.valid then t.arriving_train.manual_mode = true end
 			t.leaving_train.manual_mode = true
-		end
-		if t.arriving_train and t.arriving_train.valid then
-			t.arriving_train.speed = t.arriving_speed
-			t.arriving_train.manual_mode = true
+			storage.train_transport[u] = nil
 		end
 	end
 end
