@@ -77,7 +77,7 @@ script.on_configuration_changed(function(config) -- TBC
 	if config.mod_changes then
 		if config.mod_changes["Subsurface"] and config.mod_changes["Subsurface"].old_version then
 			for v, f in pairs(migrations) do
-				if helpers.compare_versions(v, config.mod_changes["Subsurface"].old_version) == 1 then f() end
+				if helpers.compare_versions(v, config.mod_changes["Subsurface"].old_version) == 1 then f(config) end
 			end
 		end
 		
