@@ -761,6 +761,9 @@ script.on_event(defines.events.on_pre_surface_deleted, function(event)
 		storage.subsurfaces[i] = nil -- remove from list
 		i = s.index
 		game.delete_surface(s) -- delete s
+		for f, _ in pairs(storage.deconstruction_queue) do
+			if storage.deconstruction_queue[f][i] then storage.deconstruction_queue[f][i] = nil end
+		end
 	end
 	if is_subsurface(game.get_surface(event.surface_index)) then -- remove this surface from list
 		for s, ss in pairs(storage.subsurfaces) do
