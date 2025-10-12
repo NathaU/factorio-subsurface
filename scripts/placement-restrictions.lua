@@ -6,7 +6,7 @@ data.subsurface_entity_restrictions["railgun-turret"] = "ammo-turret"
 
 -- index by type, give name of entities that are ignored
 type_restrictions = {
-	["electric-pole"] = {"wooden-support", "steel-support"},
+	["electric-pole"] = {"wooden-support", "steel-support", "tunnel-entrance-cable", "tunnel-exit-cable"},
 	["rocket-silo"] = {},
 	["cargo-landing-pad"] = {},
 	["rail-ramp"] = {},
@@ -25,3 +25,10 @@ for type, name_arr in pairs(type_restrictions) do
 		if not ignore then data.subsurface_entity_restrictions[name] = type end
 	end
 end
+
+-- now make the mod-data structure
+data:extend{{
+	type = "mod-data",
+	name = "subsurface-placement-restrictions",
+	data = data.subsurface_entity_restrictions
+}}

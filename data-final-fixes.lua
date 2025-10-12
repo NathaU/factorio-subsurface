@@ -121,16 +121,12 @@ if feature_flags["space_travel"] then
 		end
 	end
 else
-	local crawl_entities = function(item_data)
-		for entity_name, _ in pairs(data.subsurface_entity_restrictions) do
-			if item_data.place_result == entity_name then
-				data.raw[item_data.type][item_data.name].localised_description = {"", {"item-description.placement-restriction"}, {"?", {"", "\n", item_data.localised_description or {"nil"}}, ""}}
-			end
+	for entity_name, type in pairs(data.subsurface_entity_restrictions) do
+		if data.raw[type][entity_name] then
+			data.raw[type][entity_name].custom_tooltip_fields = data.raw[type][entity_name].custom_tooltip_fields or {}
+			table.insert(data.raw[type][entity_name].custom_tooltip_fields, {name = "", value = {"item-description.placement-restriction"}, order = 0})
 		end
 	end
-	-- set localised_description on items that place this entity
-	for _, item_data in pairs(data.raw.item) do crawl_entities(item_data) end
-	for _, item_data in pairs(data.raw["item-with-entity-data"]) do crawl_entities(item_data) end
 end
 
 -----------------------
