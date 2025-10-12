@@ -676,7 +676,7 @@ end)
 
 script.on_event(defines.events.on_resource_depleted, function(event)
 	if event.entity.prototype.resource_category == "subsurface-hole" then
-		local drill = event.entity.surface.find_entity("surface-drill", event.entity.position)
+		local drill = event.entity.surface.find_entities_filtered{name = "surface-drill", position = event.entity.position}[1]
 		if drill then
 			local pos = drill.position
 			
