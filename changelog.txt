@@ -1,4 +1,14 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.12
+Date: 2025-10-12
+  Changes:
+    - Retains ore generation and challenge setting states when updating from 1.1.10
+  Bugfixes:
+    - Fixed crash when trying to build subways over existing subway-rail entities
+    - Fixed that removing a subway with a passing train causes the train to move forever
+    - Fixed that drills of higher quality did not create tunnel entrances
+    - Fixed crash when surfaces were deleted that had a deconstruction queue
+---------------------------------------------------------------------------------------------------
 Version: 1.1.11
 Date: 2025-09-27
   Changes:
