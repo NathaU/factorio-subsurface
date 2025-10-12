@@ -586,14 +586,9 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		cancel_placement(event, "cant-build-reason.cant-build-here")
 	elseif entity.type == "train-stop" then
 		create_fake_stops(entity)
-	elseif is_subsurface(entity.surface) then -- check for placement restrictions, cancel placement if one of the consumed items has the hint in the description
-		if not script.feature_flags["space_travel"] then
-			for _, item in ipairs(event.consumed_items and event.consumed_items.get_contents() or {event.stack}) do
-				if string.find(serpent.line(prototypes.item[item.name].localised_description), "placement%-restriction") then
-					cancel_placement(event)
-					break
-				end
-			end
+	elseif is_subsurface(entity.surface) then -- check for placement restrictions
+		if not script.feature_flags["space_travel"] and prototypes.mod_data["subsurface-placement-restrictions"].data[entity.name] then
+			cancel_placement(event)
 		end
 	end
 end)
