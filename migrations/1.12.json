@@ -1,0 +1,5 @@
+{
+	"mod-setting": [
+		["disable-autoplace-manipulation", "generate-resources-underground"]
+	]
+}

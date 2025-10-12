@@ -16,5 +16,11 @@ return {
 	end,
 	["1.1.11"] = function()
 		game.print("Subsurface 1.1.11 split the setting 'Disable challenges' into 'Enable resource generation' and 'Enable challenges'. If you had resources and challenges disabled in the previous version, please check your settings!", {sound = defines.print_sound.always, color = {1, 1, 0}})
+	end,
+	["1.1.12"] = function(config)
+		if config.mod_changes["Subsurface"].old_version ~= "1.1.11" then
+			settings.global["enable-challenges"] = {value = not settings.global["generate-resources-underground"].value}
+			settings.global["generate-resources-underground"] = {value = not settings.global["generate-resources-underground"].value}
+		end
 	end
 }
