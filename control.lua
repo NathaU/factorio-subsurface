@@ -198,7 +198,7 @@ function get_subsurface(surface, create)
 			subsurface.daytime = 0.5
 			subsurface.freeze_daytime = true
 			subsurface.show_clouds = false
-			subsurface.localised_name = {"subsurface.subsurface-name", top_surface.localised_name or topname, depth}
+			subsurface.localised_name = {"subsurface.subsurface-name", top_surface.localised_name or (top_surface.planet and top_surface.planet.prototype.localised_name) or topname, depth}
 
 			for sp, _ in pairs(prototypes.surface_property) do
 				subsurface.set_property(sp, surface.get_property(sp))
