@@ -133,6 +133,23 @@ script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 			if settings.global["enable-quality"].value then effect.quality = 0.1 * get_subsurface_depth(s) else effect.quality = nil end
 			s.global_effect = effect
 		end
+	elseif event.setting == "generate-resources-underground" then
+		for _, s in pairs(game.surfaces) do
+			if not is_subsurface(s) and allow_subsurfaces(s) then
+				local mgs = s.map_gen_settings
+				for control_name, data in pairs(mgs.autoplace_controls or {}) do
+					if prototypes.autoplace_control[control_name].category == "resource" then
+						mgs.autoplace_controls[control_name].size = settings.global["generate-resources-underground"].value and data.size * size_formula(0) or data.size / size_formula(0)
+					end
+				end
+				s.map_gen_settings = mgs
+			end
+		end
+		for _, s in pairs(storage.subsurfaces) do
+			local mgs = s.map_gen_settings
+			copy_resource_data(mgs, get_top_surface(s), get_subsurface_depth(s))
+			s.map_gen_settings = mgs
+		end
 	end
 end)
 
