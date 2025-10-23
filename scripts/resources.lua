@@ -53,23 +53,14 @@ function size_formula(level)
 	return 2 - 2 / (1 + 2 ^ (-0.8 * level))
 end
 
-local meta = {
-	__index = function(self, key) return {size = 0, frequency = 0, richness = 0} end,
-	__newindex = function(self, key, value)
-		if prototypes.autoplace_control[key] then rawset(self, key, value) end
-	end,
-}
-
 -- This is for top surfaces. It directly manipulates the map_gen_settings table
 -- It is either called upon game start, mod installation or newly created surfaces which aren't subsurfaces
 function manipulate_resource_data(surface)
 	if not settings.global["generate-resources-underground"].value then return end
 	local mgs = surface.map_gen_settings
-	if not mgs or not mgs.autoplace_controls then return end
-	setmetatable(mgs.autoplace_controls, meta)
 	
 	-- first, adjust autoplace controls
-	for control_name, data in pairs(mgs.autoplace_controls) do
+	for control_name, data in pairs(mgs.autoplace_controls or {}) do
 		if prototypes.autoplace_control[control_name].category == "resource" then
 			mgs.autoplace_controls[control_name].size = data.size * size_formula(0)
 		end
@@ -109,14 +100,12 @@ function manipulate_resource_entities(surface, area)
 end
 
 function copy_resource_data(mgs, from_surface, depth)
-	if not settings.global["generate-resources-underground"].value then return end
-
 	for control_name, data in pairs(from_surface.map_gen_settings.autoplace_controls or {}) do
 		if prototypes.autoplace_control[control_name].category == "resource" then
 			mgs.autoplace_controls[control_name] = {
 				frequency = data.frequency,
 				size = data.size * size_formula(depth) / size_formula(0),
-				richness = data.richness
+				richness = settings.global["generate-resources-underground"].value and data.richness or 0
 			}
 		end
 	end
@@ -124,12 +113,9 @@ function copy_resource_data(mgs, from_surface, depth)
 	for name, _ in pairs((from_surface.map_gen_settings.autoplace_settings.entity or {settings = {}}).settings) do
 		if (prototypes.entity[name] or {}).type == "resource" then
 			mgs.autoplace_settings.entity.settings[name] = {}
-			if from_surface.map_gen_settings.property_expression_names["entity:"..name..":richness"] then
-				mgs.property_expression_names["entity:"..name..":richness"] = from_surface.map_gen_settings.property_expression_names["entity:"..name..":richness"]
-			end
-			if from_surface.map_gen_settings.property_expression_names["entity:"..name..":probability"] then
-				mgs.property_expression_names["entity:"..name..":probability"] = from_surface.map_gen_settings.property_expression_names["entity:"..name..":probability"]
-			end
+			mgs.property_expression_names["entity:"..name..":richness"] = from_surface.map_gen_settings.property_expression_names["entity:"..name..":richness"]
+			if mgs.property_expression_names["entity:"..name..":richness"] and not settings.global["generate-resources-underground"].value then mgs.property_expression_names["entity:"..name..":richness"] = 0 end
+			mgs.property_expression_names["entity:"..name..":probability"] = from_surface.map_gen_settings.property_expression_names["entity:"..name..":probability"]
 		end
 	end
 	mgs.autoplace_settings.entity.settings["stone"] = nil
