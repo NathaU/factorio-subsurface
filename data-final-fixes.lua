@@ -113,16 +113,12 @@ data.subsurface_entity_restrictions = data.subsurface_entity_restrictions or {}
 require "scripts.placement-restrictions"
 
 -- apply the restriction (surface condition for DLC owners, item description for non-owners)
-if feature_flags["space_travel"] then
-	for name, type in pairs(data.subsurface_entity_restrictions) do
-		if data.raw[type][name] then
-			data.raw[type][name].surface_conditions = data.raw[type][name].surface_conditions or {}
-			table.insert(data.raw[type][name].surface_conditions, {property = "subsurface-level", max = 0})
-		end
-	end
-else
-	for entity_name, type in pairs(data.subsurface_entity_restrictions) do
-		if data.raw[type][entity_name] then
+for entity_name, type in pairs(data.subsurface_entity_restrictions) do
+	if data.raw[type][entity_name] then
+		if feature_flags["space_travel"] then
+			data.raw[type][entity_name].surface_conditions = data.raw[type][entity_name].surface_conditions or {}
+			table.insert(data.raw[type][entity_name].surface_conditions, {property = "subsurface-level", max = 0})
+		else
 			data.raw[type][entity_name].custom_tooltip_fields = data.raw[type][entity_name].custom_tooltip_fields or {}
 			table.insert(data.raw[type][entity_name].custom_tooltip_fields, {name = "", value = {"item-description.placement-restriction"}, order = 0})
 		end
