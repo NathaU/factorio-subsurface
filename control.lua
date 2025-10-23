@@ -504,6 +504,15 @@ function replace_surface_drill_dummy(entity)
 
 	entity.surface.create_entity{name = res_name, position = entity.position, amount = res_amount}
 	local real_drill = entity.surface.create_entity{name = "surface-drill", position = entity.position, direction = entity.direction, force = entity.force, player = entity.last_user, quality = entity.quality}
+	if entity.item_request_proxy then
+		local modules = entity.item_request_proxy.insert_plan
+		for i, item in ipairs(modules) do
+			for j, _ in ipairs(item.items.in_inventory) do
+				modules[i].items.in_inventory[j].inventory = defines.inventory.mining_drill_modules
+			end
+		end
+		entity.surface.create_entity{name = "item-request-proxy", position = entity.position, force = entity.force, target = real_drill, modules = modules}
+	end
 	entity.destroy()
 	get_subsurface(real_drill.surface).request_to_generate_chunks(real_drill.position, 3)
 end
