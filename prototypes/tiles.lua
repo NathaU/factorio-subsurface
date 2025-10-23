@@ -8,6 +8,8 @@ data:extend(
 	collision_mask = {layers = {ground_tile = true}},
 	walking_speed_modifier = 1.4,
 	autoplace = {probability_expression = "-10000"},
+    subgroup = "nauvis-tiles",
+	order = "z",
 	layer = 61,
 	absorptions_per_second = {pollution = 0},
 	variants =

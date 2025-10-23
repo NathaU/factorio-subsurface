@@ -24,7 +24,8 @@ data:extend(
 	type = "recipe",
 	name = "surface-drilling-dummy",
 	hidden = true,
-	icon = "__core__/graphics/empty.png"
+	icon = "__core__/graphics/empty.png",
+	category = "venting",
   },
   
   {

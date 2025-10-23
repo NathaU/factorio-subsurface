@@ -113,6 +113,8 @@ data:extend(
 	icon_size = 32,
 	max_health = 250,
 	flags = {"placeable-off-grid"},
+	hidden = true,
+	factoriopedia_description = {"", {"entity-description.tunnel-entrance-cable"}, "\n\n", {"additional-description.tunnel-entrance"}},
 	collision_box = {{0, 0}, {0, 0}},
 	selection_box = {{-1.2, -1.2}, {1.2, 1.2}},
 	pictures = {
@@ -191,6 +193,8 @@ data:extend(
 	icon_size = 32,
 	max_health = 250,
 	flags = {"placeable-off-grid"},
+	hidden = true,
+	factoriopedia_alternative = "tunnel-entrance-cable",
 	collision_box = {{0, 0}, {0, 0}},
 	selection_box = {{-1.2, -1.2}, {1.2, 1.2}},
 	pictures = {
@@ -320,16 +324,18 @@ data:extend(
 	},
 	flags = {"placeable-player", "player-creation"},
 	hidden = true,
+	factoriopedia_alternative = "surface-drill",
+	factoriopedia_description = {"", {"entity-description.surface-drill"}, "\n\n", {"additional-description.surface-drill"}},
 	max_health = 300,
 	corpse = "surface-drill-remnants",
 	collision_box = {{-2.1, -2.2}, {2.2, 2.2}},
 	selection_box = {{-2.2, -2.2}, {2.2, 2.2}},
 	graphics_set = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].graphics_set),
-	energy_source = {type = "electric", usage_priority = "secondary-input", emissions_per_minute = {pollution = 5}},
+	energy_source = {type = "electric", usage_priority = "secondary-input", emissions_per_minute = {pollution = 5}, drain = "0W"},
 	energy_usage = "2MW",
 	surface_conditions = feature_flags["space_travel"] and {{property = "gravity", min = 0.1}} or nil,
-	crafting_speed = 1,
-	crafting_categories = {"crafting"},
+	crafting_speed = 0.1,
+	crafting_categories = {"venting"},
 	fixed_recipe = "surface-drilling-dummy",
 	module_slots = 3,
 	quality_affects_module_slots = true,
@@ -605,6 +611,7 @@ data:extend(
 	type = "pump",
 	name = "fluid-elevator-input",
 	localised_description = {"entity-description.fluid-elevator"},
+	hidden_in_factoriopedia = true,
 	icons = {
 	  {
 		icon = data.raw["pipe-to-ground"]["pipe-to-ground"].icon
@@ -683,6 +690,7 @@ data:extend(
 	type = "pump",
 	name = "fluid-elevator-output",
 	localised_description = {"entity-description.fluid-elevator"},
+	hidden_in_factoriopedia = true,
 	icons = {
 	  {
 		icon = data.raw["pipe-to-ground"]["pipe-to-ground"].icon
