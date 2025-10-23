@@ -20,6 +20,12 @@ data:extend(
 	},
 	results = {{type = "item", name = "surface-drill", amount = 1}}
   },
+  {
+	type = "recipe",
+	name = "surface-drilling-dummy",
+	hidden = true,
+	icon = "__core__/graphics/empty.png"
+  },
   
   {
 	type = "recipe",
