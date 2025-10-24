@@ -22,7 +22,7 @@ script.on_event(defines.events.on_cutscene_finished, function(event)
 			if is_subsurface(player.surface) then remote.call("jetpack", "block_jetpack", {character = player.cutscene_character})
 			else remote.call("jetpack", "unblock_jetpack", {character = player.cutscene_character}) end
 		end
-		
+		player.force.script_trigger_research("subsurface-exploration")
 	end
 
 	elevator_on_cursor_stack_changed(player)
