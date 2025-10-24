@@ -1,4 +1,15 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.13
+Date: 2025-10-24
+  Features:
+    - Surface drill now accepts modules
+    - Technology rework, they now use some triggers
+  Changes:
+    - Changing the setting "Generate resources underground" now affects future resource generation
+  Bugfixes:
+    - Fixed crash when autoplace settings were not present on a subsurface
+    - Fixed crash when scheduled train changes surface
+---------------------------------------------------------------------------------------------------
 Version: 1.1.12
 Date: 2025-10-12
   Changes:
