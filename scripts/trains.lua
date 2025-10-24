@@ -86,7 +86,7 @@ function handle_subways()
 			local carriage_arriving_at_station = v.stop.surface.find_entities_filtered{type = rolling_stock_types, position = v.rails[5].position}[1]
 			if carriage_arriving_at_station and carriage_arriving_at_station.train.path_end_stop == v.stop then
 				-- capture trains in auto mode early to prevent decelerating
-				storage.train_transport[u] = {leaving_train = carriage_arriving_at_station.train, leaving_speed = carriage_arriving_at_station.train.speed, manual = false}
+				storage.train_transport[u] = {leaving_train = carriage_arriving_at_station.train, leaving_speed = carriage_arriving_at_station.train.speed, manual = false, stop1 = v.stop, stop2 = storage.train_subways[v.connection.unit_number].stop}
 				local current_record = carriage_arriving_at_station.train.schedule.current
 				local subway_stop_name = carriage_arriving_at_station.train.schedule.records[current_record].station
 				if carriage_arriving_at_station.train.schedule.records[current_record].temporary then
