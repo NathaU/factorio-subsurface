@@ -402,6 +402,12 @@ script.on_event(defines.events.on_tick, function(event)
 					subsurface.set_pollution({chunk[1] * 32, chunk[2] * 32}, cur + cur * storage.pollution_values[subsurface.index].total / storage.pollution_values[subsurface.index].total_exposed)
 				end
 				
+				if storage.pollution_values[subsurface.index].total_exposed >= 500 then
+					for _, force in pairs(game.forces) do
+						force.script_trigger_research("ventilation")
+					end
+				end
+				
 				-- machine inefficiency due to pollution
 				if settings.global["enable-challenges"].value then
 					for _, e in ipairs(subsurface.find_entities_filtered{type = attrition_types}) do
