@@ -78,13 +78,14 @@ end
 data.raw["linked-belt"]["item-elevator-"..(i-1)].next_upgrade = nil
 
 if settings.startup["pollution-trains"].value then
-	local exclude_prototypes = {}
-	for p in string.gmatch(settings.startup["pollution-trains-excludes"].value, "[^%s,]+") do
-		if p == "" then exclude_prototypes[p] = true end
-	end
-	for _, e in pairs(data.raw["locomotive"]) do
-		if not exclude_prototypes[e.name] and e.burner then
-			e.burner.emissions_per_minute = e.burner.emissions_per_minute or {pollution = 10}
+	for _, loco in pairs(data.raw["locomotive"]) do
+		if loco.energy_source.type == "burner" then
+			for _, cat in ipairs(loco.energy_source.fuel_categories  or {}) do
+				if cat == "chemical" then
+					loco.energy_source.emissions_per_minute = loco.energy_source.emissions_per_minute or {pollution = 5}
+					break
+				end
+			end
 		end
 	end
 end
