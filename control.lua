@@ -911,7 +911,7 @@ script.on_event(defines.events.on_player_controller_changed, function(event)
 	local player = game.get_player(event.player_index)
 	if remote.interfaces["space-exploration"] and remote.call("space-exploration", "remote_view_is_active", {player = player}) then
 		local character = remote.call("space-exploration", "get_player_character", {player = player})
-		if is_subsurface(character.surface) then
+		if character and is_subsurface(character.surface) then
 			remote.call("space-exploration", "remote_view_start", {player = player, zone_name = get_top_surface(character.surface).name})
 		end
 	end
