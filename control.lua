@@ -636,11 +636,17 @@ script.on_event(defines.events.on_player_setup_blueprint, function(event)
 	local item = event.record or event.stack
 	if item.object_name == "LuaItemStack" and item.valid_for_read or item.valid_for_write then
 		local contents = item.get_blueprint_entities()
+		local modified = false
 		for _, e in ipairs(contents or {}) do
-			if e.name == "surface-drill" then e.name = "surface-drill-placer"
-			elseif e.name == "fluid-elevator-output" then e.tags = {output = true} end
+			if e.name == "surface-drill" then
+				e.name = "surface-drill-placer"
+				modified = true
+			elseif e.name == "fluid-elevator-output" then
+				e.tags = {output = true}
+				modified = true
+			end
 		end
-		item.set_blueprint_entities(contents)
+		if modified then item.set_blueprint_entities(contents) end
 	end
 end)
 
