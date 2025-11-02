@@ -69,7 +69,6 @@ data:extend(
 	{
 	  {type = "unlock-recipe", recipe = "air-vent"},
 	  {type = "unlock-recipe", recipe = "active-air-vent"},
-	  {type = "unlock-recipe", recipe = "active-air-vent-2"},
 	},
 	prerequisites = {"subsurface-exploration"},
 	research_trigger = {

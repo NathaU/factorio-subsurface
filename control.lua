@@ -431,10 +431,7 @@ script.on_event(defines.events.on_tick, function(event)
 					vent.surface.pollute(vent.position, -diff, vent.name)
 					subsurface.pollute(vent.position, diff, vent.name)
 				elseif subsurface and vent.energy > 0 then
-					local current_energy = vent.energy
-					local max_energy = vent.prototype.electric_energy_source_prototype.buffer_capacity
-					local max_movable_pollution = vent.crafting_speed * (0.8 ^ (get_subsurface_depth(subsurface) - 1)) * current_energy / max_energy -- how much polution can be moved with the current available energy
-					
+					local max_movable_pollution = vent.prototype.get_crafting_speed(vent.quality) * (1 + 2 * vent.speed_bonus) * (0.8 ^ (get_subsurface_depth(subsurface) - 1)) * vent.energy / vent.electric_buffer_size  -- how much pollution can be moved with the current available energy
 					local pollution_to_move = math.min(max_movable_pollution, subsurface.get_pollution(vent.position))
 					
 					subsurface.pollute(vent.position, -pollution_to_move, vent.name)
