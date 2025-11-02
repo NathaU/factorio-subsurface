@@ -89,19 +89,6 @@ data:extend(
   },
   {
 	type = "recipe",
-	name = "active-air-vent-2",
-	enabled = false,
-	ingredients =
-	{
-	  {type = "item", name = "plastic-bar", amount = 10},
-	  {type = "item", name = "steel-plate", amount = 5},
-	  {type = "item", name = "iron-gear-wheel", amount = 5},
-	  {type = "item", name = "advanced-circuit", amount = 10},
-	},
-	results = {{type = "item", name = "active-air-vent-2", amount = 1}}
-  },
-  {
-	type = "recipe",
 	name = "cave-sealing",
 	enabled = false,
 	energy_required = 20,
@@ -116,14 +103,9 @@ data:extend(
 	type = "recipe",
 	name = "venting",
 	icon = "__core__/graphics/empty.png",
-	icon_size = 1,
-	subgroup = "inter-surface-transport",
-	enabled = true,
 	hidden = true,
 	category = "venting",
-	energy_required = 1,
-	ingredients = {},
-	results = {}
+	energy_required = 60,
   },
   {
 	type = "recipe",

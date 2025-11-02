@@ -84,16 +84,6 @@ data:extend(
 	stack_size = 50
   },
   {
-	type = "item",
-	name = "active-air-vent-2",
-	icon = "__Subsurface__/graphics/icons/air_vent_22_icon.png",
-	icon_size = 32,
-	subgroup = "inter-surface-transport",
-	order = "b-c",
-	place_result = "active-air-vent-2",
-	stack_size = 50
-  },
-  {
 	type = "capsule",
 	name = "cave-sealing",
 	icon = "__base__/graphics/icons/big-rock.png",

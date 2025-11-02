@@ -355,7 +355,6 @@ data:extend(
   {
 	type = "assembling-machine",
 	name = "active-air-vent",
-	localised_description = {"entity-description.active-air-vent", "1"},
 	icon = "__Subsurface__/graphics/icons/air_vent_22_icon.png",
 	icon_size = 32,
 	flags = {"placeable-player", "player-creation"},
@@ -377,7 +376,14 @@ data:extend(
 	  animation_speed = 0.5,
 	}},
 	match_animation_speed_to_activity = false,
-	crafting_speed = 1/60,
+	crafting_speed = 10,
+	allowed_effects = {"speed", "consumption"},
+	module_slots = 2,
+	effect_receiver = {uses_beacon_effects = false, uses_surface_effects = false},
+    impact_category = "metal",
+    open_sound = data.raw["assembling-machine"]["assembling-machine-1"].open_sound,
+    close_sound = data.raw["assembling-machine"]["assembling-machine-1"].close_sound,
+	working_sound = data.raw["furnace"]["electric-furnace"].working_sound,
 	energy_source =
 	{
 	  type = "electric",
@@ -386,41 +392,6 @@ data:extend(
 	  drain = "0W",
 	},
 	energy_usage = "2kW",
-  },
-  {
-	type = "assembling-machine",
-	name = "active-air-vent-2",
-	localised_description = {"entity-description.active-air-vent", "20"},
-	icon = "__Subsurface__/graphics/icons/air_vent_22_icon.png",
-	icon_size = 32,
-	flags = {"placeable-player", "player-creation"},
-	minable = {hardness = 0.2, mining_time = 0.5, result = "active-air-vent-2"},
-	max_health = 200,
-	crafting_categories = {"venting"},
-	fixed_recipe = "venting",
-	ingredient_count = 0,
-	collision_box = {{-0.8, -0.8}, {0.8, 0.8}},
-	selection_box = {{-1, -1}, {1, 1}},
-	graphics_set = {animation = {
-	  filename = "__Subsurface__/graphics/entities/air_vent22_sheet.png",
-	  priority = "high",
-	  width = 96,
-	  height = 96,
-	  frame_count = 16,
-	  line_length = 4,
-	  shift = {0.45, -0.1},
-	  animation_speed = 2,
-	}},
-	match_animation_speed_to_activity = false,
-	crafting_speed = 20/60,
-	energy_source =
-	{
-	  type = "electric",
-	  usage_priority = "secondary-input",
-	  emissions = 0,
-	  drain = "0W",
-	},
-	energy_usage = "50kW",
   },
   {
 	type = "simple-entity",
@@ -878,3 +849,5 @@ data.raw["electric-pole"]["wooden-support"].pictures.layers[1].filename = "__Sub
 data.raw["electric-pole"]["wooden-support"].pictures.layers[2].filename = "__Subsurface__/graphics/entities/support/wooden-support-shadow.png"
 data.raw["electric-pole"]["steel-support"].pictures.layers[1].filename = "__Subsurface__/graphics/entities/support/steel-support.png"
 data.raw["electric-pole"]["steel-support"].pictures.layers[2].filename = "__Subsurface__/graphics/entities/support/wooden-support-shadow.png"
+
+data.raw["assembling-machine"]["active-air-vent"].working_sound.sound.volume = 0.3
