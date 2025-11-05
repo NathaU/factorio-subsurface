@@ -227,6 +227,8 @@ function get_subsurface(surface, create)
 			
 			storage.enemies_above_exposed_underground[surface.index] = {}
 			storage.exposed_chunks[subsurface.index] = {}
+
+			game.forces.enemy.set_evolution_factor(game.forces.enemy.get_evolution_factor(top_surface), top_surface)
 		end
 		storage.subsurfaces[surface.index] = subsurface
 		return subsurface
