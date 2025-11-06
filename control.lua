@@ -216,12 +216,13 @@ function get_subsurface(surface, create)
 			end
 			subsurface.set_property("subsurface-level", depth)
 
-			local effect = surface.global_effect or {}
-			effect.productivity = 0.05 * depth
-			effect.speed = 0.05 * depth
-			effect.consumption = 0.1 * depth
-			effect.pollution = 0.1 * depth
-			subsurface.global_effect = effect
+			if settings.global["enable-challenges"].value then
+				local effect = surface.global_effect or {speed = 0, productivity = 0, consumption = 0}
+				effect.speed = effect.speed + 0.05 * depth
+				effect.productivity = effect.productivity + 0.05 * depth
+				effect.consumption = effect.consumption + 0.1 * depth
+				subsurface.global_effect = effect
+			end
 			
 			if remote.interfaces["blackmap"] then remote.call("blackmap", "register", subsurface) end
 			
