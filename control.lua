@@ -885,11 +885,12 @@ script.on_event(defines.events.on_entity_color_changed, function(event)
 	end
 end)
 
-script.on_event("subsurface-position", function(event)
-	local force = game.get_player(event.player_index).force
-	local surface = game.get_player(event.player_index).surface
-	if get_oversurface(surface) then force.print("[gps=".. string.format("%.1f,%.1f,", event.cursor_position.x, event.cursor_position.y) .. get_oversurface(surface).name .."]") end
-	if get_subsurface(surface, false) then force.print("[gps=".. string.format("%.1f,%.1f,", event.cursor_position.x, event.cursor_position.y) .. get_subsurface(surface, false).name .."]") end
+script.on_event("subsurface-pin", function(event)
+	local player = game.get_player(event.player_index)
+	if settings.get_player_settings(player)["subsurface-pin-adjacent"].value and not player.selected then
+		if get_oversurface(player.surface) then player.add_pin{label = string.format("{%d, %d} %s", event.cursor_position.x, event.cursor_position.y, get_oversurface(player.surface).name), surface = get_oversurface(player.surface), position = event.cursor_position} end
+		if get_subsurface(player.surface, false) then player.add_pin{label = string.format("{%d, %d} %s", event.cursor_position.x, event.cursor_position.y, get_subsurface(player.surface, false).name), surface = get_subsurface(player.surface, false), position = event.cursor_position} end
+	end
 end)
 
 script.on_event("subsurface-rotate", function(event)
