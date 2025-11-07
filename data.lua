@@ -18,9 +18,9 @@ data:extend({
   
   {
 	type = "custom-input",
-	name = "subsurface-position",
+	name = "subsurface-pin",
 	key_sequence = "",
-	linked_game_control = "place-ping"
+	linked_game_control = "pin"
   },
   {
 	type = "custom-input",

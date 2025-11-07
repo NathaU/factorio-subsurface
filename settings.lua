@@ -27,4 +27,10 @@ data:extend({
 	default_value = true,
 	order = "b"
   },
+  {
+	type = "bool-setting",
+	setting_type = "runtime-per-user",
+	name = "subsurface-pin-adjacent",
+	default_value = true,
+  }
 })
