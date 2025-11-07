@@ -215,6 +215,7 @@ function get_subsurface(surface, create)
 				subsurface.set_property(sp, surface.get_property(sp))
 			end
 			subsurface.set_property("subsurface-level", depth)
+			subsurface.set_property("pressure", surface.get_property("pressure") * 1.1)
 
 			if settings.global["enable-challenges"].value then
 				local effect = surface.global_effect or {speed = 0, productivity = 0, consumption = 0}
