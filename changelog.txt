@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.14
+Date: 2025-11-07
+  Changes:
+    - Active air vent improvements, removed air vent tier 2
+    - Global effects are only applied when challenges are enabled
+    - Removed quality and pollution effects in subsurfaces
+    - Evolution factor is copied from parent surface when creating new subsurfaces
+    - Surface pressure increases by 10% per level
+  Bugfixes:
+    - Fixed crash when player goes to remote view while in god controller
+    - Fixed that cutting entities did not preserve external wire connections
+---------------------------------------------------------------------------------------------------
 Version: 1.1.13
 Date: 2025-10-24
   Features:
