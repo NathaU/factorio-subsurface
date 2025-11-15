@@ -97,6 +97,7 @@ function handle_subways()
 				end
 				while carriage_arriving_at_station.train.schedule.records[current_record].station == subway_stop_name do
 					carriage_arriving_at_station.train.get_schedule().remove_record({schedule_index = current_record})
+					if not carriage_arriving_at_station.train.schedule then break end
 					if current_record > #carriage_arriving_at_station.train.schedule.records then current_record = 1 end
 				end
 				storage.train_transport[u].next_station = current_record
