@@ -92,7 +92,12 @@ data:extend(
 	grid_offset = {0, 0},
 	cliff_explosive = "cliff-explosives",
 	selection_box = {{-0.9, -0.9}, {0.9, 0.9}},
-	minable = {mining_particle = "stone-particle", mining_time = 1, results = {{type = "item", name = "stone", amount_min = 10, amount_max = 30}}}
+	minable = {
+		mining_particle = "stone-particle",
+		mining_time = 1,
+		results = {{type = "item", name = "stone", amount_min = 10, amount_max = 30}},
+		mining_trigger = {type = "direct", action_delivery = {type = "instant", target_effects = table.deepcopy(data.raw["simple-entity"]["big-rock"].dying_trigger_effect)}}
+	}
   },
   {
 	type = "simple-entity",
