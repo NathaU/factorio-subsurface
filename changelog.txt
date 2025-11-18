@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.15
+Date: 2025-11-18
+  Features:
+    - First ore prospector improvements. It outputs the type and coordinates of the richest resource in a radius of 64 tiles
+  Changes:
+    - Pinning a position also pins that position in adjacent surfaces (configurable via setting)
+  Bugfixes:
+    - Fixed crash when train schedules only consist of subway stops
+---------------------------------------------------------------------------------------------------
 Version: 1.1.14
 Date: 2025-11-07
   Changes:
