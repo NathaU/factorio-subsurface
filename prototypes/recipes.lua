@@ -4,10 +4,6 @@ data:extend(
 	type = "recipe-category",
 	name = "venting"
   },
-  {
-	type = "recipe-category",
-	name = "prospecting"
-  },
   
   {
 	type = "recipe",
@@ -106,19 +102,6 @@ data:extend(
 	hidden = true,
 	category = "venting",
 	energy_required = 60,
-  },
-  {
-	type = "recipe",
-	name = "prospecting",
-	icon = "__core__/graphics/empty.png",
-	icon_size = 1,
-	subgroup = "inter-surface-transport",
-	enabled = true,
-	hidden = true,
-	category = "prospecting",
-	energy_required = 40,
-	ingredients = {},
-	results = {}
   },
   {
 	type = "recipe",

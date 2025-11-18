@@ -362,15 +362,6 @@ end
 
 script.on_event(defines.events.on_tick, function(event)
 	
-	-- handle prospectors
-	for i, p in ipairs(storage.prospectors) do
-		if p.valid and is_subsurface(p.surface) and p.products_finished == 1 then
-			p.active = false
-			prospect_resources(p)
-			table.remove(storage.prospectors, i)
-		end
-	end
-	
 	handle_elevators(event.tick)
 
 	handle_subways()
@@ -592,7 +583,14 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		if text == "" then replace_surface_drill_dummy(entity)
 		else cancel_placement(event, text)
 		end
-	elseif entity.name == "prospector" then table.insert(storage.prospectors, entity)
+	elseif entity.name == "prospector" then
+		local combinator = entity.surface.create_entity{name = "prospector-combinator", position = entity.position, force = entity.force, quality = entity.quality}
+		storage.prospectors[combinator.unit_number] = {energy_interface = entity, combinator = combinator}
+		script.register_on_object_destroyed(combinator)
+	elseif entity.name == "prospector-combinator" then
+		local energy_interface = entity.surface.create_entity{name = "prospector", position = entity.position, force = entity.force, quality = entity.quality}
+		storage.prospectors[entity.unit_number] = {energy_interface = energy_interface, combinator = entity}
+		script.register_on_object_destroyed(entity)
 	elseif string.sub(entity.name, 1, 13) == "item-elevator" then elevator_built(entity)
 	elseif entity.name == "fluid-elevator-input" then
 		if event.tags and event.tags.output then entity = switch_elevator(entity) end
@@ -620,8 +618,13 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 end)
 
 script.on_event(defines.events.script_raised_revive, function(event)
-	replace_surface_drill_dummy(event.entity)
-end, {{filter = "name", name = "surface-drill-placer"}})
+	if event.entity.name == "surface-drill-placer" then replace_surface_drill_dummy(event.entity)
+	elseif event.entity.name == "prospector" then
+		local combinator = event.entity.surface.create_entity{name = "prospector-combinator", position = event.entity.position, force = event.entity.force, quality = event.entity.quality}
+		storage.prospectors[combinator.unit_number] = {energy_interface = event.entity, combinator = combinator}
+		script.register_on_object_destroyed(combinator)
+	end
+end, {{filter = "name", name = "surface-drill-placer"}, {filter = "name", name = "prospector"}})
 
 script.on_event({defines.events.on_player_mined_entity, defines.events.on_robot_mined_entity}, function(event)
 	if event.entity.name == "surface-drill" then
@@ -818,6 +821,9 @@ script.on_event(defines.events.on_object_destroyed, function(event)
 	elseif storage.train_stop_clones[event.useful_id] then
 		for _, s in ipairs(storage.train_stop_clones[event.useful_id]) do s.destroy() end
 		storage.train_stop_clones[event.useful_id] = nil
+	elseif storage.prospectors[event.useful_id] then
+		storage.prospectors[event.useful_id].energy_interface.destroy()
+		storage.prospectors[event.useful_id] = nil
 	end
 end)
 
@@ -904,9 +910,23 @@ script.on_event("subsurface-rotate", function(event)
 	end
 end)
 
+script.on_event(defines.events.on_gui_opened, function(event)
+	if event.entity and event.entity.name == "prospector-combinator" then
+		game.get_player(event.player_index).opened = create_prospector_gui(game.get_player(event.player_index), event.entity)
+	end
+end)
+script.on_event(defines.events.on_gui_closed, function(event)
+	if event.element and event.element.name == "prospector" then
+		event.element.destroy()
+	end
+end)
 script.on_event(defines.events.on_gui_click, function(event)
 	if event.element.name == "unit_digging" then
 		aai_on_gui_click(event)
+	elseif event.element.name == "prospector_close" then
+		event.element.parent.parent.parent.destroy()
+	elseif event.element.name == "prospector_scan" then
+		prospect_resources(storage.prospectors[event.element.parent.parent.parent.tags.prospector].combinator)
 	end
 end)
 

@@ -136,14 +136,108 @@ end)
 
 function prospect_resources(prospector)
 	local surface = prospector.surface
-	local pos_arr = get_area_positions(get_area(prospector.position, 34))
-	local resources = calculate_resources(surface, pos_arr)
-	for i, v in pairs(resources) do
-		local x = pos_arr[i][1]
-		local y = pos_arr[i][2]
-		if surface.get_tile(x, y).valid and surface.get_tile(x, y).name == "out-of-map"and (x - prospector.position.x)^2 + (y - prospector.position.y)^2 < 32^2 then
-			local proto = v[1]
-			rendering.draw_sprite{sprite = "entity/" .. proto, target = pos_arr[i], tint = {0.5, 0.5, 0.5, 0.1}, surface = surface, time_to_live = 1200, forces = prospector.force}
+	local radius = 64
+	local pos_arr = get_area_positions(get_area(prospector.position, radius))
+	for i = #pos_arr, 1, -1 do
+		if (pos_arr[i][1] - prospector.position.x) ^ 2 + (pos_arr[i][2] - prospector.position.y) ^ 2 >= radius ^ 2 or (surface.get_tile(pos_arr[i][1], pos_arr[i][2]).valid and surface.get_tile(pos_arr[i][1], pos_arr[i][2]).name ~= "out-of-map") then
+			table.remove(pos_arr, i)
 		end
 	end
+	local max = {0, 0}
+	for i, v in pairs(calculate_resources(surface, pos_arr)) do
+		if v[2] > max[2] then
+			max = {pos_arr[i], v[2], v[1]}
+		end
+	end
+	for _, e in ipairs(surface.find_entities_filtered{type = "resource", position = prospector.position, radius = radius}) do
+		if e.amount > max[2] then
+			max = {{e.position.x, e.position.y}, e.amount, e.name}
+		end
+	end
+	
+	local logistic_section = prospector.get_control_behavior().get_section(1)
+	if max[2] > 0 then
+		prospector.force.print("[gps=".. string.format("%.1f,%.1f,", max[1][1], max[1][2]) .. surface.name .."]")
+		logistic_section.set_slot(1, {value = "signal-X", min = max[1][1]})
+		logistic_section.set_slot(2, {value = "signal-Y", min = max[1][2]})
+		logistic_section.set_slot(3, {value = {type = "entity", name = max[3], quality = "normal"}, min = max[2]})
+	else
+		logistic_section.clear_slot(1)
+		logistic_section.clear_slot(2)
+		logistic_section.clear_slot(3)
+	end
+end
+
+function create_prospector_gui(player, prospector)
+	if player.gui.screen["prospector"] then player.gui.screen["prospector"].destroy() return end
+
+	local gui = player.gui.screen.add{
+		type = "frame",
+		name = "prospector",
+		style = "invisible_frame",
+		direction = "horizontal",
+		tags = {["prospector"] = prospector.unit_number}
+	}
+	gui.auto_center = true
+	local main_frame = gui.add{type = "frame", direction = "vertical"}
+
+	local titlebar = main_frame.add{type = "flow"}
+	titlebar.drag_target = gui
+	titlebar.add{
+		type = "label",
+		style = "frame_title",
+		caption = prospector.localised_name,
+		ignored_by_interaction = true,
+	}
+	local filler = titlebar.add{
+		type = "empty-widget",
+		style = "draggable_space",
+		ignored_by_interaction = true,
+	}
+	filler.style.height = 24
+	filler.style.horizontally_stretchable = true
+	titlebar.add{
+		type = "sprite-button",
+		name = "prospector_close",
+		style = "frame_action_button",
+		sprite = "utility/close",
+		hovered_sprite = "utility/close",
+		clicked_sprite = "utility/close",
+		tooltip = {"gui.close-instruction"},
+    }
+
+	local inner_frame = main_frame.add{type = "frame", direction = "vertical", style = "entity_frame"}
+	-- local indicator = inner_frame.add{type = "flow", direction = "vertical"}
+	-- local status_flow = indicator.add{
+	-- 	type = "flow",
+	-- 	--style = "status_flow",
+	-- }
+	-- status_flow.style.vertical_align = "center"
+	-- status_flow.add{
+	-- 	type = "sprite",
+	-- 	style = "status_image",
+	-- 	sprite = GUI_util.STATUS_SPRITE[entity.status],
+	-- }
+	-- status_flow.add{
+	-- 	type = "label",
+	-- 	caption = {GUI_util.STATUS_NAME[entity.status]},
+	-- }
+	-- local preview_frame = indicator.add{
+	-- 	type = "frame",
+	-- 	style = "entity_button_frame",
+	-- }
+	-- local preview = preview_frame.add{
+	-- 	type = "entity-preview",
+	-- }
+	-- preview.entity = entity
+	-- preview.style.height = 148
+	-- preview.style.horizontally_stretchable = true
+
+	inner_frame.add{
+		type = "button",
+		caption = "Scan",
+		name = "prospector_scan"
+	}
+
+	return gui
 end

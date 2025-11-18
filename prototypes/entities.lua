@@ -422,11 +422,16 @@ data:extend(
   },
   
   {
-	type = "assembling-machine",
-	name = "prospector",
+	type = "constant-combinator",
+	name = "prospector-combinator",
+	localised_name = {"entity-name.prospector"},
+	localised_description = {"entity-description.prospector"},
 	icon = "__Subsurface__/graphics/icons/prospector.png",
-	flags = {"placeable-player", "player-creation"},
+	flags = {"player-creation", "not-blueprintable", "not-on-map", "placeable-off-grid", "not-rotatable"},
 	minable = {mining_time = 0.1, result = "prospector"},
+	placeable_by = {item = "prospector", count = 1},
+	factoriopedia_alternative = "prospector",
+	hidden = true,
 	max_health = 250,
 	corpse = "radar-remnants",
 	dying_explosion = "radar-explosion",
@@ -434,23 +439,40 @@ data:extend(
 	  {type = "fire", percent = 70},
 	  {type = "impact", percent = 30}
 	},
+	selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
+	activity_led_light_offsets = {{0,0}, {0,0}, {0,0}, {0,0}},
+	activity_led_sprites = {filename = "__core__/graphics/empty.png", size = 1},
+	circuit_wire_max_distance = 9,
+	circuit_wire_connection_points = {table.deepcopy(data.raw.radar["radar"].circuit_connector.points), table.deepcopy(data.raw.radar["radar"].circuit_connector.points), table.deepcopy(data.raw.radar["radar"].circuit_connector.points), table.deepcopy(data.raw.radar["radar"].circuit_connector.points)},
+	open_sound = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"].open_sound),
+	close_sound = table.deepcopy(data.raw["constant-combinator"]["constant-combinator"].close_sound),
+  },
+  {
+	type = "electric-energy-interface",
+	name = "prospector",
+	icon = "__Subsurface__/graphics/icons/prospector.png",
+	flags = {"placeable-player", "player-creation", "not-rotatable"},
+	selectable_in_game = false,
 	collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
 	selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
 	energy_source = {
 	  type = "electric",
-	  usage_priority = "secondary-input"
+	  usage_priority = "secondary-input",
+	  buffer_capacity = "3333.33J",
 	},
-	energy_usage = "1MW",
-	graphics_set = {animation = {layers = {
+	energy_usage = "200kW",
+	working_sound = table.deepcopy(data.raw.radar.radar.working_sound),
+	animation = {layers = {
 	  {
 		filename = "__Subsurface__/graphics/entities/prospector.png",
-		priority = "low",
+		priority = "high",
 		width = 196,
 		height = 254,
 		frame_count = 64,
 		line_length = 8,
 		shift = util.by_pixel(1, -16),
-		scale = 0.5
+		scale = 0.5,
+		animation_speed = 0.0002
 	  },
 	  {
 		filename = "__Subsurface__/graphics/entities/prospector-shadow.png",
@@ -463,11 +485,7 @@ data:extend(
 		draw_as_shadow = true,
 		scale = 0.5
 	  }
-	}}},
-	working_sound = table.deepcopy(data.raw.radar.radar.working_sound),
-	crafting_speed = 1,
-	crafting_categories = {"prospecting"},
-	fixed_recipe = "prospecting"
+	}},
   },
   
   {
