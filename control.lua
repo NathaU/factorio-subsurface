@@ -533,18 +533,15 @@ function cancel_placement(event, text)
 		player.play_sound{path = "utility/cannot_build", position = entity.position}
 		local n = entity.name
 		local q = entity.quality
-		entity.destroy()
 		for _, it in ipairs(event.consumed_items.get_contents()) do
 			player.insert(it)
 		end
-		if not player.cursor_stack.valid_for_read then
-			player.pipette_entity({name = n, quality = q})
-		end
-	else -- robot built it
+		if not player.cursor_stack.valid_for_read then player.pipette_entity(entity) end
+	elseif event.robot then
 		entity.surface.play_sound{path = "utility/cannot_build", position = entity.position}
 		entity.surface.spill_item_stack{position = entity.position, stack = event.stack, force = event.robot.force, allow_belts = false}
-		entity.destroy()
 	end
+	entity.destroy()
 end
 
 -- build entity only if it is safe in subsurface
@@ -568,7 +565,7 @@ function build_safe(event, func, check_for_entities)
 	end
 	
 end
-script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity}, function(event)
+script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity, defines.events.script_raised_built, defines.events.script_raised_revive}, function(event)
 	local entity = event.entity
 	if entity.name == "surface-drill-placer" then
 		local text = ""
@@ -616,15 +613,6 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		end
 	end
 end)
-
-script.on_event(defines.events.script_raised_revive, function(event)
-	if event.entity.name == "surface-drill-placer" then replace_surface_drill_dummy(event.entity)
-	elseif event.entity.name == "prospector" then
-		local combinator = event.entity.surface.create_entity{name = "prospector-combinator", position = event.entity.position, force = event.entity.force, quality = event.entity.quality}
-		storage.prospectors[combinator.unit_number] = {energy_interface = event.entity, combinator = combinator}
-		script.register_on_object_destroyed(combinator)
-	end
-end, {{filter = "name", name = "surface-drill-placer"}, {filter = "name", name = "prospector"}})
 
 script.on_event({defines.events.on_player_mined_entity, defines.events.on_robot_mined_entity}, function(event)
 	if event.entity.name == "surface-drill" then
