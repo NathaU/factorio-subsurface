@@ -2,6 +2,8 @@ require "circuit-connector-generated-definitions"
 
 local blank_image = {filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1}
 
+local gravity_condition = function() return feature_flags["space_travel"] and {{property = "gravity", min = 0.1}} or nil end
+
 local cave_sealing = table.deepcopy(data.raw.projectile["cliff-explosives"])
 cave_sealing.name = "cave-sealing"
 cave_sealing.animation = blank_image
@@ -300,7 +302,7 @@ data:extend(
 	module_slots = 3,
 	quality_affects_module_slots = true,
 	allowed_effects = {"speed", "consumption", "pollution"},
-	surface_conditions = feature_flags["space_travel"] and {{property = "gravity", min = 0.1}} or nil,
+	surface_conditions = gravity_condition(),
 	open_sound = data.raw["mining-drill"]["burner-mining-drill"].open_sound,
 	close_sound = data.raw["mining-drill"]["burner-mining-drill"].close_sound,
 	vehicle_impact_sound =  data.raw["mining-drill"]["burner-mining-drill"].vehicle_impact_sound,
@@ -338,7 +340,7 @@ data:extend(
 	graphics_set = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].graphics_set),
 	energy_source = {type = "electric", usage_priority = "secondary-input", emissions_per_minute = {pollution = 5}, drain = "0W"},
 	energy_usage = "2MW",
-	surface_conditions = feature_flags["space_travel"] and {{property = "gravity", min = 0.1}} or nil,
+	surface_conditions = gravity_condition(),
 	crafting_speed = 0.1,
 	crafting_categories = {"venting"},
 	fixed_recipe = "surface-drilling-dummy",
@@ -364,6 +366,7 @@ data:extend(
 	icon_size = 32,
 	flags = {"placeable-player", "player-creation"},
 	minable = {hardness = 0.2, mining_time = 0.5, result = "active-air-vent"},
+	surface_conditions = gravity_condition(),
 	max_health = 200,
 	crafting_categories = {"venting"},
 	fixed_recipe = "venting",
@@ -406,6 +409,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/air_vent_11_icon.png",
 	icon_size = 32,
 	minable = {mining_time = 1, result = "air-vent"},
+	surface_conditions = gravity_condition(),
 	selection_box = {{-0.5, -0.5}, {0.5, 0.5}},
 	collision_box = {{-0.4, -0.4}, {0.4, 0.4}},
 	render_layer = "decorative",
@@ -429,6 +433,7 @@ data:extend(
 	icon = "__Subsurface__/graphics/icons/prospector.png",
 	flags = {"player-creation", "not-blueprintable", "not-on-map", "placeable-off-grid", "not-rotatable"},
 	minable = {mining_time = 0.1, result = "prospector"},
+	surface_conditions = gravity_condition(),
 	placeable_by = {item = "prospector", count = 1},
 	factoriopedia_alternative = "prospector",
 	hidden = true,
