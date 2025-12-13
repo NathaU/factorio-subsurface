@@ -137,8 +137,8 @@ data:extend({
   },
   {
 	type = "noise-expression",
-	name = "surface_stone_probability_multiplier",
-	expression = "if(distance > 130, 0, 1)",
+	name = "subsurface_stone_richness_multiplier",
+	expression = "if(subsurface_level == 0, 0.5, 0)",
   },
 
   {

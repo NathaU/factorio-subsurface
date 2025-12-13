@@ -21,9 +21,9 @@ function calculate_resources(surface, pos_arr)
 		local pos_i = get_position_index_in_chunk(pos)
 		if not stored_results[chunk_id] then stored_results[chunk_id] = surface.calculate_tile_properties(properties, get_chunk_positions(pos)) end
 		for _, proto in ipairs(resources) do
-			if (stored_results[chunk_id]["entity:"..proto..":richness"] or {[pos_i] = 0})[pos_i] * stored_results[chunk_id]["subsurface_richness_multiplier"][pos_i] > 0
-			and (stored_results[chunk_id][proto.."-probability"] or stored_results[chunk_id]["subsurface_random"])[pos_i] <= stored_results[chunk_id]["entity:"..proto..":probability"][pos_i] then
-				if not result[i] then result[i] = {proto, math.ceil(stored_results[chunk_id]["entity:"..proto..":richness"][pos_i] * stored_results[chunk_id]["subsurface_richness_multiplier"][pos_i])} end
+			local richness = (stored_results[chunk_id]["entity:"..proto..":richness"] or {[pos_i] = 0})[pos_i] * stored_results[chunk_id]["subsurface_richness_multiplier"][pos_i]
+			if richness > 0 and (stored_results[chunk_id][proto.."-probability"] or stored_results[chunk_id]["subsurface_random"])[pos_i] <= stored_results[chunk_id]["entity:"..proto..":probability"][pos_i] then
+				if not result[i] then result[i] = {proto, math.ceil(richness)} end
 			end
 		end
 	end
@@ -89,10 +89,10 @@ function manipulate_resource_entities(surface, area)
 			entities_in_area[get_position_index_in_chunk(e.position)] = e
 		end
 
-		local calc_result = surface.calculate_tile_properties({"subsurface_richness_multiplier", "surface_stone_probability_multiplier"}, get_chunk_positions(chunk.area.left_top))
+		local calc_result = surface.calculate_tile_properties({"subsurface_richness_multiplier", "subsurface_stone_richness_multiplier"}, get_chunk_positions(chunk.area.left_top))
 		for pos_i, e in pairs(entities_in_area) do
 			local amount = e.amount
-			amount = math.ceil(amount * (e.name == "stone" and calc_result.surface_stone_probability_multiplier[pos_i] or calc_result.subsurface_richness_multiplier[pos_i]))
+			amount = math.ceil(amount * (e.name == "stone" and calc_result.subsurface_stone_richness_multiplier[pos_i] or calc_result.subsurface_richness_multiplier[pos_i]))
 			if amount > 0 then e.amount = amount
 			else e.destroy() end
 		end
