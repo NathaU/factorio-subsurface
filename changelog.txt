@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.16
+Date: 2025-12-13
+  Changes:
+    - Stone patches are generated on top surfaces
+  Bugfixes:
+    - Entities are now registered correctly when built or revived by script
+---------------------------------------------------------------------------------------------------
 Version: 1.1.15
 Date: 2025-11-18
   Features:
