@@ -791,8 +791,9 @@ script.on_event(defines.events.on_pre_surface_deleted, function(event)
 end)
 
 script.on_event(defines.events.on_object_destroyed, function(event)
-	-- entrances can't be mined, but in case they are destroyed by mods we have to handle it
+	if event.type ~= defines.target_type.entity then return end
 	if storage.pole_links[event.useful_id] and storage.pole_links[event.useful_id].valid then
+		-- entrances can't be mined, but in case they are destroyed by mods we have to handle it
 		local opposite_car = storage.pole_links[event.useful_id].surface.find_entities_filtered{name = {"tunnel-entrance", "tunnel-exit"}, position = storage.pole_links[event.useful_id].position, radius = 1}[1]
 		if opposite_car and opposite_car.valid then opposite_car.destroy() end
 		storage.pole_links[event.useful_id].destroy()
