@@ -839,8 +839,8 @@ data:extend(
 	  south = {
 		filename = "__Subsurface__/graphics/entities/subway/S.png",
 		width = 256,
-		height = 412,
-		shift = {1, -1},
+		height = 512,
+		shift = {1, 0.5},
 	  },
 	  west = {
 		filename = "__Subsurface__/graphics/entities/subway/W.png",
