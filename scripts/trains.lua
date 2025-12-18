@@ -84,21 +84,16 @@ function handle_subways()
 	for u, v in pairs(storage.train_subways) do
 		if v.connection then
 			local carriage_arriving_at_station = v.stop.surface.find_entities_filtered{type = rolling_stock_types, position = v.rails[5].position}[1]
-			if carriage_arriving_at_station and carriage_arriving_at_station.train.path_end_stop == v.stop then
+			if carriage_arriving_at_station and carriage_arriving_at_station.train.path_end_stop == v.stop and carriage_arriving_at_station.train.path.size - carriage_arriving_at_station.train.path.current == 4 then
 				-- capture trains in auto mode early to prevent decelerating
 				storage.train_transport[u] = {leaving_train = carriage_arriving_at_station.train, leaving_speed = carriage_arriving_at_station.train.speed, manual = false, stop1 = v.stop, stop2 = storage.train_subways[v.connection.unit_number].stop}
+				storage.train_transport[u].stop2.trains_limit = 0
 				local current_record = carriage_arriving_at_station.train.schedule.current
-				local subway_stop_name = carriage_arriving_at_station.train.schedule.records[current_record].station
 				if carriage_arriving_at_station.train.schedule.records[current_record].temporary then
 					carriage_arriving_at_station.train.get_schedule().remove_record({schedule_index = current_record})
 				else
 					if current_record == #carriage_arriving_at_station.train.schedule.records then current_record = 0 end
 					current_record = current_record + 1
-				end
-				while carriage_arriving_at_station.train.schedule.records[current_record].station == subway_stop_name do
-					carriage_arriving_at_station.train.get_schedule().remove_record({schedule_index = current_record})
-					if not carriage_arriving_at_station.train.schedule then break end
-					if current_record > #carriage_arriving_at_station.train.schedule.records then current_record = 1 end
 				end
 				storage.train_transport[u].next_station = current_record
 			end
@@ -237,6 +232,7 @@ function handle_subways()
 						if not data.manual and data.next_station then data.arriving_train.go_to_station(data.next_station) end
 						data.arriving_train.manual_mode = data.manual
 						data.arriving_train.speed = data.arriving_speed
+						storage.train_transport[u].stop2.trains_limit = nil
 						storage.train_transport[u] = nil
 					end
 				end
