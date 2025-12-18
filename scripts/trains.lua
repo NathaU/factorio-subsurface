@@ -189,7 +189,10 @@ function handle_subways()
 					end
 
 					e.color = carriage.color
+					e.copy_color_from_train_stop = carriage.copy_color_from_train_stop
 					e.health = carriage.health
+					e.enable_logistics_while_moving = carriage.enable_logistics_while_moving
+					if e.type == "artillery-wagon" then e.artillery_auto_targeting = carriage.artillery_auto_targeting end
 
 					if carriage.energy > 0 then
 						e.energy = carriage.energy
