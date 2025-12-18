@@ -121,6 +121,7 @@ data:extend(
 	max_health = 250,
 	flags = {"placeable-off-grid"},
 	hidden = true,
+	hidden_in_factoriopedia = false,
 	factoriopedia_description = {"", {"entity-description.tunnel-entrance-cable"}, "\n\n", {"additional-description.tunnel-entrance"}},
 	collision_box = {{0, 0}, {0, 0}},
 	selection_box = {{-1.2, -1.2}, {1.2, 1.2}},
