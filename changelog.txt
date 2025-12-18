@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.17
+Date: 2025-12-18
+  Changes:
+    - Trains work properly when they have consecutive subway stops in their schedule
+  Bugfixes:
+    - Fixed that entrances occasionally disappear
+---------------------------------------------------------------------------------------------------
 Version: 1.1.16
 Date: 2025-12-13
   Changes:
