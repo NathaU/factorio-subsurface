@@ -608,7 +608,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 	elseif entity.type == "train-stop" then
 		create_fake_stops(entity)
 	elseif is_subsurface(entity.surface) then -- check for placement restrictions
-		if not script.feature_flags["space_travel"] and prototypes.mod_data["subsurface-placement-restrictions"].data[entity.name] then
+		if not script.feature_flags.space_travel and prototypes.mod_data.subsurface_placement_restrictions.data[entity.name] then
 			cancel_placement(event)
 		end
 	end

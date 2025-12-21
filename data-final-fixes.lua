@@ -133,3 +133,8 @@ end
 data.raw.resource["subsurface-hole"].infinite = false
 data.raw["straight-rail"]["subway-rail"].next_upgrade = nil
 data.raw["straight-rail"]["subway-rail"].fast_replaceable_group = nil
+
+if mods["warptorio-space-age"] then
+	data.raw.tile.warp_tile_world.collision_mask.layers.surface_drill = true
+	data.raw.tile.warp_tile_platform.collision_mask.layers.surface_drill = true
+end

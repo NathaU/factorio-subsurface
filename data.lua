@@ -41,6 +41,11 @@ data:extend({
   },
   
   {
+	type = "collision-layer",
+	name = "surface_drill"
+  },
+  
+  {
 	type = "sprite",
 	name = "placement-indicator-1",
 	filename = "__Subsurface__/graphics/indicator-1.png",

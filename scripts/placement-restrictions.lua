@@ -29,6 +29,6 @@ end
 -- now make the mod-data structure
 data:extend{{
 	type = "mod-data",
-	name = "subsurface-placement-restrictions",
+	name = "subsurface_placement_restrictions",
 	data = data.subsurface_entity_restrictions
 }}
