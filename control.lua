@@ -107,24 +107,22 @@ script.on_configuration_changed(function(config) -- TBC
 		end
 	end
 	
-	-- handle too much tiles
-	local found = false
-	local substitute = (prototypes.tile["mineral-brown-dirt-2"] or prototypes.tile["grass-4"]).name
-	for _, s in pairs(storage.subsurfaces) do
-		local new_tiles = {}
-		for _, t in ipairs(s.find_tiles_filtered{name = "grass-1"}) do
-			table.insert(new_tiles, {name = substitute, position = t.position})
-			found = true
-		end
-		s.set_tiles(new_tiles)
-		for _, t in ipairs(s.find_tiles_filtered{name = "out-of-map", has_hidden_tile = true}) do
-			if t.hidden_tile == "grass-1" then
-				s.set_hidden_tile(t.position, substitute)
-				found = true
+	if config.migrations.tile["grass-4"] or config.migrations.tile["mineral-brown-dirt-2"] then
+		-- handle removed tiles (they got replaced by grass-1)
+		for _, s in pairs(storage.subsurfaces) do
+			local new_tiles = {}
+			for _, t in ipairs(s.find_tiles_filtered{name = "grass-1"}) do
+				table.insert(new_tiles, {name = "caveground", position = t.position})
+			end
+			s.set_tiles(new_tiles)
+			for _, t in ipairs(s.find_tiles_filtered{name = "out-of-map", has_hidden_tile = true}) do
+				if t.hidden_tile == "grass-1" then
+					s.set_hidden_tile(t.position, "caveground")
+				end
 			end
 		end
+		game.print("[color=yellow]Subsurface took some time recalculating tiles due to your mod configuration changes.[/color]")
 	end
-	if found then game.print("[font=default-large-bold][color=yellow]Subsurface: At least one tile generated in subsurfaces was removed from the game due to your mod configuration changes. It has been replaced with dirt-like tiles.[/color][/font]") end
 end)
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(event)
 	if event.setting == "generate-resources-underground" then
@@ -187,7 +185,6 @@ function get_subsurface(surface, create)
 					["caveground"] = {},
 					["mineral-brown-dirt-2"] = {},
 					["grass-4"] = {},
-					["out-of-map"] = {},
 				  }},
 				  entity = {treat_missing_as_default = false, settings = {}}
 				},
