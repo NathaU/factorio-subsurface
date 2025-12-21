@@ -1,10 +1,10 @@
 {
   "name": "Subsurface",
-  "version": "1.1.17",
+  "version": "1.1.18",
   "title": "Subsurface - build beneath your base!",
   "author": "Natha",
   "homepage": "https://mods.factorio.com/mod/Subsurface",
   "factorio_version": "2.0",
-  "dependencies": ["base >= 2.0.33", "? alien-biomes", "? aai-vehicles-miner", "? aai-programmable-vehicles", "? BlackMap-continued"],
+  "dependencies": ["base >= 2.0.33", "? alien-biomes", "? aai-vehicles-miner", "? aai-programmable-vehicles"],
   "description": "While everyone is looking up to space, other planets and the rest of the universe, there is a whole world buried directly underneath us..."
 }
