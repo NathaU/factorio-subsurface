@@ -213,7 +213,11 @@ function elevator_built(entity)
 					subway_link(entity, e)
 				else
 					if not entity.linked_belt_neighbour then
-						if e.linked_belt_type == "input" then entity.linked_belt_type = "output" end
+						if e.linked_belt_type == "input" then
+							entity.linked_belt_type = "output"
+						else
+							entity.linked_belt_type = "input"
+						end
 						entity.connect_linked_belts(e)
 					end
 				end
