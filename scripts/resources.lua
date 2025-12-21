@@ -118,7 +118,7 @@ function copy_resource_data(mgs, from_surface, depth)
 			mgs.property_expression_names["entity:"..name..":probability"] = from_surface.map_gen_settings.property_expression_names["entity:"..name..":probability"]
 		end
 	end
-	mgs.autoplace_settings.entity.settings["stone"] = nil
+	if mgs.autoplace_settings.entity.settings then mgs.autoplace_settings.entity.settings["stone"] = nil end
 	mgs.property_expression_names["entity:stone:richness"] = nil
 	mgs.property_expression_names["entity:stone:probability"] = nil
 end
