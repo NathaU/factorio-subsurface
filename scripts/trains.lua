@@ -212,7 +212,7 @@ function handle_subways()
 								toEquip.burner.heat = equip.burner.heat
 
 								for i = 1, #equip.burner.inventory do toEquip.burner.inventory[i].set_stack(equip.burner.inventory[i]) end
-								for i = 1, #equip.burner.burnt_result_inventory do toEquip.burner.urnt_result_inventory[i].set_stack(equip.burner.burnt_result_inventory[i]) end
+								for i = 1, #equip.burner.burnt_result_inventory do toEquip.burner.burnt_result_inventory[i].set_stack(equip.burner.burnt_result_inventory[i]) end
 							end
 						end
 					end
