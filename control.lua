@@ -686,7 +686,7 @@ script.on_event(defines.events.on_entity_died, function(event)
 	end
 end)
 script.on_event(defines.events.on_post_entity_died, function(event)
-	if event.prototype.name == "fluid-elevator-output" then event.ghost.tags = {output = true} end
+	if event.prototype.name == "fluid-elevator-output" and event.ghost then event.ghost.tags = {output = true} end
 end)
 
 script.on_event(defines.events.on_resource_depleted, function(event)
