@@ -383,20 +383,20 @@ script.on_event(defines.events.on_tick, function(event)
 					subsurface.set_pollution({chunk[2] * 32, chunk[3] * 32}, 0)
 				end
 				for _, chunk in pairs(storage.exposed_chunks[subsurface.index]) do
-					local cur = subsurface.get_pollution{chunk[1] * 32, chunk[2] * 32}
-					subsurface.set_pollution({chunk[1] * 32, chunk[2] * 32}, cur + cur * storage.pollution_values[subsurface.index].total / storage.pollution_values[subsurface.index].total_exposed)
+					local new_val = subsurface.get_pollution{chunk[1] * 32, chunk[2] * 32} * (1 + storage.pollution_values[subsurface.index].total / storage.pollution_values[subsurface.index].total_exposed)
+					subsurface.set_pollution({chunk[1] * 32, chunk[2] * 32}, new_val)
+					
+					-- machine inefficiency due to pollution
+					if new_val > attrition_threshold and settings.global["enable-challenges"].value then
+						for _, e in ipairs(subsurface.find_entities_filtered{type = attrition_types, area = {{chunk[1] * 32, chunk[2] * 32}, {(chunk[1] * 32) + 31, (chunk[2] * 32) + 31}}}) do
+							if math.random(5) == 1 then e.damage(e.max_health * 0.01, game.forces.neutral, "physical") end
+						end
+					end
 				end
 				
 				if storage.pollution_values[subsurface.index].total_exposed >= 500 then
 					for _, force in pairs(game.forces) do
 						force.script_trigger_research("ventilation")
-					end
-				end
-				
-				-- machine inefficiency due to pollution
-				if settings.global["enable-challenges"].value then
-					for _, e in ipairs(subsurface.find_entities_filtered{type = attrition_types}) do
-						if subsurface.get_pollution(e.position) > attrition_threshold and math.random(5) == 1 then e.damage(e.max_health * 0.01, game.forces.neutral, "physical") end
 					end
 				end
 			end
