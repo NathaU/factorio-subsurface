@@ -87,23 +87,33 @@ script.on_configuration_changed(function(config) -- TBC
 			end
 		end
 
-		for ac, _ in pairs(prototypes.autoplace_control) do
-			local creating_mod = prototypes.get_history("autoplace-control", ac).created
-			if config.mod_changes[creating_mod] and not config.mod_changes[creating_mod].old_version and prototypes.autoplace_control[ac].category == "resource" then
-				for _, s in pairs(game.surfaces) do
-					if not is_subsurface(s) and allow_subsurfaces(s) and s.map_gen_settings.autoplace_controls and s.map_gen_settings.autoplace_controls[control_name] then
-						local mgs = s.map_gen_settings
-						mgs.autoplace_controls[control_name].size = (mgs.autoplace_controls[control_name].size or 0) * size_formula(0)
-						s.map_gen_settings = mgs
-					end
-				end
+		local new_autoplace_control_prototypes = {}
+
+		for control_name, _ in pairs(prototypes.autoplace_control) do
+			local creating_mod = prototypes.get_history("autoplace-control", control_name).created
+			if config.mod_changes[creating_mod] and not config.mod_changes[creating_mod].old_version and prototypes.autoplace_control[control_name].category == "resource" then
+				table.insert(new_autoplace_control_prototypes, control_name)
 			end
 		end
 
-		for _, s in pairs(storage.subsurfaces) do
-			local mgs = s.map_gen_settings
-			copy_resource_data(mgs, get_top_surface(s), get_subsurface_depth(s))
-			s.map_gen_settings = mgs
+		if #new_autoplace_control_prototypes > 0 then
+			script.on_nth_tick(1, function(event)
+				for _, s in pairs(game.surfaces) do
+					for _, control_name in pairs(new_autoplace_control_prototypes) do
+						if not is_subsurface(s) and allow_subsurfaces(s) and s.map_gen_settings.autoplace_controls and s.map_gen_settings.autoplace_controls[control_name] then
+							local mgs = s.map_gen_settings
+							mgs.autoplace_controls[control_name].size = (mgs.autoplace_controls[control_name].size or 0) * size_formula(0)
+							s.map_gen_settings = mgs
+						end
+					end
+				end
+				for _, s in pairs(storage.subsurfaces) do
+					local mgs = s.map_gen_settings
+					copy_resource_data(mgs, get_top_surface(s), get_subsurface_depth(s))
+					s.map_gen_settings = mgs
+				end
+				script.on_nth_tick(1, nil)
+			end)
 		end
 	end
 	
