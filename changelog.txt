@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.19
+Date: 2025-12-31
+  Balancing:
+    - Improved performance of pollution damage checks
+  Bugfixes:
+    - Fixed crash when placing output item elevator
+    - Fixed crash when fluid elevator died before construction robots were available
+    - Space Exploration map view works in subsurfaces (but not remotely)
+---------------------------------------------------------------------------------------------------
 Version: 1.1.18
 Date: 2025-12-21
   Changes:
