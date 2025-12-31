@@ -719,10 +719,9 @@ script.on_event(defines.events.on_resource_depleted, function(event)
 			exit_car.destructible = false
 			exit_pole.destructible = false
 			
-			
-			for w, wc in pairs(entrance_pole.get_wire_connectors()) do
-				wc.connect_to(exit_pole.get_wire_connector(w), false, defines.wire_origin.script)
-			end
+			entrance_pole.get_wire_connector(defines.wire_connector_id.pole_copper, true).connect_to(exit_pole.get_wire_connector(defines.wire_connector_id.pole_copper, true), false, defines.wire_origin.script)
+			entrance_pole.get_wire_connector(defines.wire_connector_id.circuit_red, true).connect_to(exit_pole.get_wire_connector(defines.wire_connector_id.circuit_red, true), false, defines.wire_origin.script)
+			entrance_pole.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(exit_pole.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
 			
 			storage.pole_links[entrance_pole.unit_number] = exit_pole
 			storage.pole_links[exit_pole.unit_number] = entrance_pole
