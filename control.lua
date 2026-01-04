@@ -632,21 +632,19 @@ script.on_event({defines.events.on_player_mined_entity, defines.events.on_robot_
 end)
 
 script.on_event(defines.events.on_player_setup_blueprint, function(event)
-	local item = event.record or event.stack
-	if item.object_name == "LuaItemStack" and item.valid_for_read or item.valid_for_write then
-		local contents = item.get_blueprint_entities()
-		local modified = false
-		for _, e in ipairs(contents or {}) do
-			if e.name == "surface-drill" then
-				e.name = "surface-drill-placer"
-				modified = true
-			elseif e.name == "fluid-elevator-output" then
-				e.tags = {output = true}
-				modified = true
-			end
+	local player = game.get_player(event.player_index)
+	local blueprint = event.record or (player.is_cursor_empty() and player.blueprint_to_setup or player.cursor_stack)
+	local contents = blueprint.get_blueprint_entities()
+	local modified = false
+	for _, e in ipairs(contents or {}) do
+		if e.name == "surface-drill" then
+			e.name = "surface-drill-placer"
+			modified = true
+		elseif e.name == "fluid-elevator-output" then
+			blueprint.set_blueprint_entity_tag(e.entity_number, "output", true)
 		end
-		if modified then item.set_blueprint_entities(contents) end
 	end
+	if modified then blueprint.set_blueprint_entities(contents) end
 end)
 
 script.on_event(defines.events.on_player_cursor_stack_changed, function(event)
