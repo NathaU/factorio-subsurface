@@ -1,4 +1,5 @@
 require "circuit-connector-generated-definitions"
+local collision_mask_util = require "collision-mask-util"
 
 local blank_image = {filename = "__core__/graphics/empty.png", priority = "high", width = 1, height = 1}
 
@@ -291,7 +292,7 @@ data:extend(
 	resource_categories = {"subsurface-hole"},
 	minable = {hardness = 0.2, mining_time = 2, result = "surface-drill"},
 	placeable_by = {item = "surface-drill", count = 1},
-	collision_mask = data.raw["utility-constants"].default.default_collision_masks["mining-drill"],
+	collision_mask = util.merge{collision_mask_util.get_default_mask("mining-drill"), {layers = {surface_drill = true}}},
 	max_health = 300,
 	corpse = "burner-mining-drill-remnants",
 	dying_explosion = "burner-mining-drill-explosion",
@@ -335,7 +336,7 @@ data:extend(
 	hidden = true,
 	factoriopedia_alternative = "surface-drill",
 	factoriopedia_description = {"", {"entity-description.surface-drill"}, "\n\n", {"additional-description.surface-drill"}},
-	collision_mask = data.raw["utility-constants"].default.default_collision_masks["mining-drill"],
+	collision_mask = util.merge{collision_mask_util.get_default_mask("mining-drill"), {layers = {surface_drill = true}}},
 	max_health = 300,
 	corpse = "surface-drill-remnants",
 	collision_box = {{-2.1, -2.2}, {2.2, 2.2}},
@@ -869,7 +870,6 @@ data:extend(
   }
 })
 
-data.raw["mining-drill"]["surface-drill"].collision_mask.layers.surface_drill = true
 for _, o in ipairs({"north", "west", "south", "east"}) do
 	data.raw["mining-drill"]["surface-drill"].graphics_set.animation[o].layers[1].scale = 1
 	data.raw["mining-drill"]["surface-drill"].graphics_set.animation[o].layers[2].scale = 1
