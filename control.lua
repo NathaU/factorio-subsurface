@@ -625,6 +625,7 @@ script.on_event({defines.events.on_player_mined_entity, defines.events.on_robot_
 	if event.entity.name == "surface-drill" then
 		if event.entity.mining_target then event.entity.mining_target.destroy() end
 	else
+		elevator_removed(event.entity)
 		for _, w in ipairs(subsurface_wall_names) do
 			if event.entity.valid and event.entity.name == w then clear_subsurface(event.entity.surface, event.entity.position, 1.5) end
 		end
@@ -653,9 +654,7 @@ end)
 
 script.on_event(defines.events.on_selected_entity_changed, function(event)
 	local player = game.get_player(event.player_index)
-	for _, r in ipairs(storage.selection_indicators[event.player_index] or {}) do
-		r.destroy()
-	end
+	if event.last_entity then elevator_unselected(player, event.last_entity) end
 	if player.selected then elevator_selected(player, player.selected) end
 end)
 
@@ -691,6 +690,7 @@ script.on_event(defines.events.on_entity_died, function(event)
 	if entity.name == "surface-drill" then
 		if entity.mining_target then entity.mining_target.destroy() end
 		entity.surface.create_entity{name = "massive-explosion", position = entity.position}
+	else elevator_removed(entity)
 	end
 end)
 script.on_event(defines.events.on_post_entity_died, function(event)
