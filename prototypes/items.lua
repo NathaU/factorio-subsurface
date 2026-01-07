@@ -157,4 +157,15 @@ data:extend(
 	place_result = "subway",
 	stack_size = 2
   },
+
+  {
+	type = "item",
+	name = "caveground",
+	localised_name = {"tile-name.caveground"},
+	icon = "__Subsurface__/graphics/terrain/underground-dirt.png",
+	icon_size = 32,
+	flags = {"not-stackable"},
+	stack_size = 1,
+	place_as_tile = {result = "caveground", condition = {layers = {}}, condition_size = 1},
+  }
 })
