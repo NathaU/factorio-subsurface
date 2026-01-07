@@ -42,7 +42,6 @@ function setup_globals()
 	storage.train_subways = storage.train_subways or {}
 	storage.train_transport = storage.train_transport or {}
 	storage.train_stop_clones = storage.train_stop_clones or {}
-	storage.deconstruction_queue = storage.deconstruction_queue or {}
 	storage.exposed_chunks = storage.exposed_chunks or {}
 	storage.pollution_map = storage.pollution_map or {}
 	storage.pollution_values = storage.pollution_values or {}
@@ -272,7 +271,7 @@ function is_subsurface(surface)
 	else return false end
 end
 
-function create_walls(surface, positions)
+function create_walls(surface, positions, deconstruct_positions)
 	local props = {}
 	local names_ordered = {}
 	for name, expr in pairs(subsurface_wall_expressions) do
@@ -289,7 +288,12 @@ function create_walls(surface, positions)
 				prio = calcresult[p][pos_i]
 			end
 		end
-		surface.create_entity{name = name, position = pos, force = game.forces.neutral}
+		local w = surface.create_entity{name = name, position = pos, force = game.forces.neutral}
+		if deconstruct_positions and deconstruct_positions[pos_i] then
+			for _, f in pairs(game.forces) do
+				w.order_deconstruction(f)
+			end
+		end
 	end
 end
 
@@ -308,7 +312,7 @@ function clear_subsurface(surface, pos, radius, clearing_radius, return_inventor
 		end
 	end
 	
-	local inventory = game.create_inventory(10)	
+	local inventory = game.create_inventory(10)
 	for x, y in iarea(area) do -- first, replace all out-of-map tiles with their hidden tile which means that it is inside map limits)
 		if (x-pos.x)^2 + (y-pos.y)^2 < radius^2 and surface.get_hidden_tile({x, y}) then
 			local wall = surface.find_entities_filtered{name = subsurface_wall_names, position = {x, y}}[1]
@@ -322,16 +326,16 @@ function clear_subsurface(surface, pos, radius, clearing_radius, return_inventor
 	end
 	surface.set_tiles(new_tiles)
 	place_resources(surface, new_resource_positions)
-	
+
 	local new_wall_positions = {}
+	local deconstruct_positions = {}
 	for x, y in iarea(area) do -- second, place a wall where at least one out-of-map is adjacent
 		if surface.get_tile(x, y).valid and surface.get_tile(x, y).name == "out-of-map" and not surface.find_entities_filtered{name = subsurface_wall_names, position = {x, y}}[1] and not surface.find_entity("subsurface-wall-map-border", {x, y}) then
-			if (surface.get_tile(x+1, y).valid and surface.get_tile(x+1, y).name ~= "out-of-map")
-			or (surface.get_tile(x-1, y).valid and surface.get_tile(x-1, y).name ~= "out-of-map")
-			or (surface.get_tile(x, y+1).valid and surface.get_tile(x, y+1).name ~= "out-of-map")
-			or (surface.get_tile(x, y-1).valid and surface.get_tile(x, y-1).name ~= "out-of-map") then
+			local adj_tiles = {surface.get_tile(x + 1, y), surface.get_tile(x - 1, y), surface.get_tile(x, y + 1), surface.get_tile(x, y - 1)}
+			if (adj_tiles[1].valid and adj_tiles[1].name ~= "out-of-map") or (adj_tiles[2].valid and adj_tiles[2].name ~= "out-of-map") or (adj_tiles[3].valid and adj_tiles[3].name ~= "out-of-map") or (adj_tiles[4].valid and adj_tiles[4].name ~= "out-of-map") then
 				if surface.get_hidden_tile({x, y}) then
 					table.insert(new_wall_positions, {x, y})
+					table.insert(deconstruct_positions, adj_tiles[1].has_tile_ghost() or adj_tiles[2].has_tile_ghost() or adj_tiles[3].has_tile_ghost() or adj_tiles[4].has_tile_ghost())
 				else
 					local w = surface.create_entity{name = "subsurface-wall-map-border", position = {x, y}, force = game.forces.neutral}
 					w.destructible = false
@@ -339,7 +343,7 @@ function clear_subsurface(surface, pos, radius, clearing_radius, return_inventor
 			end
 		end
 	end
-	create_walls(surface, new_wall_positions)
+	create_walls(surface, new_wall_positions, deconstruct_positions)
 	
 	find_enemies_above(surface, pos, radius)
 
@@ -464,30 +468,6 @@ script.on_event(defines.events.on_tick, function(event)
 	if aai_miners and event.tick % 10 == 0 then handle_miners(event.tick) end
 	
 	if event.tick % 20 == 0 and settings.global["enable-challenges"].value and game.map_settings.enemy_expansion.enabled then handle_enemies(event.tick) end
-	
-	if event.tick % 60 == 0 then
-		for f, _ in pairs(storage.deconstruction_queue) do
-			for si, _ in pairs(storage.deconstruction_queue[f]) do
-				for x, _ in pairs(storage.deconstruction_queue[f][si]) do
-					for y, c in pairs(storage.deconstruction_queue[f][si][x]) do
-						local surface = game.get_surface(si)
-						if surface.get_tile(x, y).name == "out-of-map" then
-							if surface.find_entity("subsurface-wall", {x, y}) then
-								c[1].destroy()
-								c[2].destroy()
-								storage.deconstruction_queue[f][si][x][y] = nil
-								surface.find_entity("subsurface-wall", {x, y}).order_deconstruction(game.forces[f])
-							end
-						else
-							c[1].destroy()
-							c[2].destroy()
-							storage.deconstruction_queue[f][si][x][y] = nil
-						end
-					end
-				end
-			end
-		end
-	end
 end)
 
 function allow_subsurfaces(surface)
@@ -659,27 +639,14 @@ script.on_event(defines.events.on_selected_entity_changed, function(event)
 end)
 
 script.on_event(defines.events.on_player_deconstructed_area, function(event)
+	if not event.alt then return end
 	if is_subsurface(event.surface) then
-		event.area.left_top.x = math.ceil(event.area.left_top.x)
-		event.area.left_top.y = math.ceil(event.area.left_top.y)
-		event.area.right_bottom.x = math.floor(event.area.right_bottom.x)
-		event.area.right_bottom.y = math.floor(event.area.right_bottom.y)
-		local force = game.get_player(event.player_index).force
-		for x, y in iarea(event.area) do
-			if event.surface.get_tile(x, y).name == "out-of-map" then
-				storage.deconstruction_queue[force.name] = storage.deconstruction_queue[force.name] or {}
-				storage.deconstruction_queue[force.name][event.surface.index] = storage.deconstruction_queue[force.name][event.surface.index] or {}
-				storage.deconstruction_queue[force.name][event.surface.index][x] = storage.deconstruction_queue[force.name][event.surface.index][x] or {}
-				
-				if not event.alt and not storage.deconstruction_queue[force.name][event.surface.index][x][y] then
-					local r1 = rendering.draw_sprite{sprite = "utility/deconstruction_mark", surface = event.surface, target = {x, y}, x_scale = 0.4, y_scale = 0.4, tint = {0.5, 0.5, 0.5}, forces = force}
-					local r2 = rendering.draw_sprite{sprite = "utility/clock", surface = event.surface, target = {x + 0.25, y + 0.25}, x_scale = 0.5, y_scale = 0.5, tint = {0.5, 0.5, 0.5}, forces = force}
-					storage.deconstruction_queue[force.name][event.surface.index][x][y] = {r1, r2}
-				elseif event.alt and storage.deconstruction_queue[force.name][event.surface.index][x][y] then
-					storage.deconstruction_queue[force.name][event.surface.index][x][y][1].destroy()
-					storage.deconstruction_queue[force.name][event.surface.index][x][y][2].destroy()
-					storage.deconstruction_queue[force.name][event.surface.index][x][y] = nil
-				end
+		local player = game.get_player(event.player_index)
+		for _, tile in ipairs(event.surface.find_tiles_filtered{area = event.area, name = "out-of-map"}) do
+			if not tile.has_tile_ghost() then
+				event.surface.create_entity{name = "tile-ghost", inner_name = "caveground", position = tile.position, player = player, force = player.force}
+				local wall = event.surface.find_entities_filtered{name = subsurface_wall_names, position = tile.position, limit = 1}[1]
+				if wall then wall.order_deconstruction(player.force) end
 			end
 		end
 	end
@@ -783,9 +750,6 @@ script.on_event(defines.events.on_pre_surface_deleted, function(event)
 		storage.subsurfaces[i] = nil -- remove from list
 		i = s.index
 		game.delete_surface(s) -- delete s
-		for f, _ in pairs(storage.deconstruction_queue) do
-			if storage.deconstruction_queue[f][i] then storage.deconstruction_queue[f][i] = nil end
-		end
 	end
 	if is_subsurface(game.get_surface(event.surface_index)) then -- remove this surface from list
 		for s, ss in pairs(storage.subsurfaces) do

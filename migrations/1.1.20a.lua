@@ -41,4 +41,19 @@ for _, s in pairs(game.surfaces) do
 			end
 		end
 	end
+
+	if is_subsurface(s) then
+		for _, f in pairs(game.forces) do
+			s.set_default_cover_tile(f, "out-of-map", "caveground")
+
+			for x, ydata in pairs((storage.deconstruction_queue[f.name] or {})[s.index] or {}) do
+				for y, r in pairs(ydata) do
+					r[1].destroy()
+					r[2].destroy()
+					s.create_entity{name = "tile-ghost", inner_name = "caveground", position = {x, y}, force = f}
+				end
+			end
+		end
+	end
 end
+storage.deconstruction_queue = nil
