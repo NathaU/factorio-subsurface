@@ -470,7 +470,9 @@ script.on_event(defines.events.on_tick, function(event)
 end)
 
 function allow_subsurfaces(surface)
-	if string.find(surface.name, "[Ff]actory[- ]floor") or 0 > 1 then -- prevent placement in factorissimo
+	local surface_type = remote.interfaces["space-exploration"] and remote.call("space-exploration", "get_surface_type", {surface_index = surface.index})
+	if (string.find(surface.name, "[Ff]actory[- ]floor") or 0) > 0 -- disallow factorissimo
+	or surface_type == "orbit" or surface_type == "asteroid-belt" or surface_type == "asteroid-field" then -- disallow SE space
 		return false
 	else
 		for _, b in ipairs(blacklist) do
