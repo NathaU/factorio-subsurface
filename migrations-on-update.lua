@@ -22,5 +22,23 @@ return {
 			settings.global["enable-challenges"] = {value = not settings.global["generate-resources-underground"].value}
 			settings.global["generate-resources-underground"] = {value = not settings.global["generate-resources-underground"].value}
 		end
+	end,
+	["1.1.20"] = function()
+		for u, e in pairs(storage.pole_links) do
+			if e.valid then
+				storage.tunnel_links[u] = e
+				local opposite = storage.pole_links[e.unit_number]
+				e.get_wire_connector(defines.wire_connector_id.pole_copper, true).connect_to(opposite.get_wire_connector(defines.wire_connector_id.pole_copper, true), false, defines.wire_origin.script)
+				e.get_wire_connector(defines.wire_connector_id.circuit_red, true).connect_to(opposite.get_wire_connector(defines.wire_connector_id.circuit_red, true), false, defines.wire_origin.script)
+				e.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(opposite.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
+			end
+		end
+		for u, e in pairs(storage.car_links) do
+			if e.valid then
+				storage.tunnel_links[u] = e
+			end
+		end
+		storage.pole_links = nil
+		storage.car_links = nil
 	end
 }
