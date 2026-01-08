@@ -27,8 +27,7 @@ blacklist = {}
 
 function setup_globals()
 	storage.subsurfaces = storage.subsurfaces or {}
-	storage.pole_links = storage.pole_links or {}
-	storage.car_links = storage.car_links or {}
+	storage.tunnel_links = storage.tunnel_links or {}
 	storage.heat_elevators = storage.heat_elevators or {}
 	storage.air_vents = storage.air_vents or {}
 	storage.aai_digging_miners = storage.aai_digging_miners or {}
@@ -688,10 +687,10 @@ script.on_event(defines.events.on_resource_depleted, function(event)
 			entrance_pole.get_wire_connector(defines.wire_connector_id.circuit_red, true).connect_to(exit_pole.get_wire_connector(defines.wire_connector_id.circuit_red, true), false, defines.wire_origin.script)
 			entrance_pole.get_wire_connector(defines.wire_connector_id.circuit_green, true).connect_to(exit_pole.get_wire_connector(defines.wire_connector_id.circuit_green, true), false, defines.wire_origin.script)
 			
-			storage.pole_links[entrance_pole.unit_number] = exit_pole
-			storage.pole_links[exit_pole.unit_number] = entrance_pole
-			storage.car_links[entrance_car.unit_number] = exit_car
-			storage.car_links[exit_car.unit_number] = entrance_car
+			storage.tunnel_links[entrance_pole.unit_number] = exit_pole
+			storage.tunnel_links[exit_pole.unit_number] = entrance_pole
+			storage.tunnel_links[entrance_car.unit_number] = exit_car
+			storage.tunnel_links[exit_car.unit_number] = entrance_car
 			
 			script.register_on_object_destroyed(entrance_pole)
 			script.register_on_object_destroyed(exit_pole)
@@ -760,17 +759,18 @@ end)
 
 script.on_event(defines.events.on_object_destroyed, function(event)
 	if event.type ~= defines.target_type.entity then return end
-	if storage.pole_links[event.useful_id] and storage.pole_links[event.useful_id].valid then
+	if storage.tunnel_links[event.useful_id] then
 		-- entrances can't be mined, but in case they are destroyed by mods we have to handle it
-		local opposite_car = storage.pole_links[event.useful_id].surface.find_entities_filtered{name = {"tunnel-entrance", "tunnel-exit"}, position = storage.pole_links[event.useful_id].position, radius = 1}[1]
-		if opposite_car and opposite_car.valid then opposite_car.destroy() end
-		storage.pole_links[event.useful_id].destroy()
-		storage.pole_links[event.useful_id] = nil
-	elseif storage.car_links[event.useful_id] and storage.car_links[event.useful_id].valid then
-		local opposite_pole = storage.car_links[event.useful_id].surface.find_entities_filtered{name = {"tunnel-entrance-cable", "tunnel-exit-cable"}, position = storage.car_links[event.useful_id].position, radius = 1}[1]
-		if opposite_pole and opposite_pole.valid then opposite_pole.destroy() end
-		storage.car_links[event.useful_id].destroy()
-		storage.car_links[event.useful_id] = nil
+		local opposite = storage.tunnel_links[event.useful_id]
+		local opposite_other = opposite.surface.find_entities_filtered{name = opposite.type == "car" and {"tunnel-entrance-cable", "tunnel-exit-cable"} or {"tunnel-entrance", "tunnel-exit"}, position = opposite.position, radius = 1}[1]
+		local other = storage.tunnel_links[opposite_other.unit_number]
+		storage.tunnel_links[opposite.unit_number] = nil
+		storage.tunnel_links[opposite_other.unit_number] = nil
+		storage.tunnel_links[other.unit_number] = nil
+		opposite.destroy()
+		opposite_other.destroy()
+		other.destroy()
+		storage.tunnel_links[event.useful_id] = nil
 	elseif storage.support_lamps[event.useful_id] then
 		storage.support_lamps[event.useful_id].destroy()
 	elseif storage.train_subways[event.useful_id] then
