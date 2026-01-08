@@ -1,9 +1,20 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.20
+Date: 2026-01-08
+  Changes:
+    - Areas can now be marked for clearance by using the deconstruction planner with shift
+    - Ghosts can be placed in unexposed areas
+  Bugfixes:
+    - Fixed that mining drills couldn't be placed in SE space
+    - Disallow SE space surfaces
+    - Fixed occasional error while applying migration
+---------------------------------------------------------------------------------------------------
 Version: 1.1.19
 Date: 2025-12-31
   Balancing:
     - Improved performance of pollution damage checks
   Bugfixes:
+    - Fixed that entrances do not share a circuit network
     - Fixed crash when placing output item elevator
     - Fixed crash when fluid elevator died before construction robots were available
     - Space Exploration map view works in subsurfaces (but not remotely)
