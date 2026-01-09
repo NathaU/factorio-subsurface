@@ -6,7 +6,16 @@ data.subsurface_entity_restrictions["railgun-turret"] = "ammo-turret"
 
 -- index by type, give name of entities that are ignored
 type_restrictions = {
-	["electric-pole"] = {"wooden-support", "steel-support", "tunnel-entrance-cable", "tunnel-exit-cable"},
+	["electric-pole"] = {
+		"wooden-support",
+		"steel-support",
+		"tunnel-entrance-cable",
+		"tunnel-exit-cable",
+		"factory-circuit-connector",
+		"factory-power-pole",
+		"glutenfree-aai-signal-transmission-preview-laptop",
+		"or_pole",
+	},
 	["rocket-silo"] = {},
 	["cargo-landing-pad"] = {},
 	["rail-ramp"] = {},
