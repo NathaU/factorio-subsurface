@@ -16,7 +16,7 @@ function get_item_elevator_names()
 end
 
 function switch_elevator(entity) -- switch between input and output
-	if is_item_elevator(entity.name) or (entity.name == "entity-ghost" and is_item_elevator(entity.ghost_name)) then
+	if is_item_elevator(entity.name == "entity-ghost" and entity.ghost_name or entity.name) then
 		if entity.linked_belt_type == "input" then
 			entity.linked_belt_type = "output"
 		else
@@ -30,10 +30,12 @@ function switch_elevator(entity) -- switch between input and output
 		local new_endpoint = entity.surface.create_entity{name = new_name, position = entity.position, direction = entity.direction, force = entity.force, player = entity.last_user, quality = entity.quality}
 		new_endpoint.fluidbox[1] = entity.fluidbox[1]
 
-		storage.selection_indicators[new_endpoint.unit_number] = storage.selection_indicators[entity.unit_number]
-		storage.selection_indicators[new_endpoint.unit_number][1].target = {entity = new_endpoint, offset = storage.selection_indicators[entity.unit_number][1].target.offset}
-		storage.selection_indicators[new_endpoint.unit_number][2].target = new_endpoint
-		storage.selection_indicators[new_endpoint.unit_number][2].orientation = (storage.selection_indicators[new_endpoint.unit_number][2].orientation + 0.5) % 1
+		if storage.selection_indicators[entity.unit_number] then
+			storage.selection_indicators[new_endpoint.unit_number] = storage.selection_indicators[entity.unit_number]
+			storage.selection_indicators[new_endpoint.unit_number][1].target = {entity = new_endpoint, offset = storage.selection_indicators[entity.unit_number][1].target.offset}
+			storage.selection_indicators[new_endpoint.unit_number][2].target = new_endpoint
+			storage.selection_indicators[new_endpoint.unit_number][2].orientation = (storage.selection_indicators[new_endpoint.unit_number][2].orientation + 0.5) % 1
+		end
 		entity.destroy()
 		
 		return new_endpoint
