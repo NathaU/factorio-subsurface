@@ -222,6 +222,10 @@ function get_subsurface(surface, create)
 			subsurface.set_property("subsurface-level", depth)
 			subsurface.set_property("pressure", surface.get_property("pressure") * 1.1)
 
+			for _, f in pairs(game.forces) do
+				subsurface.set_default_cover_tile(f, "out-of-map", "caveground")
+			end
+
 			if settings.global["enable-challenges"].value then
 				local effect = surface.global_effect or {speed = 0, productivity = 0, consumption = 0}
 				effect.speed = effect.speed + 0.05 * depth
