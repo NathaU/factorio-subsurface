@@ -5,6 +5,7 @@ require("prototypes.items-groups")
 require("prototypes.recipes")
 require("prototypes.tech")
 require("prototypes.tiles")
+require("prototypes.tips-and-tricks")
 
 local smoke = table.deepcopy(data.raw["trivial-smoke"]["smoke-building"])
 smoke.name = "subsurface-smoke"
