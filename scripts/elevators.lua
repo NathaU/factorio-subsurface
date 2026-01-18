@@ -111,10 +111,7 @@ end
 function elevator_on_cursor_stack_changed(player)
 	for _, r in ipairs(storage.placement_indicators[player.index] or {}) do r.destroy() end
 	
-	local item = false
-	local fluid = false
-	local heat = false
-	local subway = false
+	local elevator_type = 0
 			
 	if player.is_cursor_blueprint() then
 		local blueprint = player.cursor_record or player.cursor_stack
@@ -130,23 +127,20 @@ function elevator_on_cursor_stack_changed(player)
 		end
 		
 		for _, e in ipairs(blueprint.get_blueprint_entities() or {}) do
-			if is_fluid_elevator(e.name) then fluid = true
-			elseif is_item_elevator(e.name) then item = true
-			elseif e.name == "heat-elevator" then heat = true
+			if is_fluid_elevator(e.name) then elevator_type = 2
+			elseif is_item_elevator(e.name) then elevator_type = 1
+			elseif e.name == "heat-elevator" then elevator_type = 3
 			end
 		end
 	elseif player.cursor_stack and player.cursor_stack.valid_for_read then
-		if player.cursor_stack.name == "fluid-elevator" then fluid = true
-		elseif is_item_elevator(player.cursor_stack.name) then item = true
-		elseif player.cursor_stack.name == "heat-elevator" then heat = true
-		elseif player.cursor_stack.name == "subway" then subway = true
+		if player.cursor_stack.name == "fluid-elevator" then elevator_type = 2
+		elseif is_item_elevator(player.cursor_stack.name) then elevator_type = 1
+		elseif player.cursor_stack.name == "heat-elevator" then elevator_type = 3
+		elseif player.cursor_stack.name == "subway" then elevator_type = 4
 		end
 	end
 	
-	if item then show_placement_indicators(player, 1) end
-	if fluid then show_placement_indicators(player, 2) end
-	if heat then show_placement_indicators(player, 3) end
-	if subway then show_placement_indicators(player, 4) end
+	if elevator_type > 0 then show_placement_indicators(player, elevator_type) end
 end
 
 function elevator_rotated(entity, previous_direction)
