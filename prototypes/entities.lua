@@ -825,6 +825,7 @@ data:extend(
 	tile_height = 2,
 	build_grid_size = 2,
 	max_health = 1000,
+	map_color = data.raw["utility-constants"]["default"].chart.rail_ramp_color,
 	render_layer = "train-stop-top",
 	picture = {
 	  north = {
