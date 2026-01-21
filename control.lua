@@ -94,7 +94,7 @@ script.on_configuration_changed(function(config) -- TBC
 			end
 		end
 
-		if #new_autoplace_control_prototypes > 0 then
+		if #new_autoplace_control_prototypes > 0 and not game.simulation then
 			script.on_nth_tick(1, function(event)
 				for _, s in pairs(game.surfaces) do
 					for _, control_name in pairs(new_autoplace_control_prototypes) do
