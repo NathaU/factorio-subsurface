@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.22
+Date: 2026-01-23
+  Features:
+    - Added tips and tricks entry for subways
+  Bugfixes:
+    - Fixed error in tips and tricks simulations
+---------------------------------------------------------------------------------------------------
 Version: 1.1.21
 Date: 2026-01-18
   Features:
