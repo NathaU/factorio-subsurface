@@ -110,6 +110,7 @@ function copy_resource_data(mgs, from_surface, depth)
 		end
 	end
 	
+	mgs.autoplace_settings = table.merge{mgs.autoplace_settings, {entity = {treat_missing_as_default = false, settings = {}}}}
 	for name, _ in pairs((from_surface.map_gen_settings.autoplace_settings.entity or {settings = {}}).settings) do
 		if (prototypes.entity[name] or {}).type == "resource" then
 			mgs.autoplace_settings.entity.settings[name] = {}
@@ -118,7 +119,7 @@ function copy_resource_data(mgs, from_surface, depth)
 			mgs.property_expression_names["entity:"..name..":probability"] = from_surface.map_gen_settings.property_expression_names["entity:"..name..":probability"]
 		end
 	end
-	if mgs.autoplace_settings.entity.settings then mgs.autoplace_settings.entity.settings["stone"] = nil end
+	mgs.autoplace_settings.entity.settings["stone"] = nil
 	mgs.property_expression_names["entity:stone:richness"] = nil
 	mgs.property_expression_names["entity:stone:probability"] = nil
 end
