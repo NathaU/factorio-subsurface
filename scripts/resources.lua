@@ -110,7 +110,7 @@ function copy_resource_data(mgs, from_surface, depth)
 		end
 	end
 	
-	mgs.autoplace_settings = table.merge{mgs.autoplace_settings, {entity = {treat_missing_as_default = false, settings = {}}}}
+	mgs.autoplace_settings = util.merge{mgs.autoplace_settings, {entity = {treat_missing_as_default = false, settings = {}}}}
 	for name, _ in pairs((from_surface.map_gen_settings.autoplace_settings.entity or {settings = {}}).settings) do
 		if (prototypes.entity[name] or {}).type == "resource" then
 			mgs.autoplace_settings.entity.settings[name] = {}
