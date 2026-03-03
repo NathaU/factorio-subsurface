@@ -137,7 +137,7 @@ end)
 
 function prospect_resources(prospector)
 	local surface = prospector.surface
-	local radius = 64
+	local radius = 64 * prospector.quality.range_multiplier
 	local pos_arr = get_area_positions(get_area(prospector.position, radius))
 	for i = #pos_arr, 1, -1 do
 		if (pos_arr[i][1] - prospector.position.x) ^ 2 + (pos_arr[i][2] - prospector.position.y) ^ 2 >= radius ^ 2 or (surface.get_tile(pos_arr[i][1], pos_arr[i][2]).valid and surface.get_tile(pos_arr[i][1], pos_arr[i][2]).name ~= "out-of-map") then

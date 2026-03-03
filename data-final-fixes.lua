@@ -109,6 +109,15 @@ for name, dt in pairs(data.raw["resource"]) do
 	end
 end
 
+-- Prospector range tooltip
+local p1 = data.raw["electric-energy-interface"]["prospector"].custom_tooltip_fields[1]
+p1.quality_values = {}
+local p2 = data.raw["constant-combinator"]["prospector-combinator"].custom_tooltip_fields[1]
+p2.quality_values = {}
+for name, quality in pairs(data.raw.quality) do
+	p1.quality_values[name] = tostring(64 * (quality.range_multiplier or math.min(1 + 0.1 * quality.level, 3)))
+	p2.quality_values[name] = p1.quality_values[name]
+end
 
 data.subsurface_entity_restrictions = data.subsurface_entity_restrictions or {}
 require "scripts.placement-restrictions"
