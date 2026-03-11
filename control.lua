@@ -792,9 +792,10 @@ end)
 
 script.on_event(defines.events.on_script_trigger_effect, function(event)
 	local surface = game.get_surface(event.surface_index)
-	if event.effect_id == "cliff-explosives" then
-		clear_subsurface(surface, event.target_position, 2.5)
-		surface.spill_item_stack{position = event.target_position, stack = {name = "stone", count = 20}, enable_looted = true, force = game.forces.neutral}
+	if string.sub(event.effect_id, 1, 15) == "destroy_cliffs-" and is_subsurface(surface) then
+		local _, _, radius = string.find(event.effect_id, "destroy_cliffs%-([0-9%.]+)")
+		clear_subsurface(surface, event.target_position, tonumber(radius) + 0.5)
+		surface.spill_item_stack{position = event.target_position, stack = {name = "stone", count = 20}, enable_looted = true, force = event.source_entity and event.source_entity.force or "neutral"}
 		surface.pollute(event.target_position, 10)
 	elseif event.effect_id == "cave-sealing" then
 		

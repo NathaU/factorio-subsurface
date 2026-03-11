@@ -90,7 +90,20 @@ if settings.startup["pollution-trains"].value then
 	end
 end
 
-table.insert(data.raw.projectile["cliff-explosives"].action[1].action_delivery.target_effects, {type = "script", effect_id = "cliff-explosives"})
+-- destroy-cliffs trigger
+for n, p in pairs(data.raw.projectile) do
+	log("Projectile ".. n)
+	for _, action in ipairs(p.action and (p.action.type and {p.action} or p.action) or {}) do
+		for _, action_delivery in ipairs(action.action_delivery and (action.action_delivery.type and {action.action_delivery} or action.action_delivery) or {}) do
+			local target_effects_array = action_delivery.target_effects and (action_delivery.target_effects.type and {action_delivery.target_effects} or action_delivery.target_effects) or {}
+			for _, target_effect in ipairs(target_effects_array) do
+				if target_effect.type == "destroy-cliffs" then
+					table.insert(target_effects_array, {type = "script", effect_id = "destroy_cliffs-" .. string.format("%.1f", target_effect.radius)})
+				end
+			end
+		end
+	end
+end
 
 -- Resources that are not dependent from x and y (e.g. aluminium-rock from PY Raw Ores), are not placed in "ore fields", they have the same probability everywhere.
 -- Since map seed of subsurfaces is the same as their oversurfaces, that would result in such resources being placed at the same spot when mirrored
