@@ -32,5 +32,11 @@ data:extend({
 	setting_type = "runtime-per-user",
 	name = "subsurface-pin-adjacent",
 	default_value = true,
+  },
+  {
+	type = "bool-setting",
+	setting_type = "runtime-per-user",
+	name = "show-prospector-range",
+	default_value = true,
   }
 })

@@ -573,13 +573,47 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		else cancel_placement(event, text)
 		end
 	elseif entity.name == "prospector" then
-		local combinator = entity.surface.create_entity{name = "prospector-combinator", position = entity.position, force = entity.force, quality = entity.quality}
-		storage.prospectors[combinator.unit_number] = {energy_interface = entity, combinator = combinator}
+		local combinator = entity.surface.create_entity{name = "prospector-combinator", position = entity.position, force = entity.force, quality = entity.quality, player = event.player_index}
+		storage.prospectors[combinator.unit_number] = {energy_interface = entity, combinator = combinator, remote_render = rendering.draw_circle{
+			color = {r = 0.25, g = 0.25, b = 0, a = 0.1},
+			radius = 64 * entity.quality.range_multiplier,
+			filled = true,
+			target = entity,
+			surface = entity.surface,
+			render_mode = "chart",
+			visible = false,
+		}}
 		script.register_on_object_destroyed(combinator)
+		storage.selection_indicators[combinator.unit_number] = {rendering.draw_circle{
+			color = {r = 0.1, g = 0.1, b = 0, a = 0.15},
+			radius = 64 * combinator.quality.range_multiplier,
+			filled = true,
+			target = combinator,
+			surface = combinator.surface,
+			draw_on_ground = true,
+			players = {player}
+		}}
 	elseif entity.name == "prospector-combinator" then
 		local energy_interface = entity.surface.create_entity{name = "prospector", position = entity.position, force = entity.force, quality = entity.quality}
-		storage.prospectors[entity.unit_number] = {energy_interface = energy_interface, combinator = entity}
+		storage.prospectors[entity.unit_number] = {energy_interface = energy_interface, combinator = entity, remote_render = rendering.draw_circle{
+			color = {r = 0.25, g = 0.25, b = 0, a = 0.1},
+			radius = 64 * entity.quality.range_multiplier,
+			filled = true,
+			target = entity,
+			surface = entity.surface,
+			render_mode = "chart",
+			visible = false,
+		}}
 		script.register_on_object_destroyed(entity)
+		storage.selection_indicators[entity.unit_number] = {rendering.draw_circle{
+			color = {r = 0.1, g = 0.1, b = 0, a = 0.15},
+			radius = 64 * entity.quality.range_multiplier,
+			filled = true,
+			target = entity,
+			surface = entity.surface,
+			draw_on_ground = true,
+			players = {player}
+		}}
 	elseif string.sub(entity.name, 1, 13) == "item-elevator" then elevator_built(entity)
 	elseif entity.name == "fluid-elevator-input" then
 		if event.tags and event.tags.output then entity = switch_elevator(entity) end
@@ -901,6 +935,24 @@ end)
 
 script.on_event(defines.events.on_player_controller_changed, function(event)
 	local player = game.get_player(event.player_index)
+	for _, p in pairs(storage.prospectors) do
+		if player.controller_type == defines.controllers.remote and settings.get_player_settings(player)["show-prospector-range"].value and p.combinator.force == player.force then
+			p.remote_render.visible = true
+			if not p.remote_render.players then p.remote_render.players = {player}
+			else table.insert(p.remote_render.players, player) end
+		else
+			local players = p.remote_render.players or {}
+			if #players == 1 and players[1] == player then
+				p.remote_render.visible = false
+				players = {}
+			else
+				for i, pl in ipairs(players or {}) do
+					if pl == player then table.remove(players, i) end
+				end
+			end
+			p.remote_render.players = players
+		end
+	end
 	if remote.interfaces["space-exploration"] and remote.call("space-exploration", "remote_view_is_active", {player = player}) then
 		local character = remote.call("space-exploration", "get_player_character", {player = player})
 		if character and is_subsurface(character.surface) then
@@ -912,7 +964,7 @@ end)
 function entity_unselected(player, entity)
 	for _, r in ipairs(storage.selection_indicators[entity.unit_number] or {}) do
 		local players = r.players or {}
-		if players[1] == player then
+		if #players == 1 and players[1] == player then
 			r.visible = false
 			players = {}
 		else
