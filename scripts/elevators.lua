@@ -273,26 +273,3 @@ function elevator_removed(entity)
 		storage.selection_indicators[endpoint.unit_number] = nil
 	end
 end
-
-function elevator_unselected(player, entity)
-	for _, r in ipairs(storage.selection_indicators[entity.unit_number] or {}) do
-		local players = r.players or {}
-		if players[1] == player then
-			r.visible = false
-			players = {}
-		else
-			for i, p in ipairs(players or {}) do
-				if p == player then table.remove(players, i) end
-			end
-		end
-		r.players = players
-	end
-end
-
-function elevator_selected(player, entity)
-	for _, r in ipairs(storage.selection_indicators[entity.unit_number] or {}) do
-		r.visible = true
-		if not r.players then r.players = {player}
-		else table.insert(r.players, player) end
-	end
-end
