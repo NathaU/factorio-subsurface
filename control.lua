@@ -639,8 +639,8 @@ end)
 
 script.on_event(defines.events.on_selected_entity_changed, function(event)
 	local player = game.get_player(event.player_index)
-	if event.last_entity then elevator_unselected(player, event.last_entity) end
-	if player.selected then elevator_selected(player, player.selected) end
+	if event.last_entity then entity_unselected(player, event.last_entity) end
+	if player.selected then entity_selected(player, player.selected) end
 end)
 
 script.on_event(defines.events.on_player_deconstructed_area, function(event)
@@ -870,7 +870,7 @@ script.on_event("subsurface-rotate", function(event)
 			r.destroy()
 		end
 		elevator_rotated(player.selected, player.selected.direction)
-		if player.selected then elevator_selected(player, player.selected) end
+		if player.selected then entity_selected(player, player.selected) end
 	end
 end)
 
@@ -908,3 +908,26 @@ script.on_event(defines.events.on_player_controller_changed, function(event)
 		end
 	end
 end)
+
+function entity_unselected(player, entity)
+	for _, r in ipairs(storage.selection_indicators[entity.unit_number] or {}) do
+		local players = r.players or {}
+		if players[1] == player then
+			r.visible = false
+			players = {}
+		else
+			for i, p in ipairs(players or {}) do
+				if p == player then table.remove(players, i) end
+			end
+		end
+		r.players = players
+	end
+end
+
+function entity_selected(player, entity)
+	for _, r in ipairs(storage.selection_indicators[entity.unit_number] or {}) do
+		r.visible = true
+		if not r.players then r.players = {player}
+		else table.insert(r.players, player) end
+	end
+end
