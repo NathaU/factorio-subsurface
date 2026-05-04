@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.24
+Date: 2026-05-04
+  Changes:
+    - Prospector scanning radius now depends on its quality
+    - Prospectors range is shown on the map
+  Bugfixes:
+    - Fixed that atomic bombs didn't work properly in subsurfaces
+---------------------------------------------------------------------------------------------------
 Version: 1.1.23
 Date: 2026-01-24
   Bugfixes:
