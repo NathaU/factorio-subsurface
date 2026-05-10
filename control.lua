@@ -821,6 +821,9 @@ script.on_event(defines.events.on_object_destroyed, function(event)
 	elseif storage.prospectors[event.useful_id] then
 		storage.prospectors[event.useful_id].energy_interface.destroy()
 		storage.prospectors[event.useful_id] = nil
+		for _, p in pairs(game.players) do
+			if p.gui.screen["prospector"] and p.gui.screen["prospector"].tags["prospector"] == event.useful_id then p.gui.screen["prospector"].destroy() return end
+		end
 	end
 end)
 
