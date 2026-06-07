@@ -4,11 +4,20 @@ on:
     push:
         branches:
             - master
+        paths:
+            - 'info.json'
 
 jobs:
     publish-mod:
         runs-on: ubuntu-latest
         steps:
+            - name: Update translations from Crowdin
+              run: curl -G -d 'repo=NathaU/factorio-subsurface' -d 'secret=${{ secrets.FACTORIO_MODS_LOCALIZATION }}' https://factorio-mods-localization.fly.dev/api/triggerUpdateWithSecret
+
+            - uses: GuillaumeFalourd/wait-sleep-action@v1
+              with:
+                time: '60'
+            
             - name: Checkout Repository
               uses: actions/checkout@v4
 
