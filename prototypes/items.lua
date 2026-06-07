@@ -17,15 +17,6 @@ data:extend(
 	place_result = "surface-drill-placer",
 	stack_size = 5
   },
-  {
-	type = "item",
-	name = "prospector",
-	icon = "__Subsurface__/graphics/icons/prospector.png",
-	subgroup = "production-machine",
-	order = "z",
-	place_result = "prospector",
-	stack_size = 50
-  },
   
   {
 	type = "item",
@@ -169,3 +160,17 @@ data:extend(
 	place_as_tile = {result = "caveground", condition = {layers = {}}, condition_size = 1},
   }
 })
+
+if not mods["Prospector"] then
+	data:extend({
+	  {
+		type = "item",
+		name = "prospector",
+		icon = "__Subsurface__/graphics/icons/prospector.png",
+		subgroup = "production-machine",
+		order = "z",
+		place_result = "prospector",
+		stack_size = 50
+	  }
+	})
+end

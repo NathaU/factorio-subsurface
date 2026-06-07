@@ -29,7 +29,7 @@ data:extend(
 	  {type = "unlock-recipe", recipe = "wooden-support"},
 	  {type = "unlock-recipe", recipe = "steel-support"},
 	  {type = "unlock-recipe", recipe = "cave-sealing"},
-	  {type = "unlock-recipe", recipe = "prospector"},
+	  not mods["Prospector"] and nil or {type = "unlock-recipe", recipe = "prospector"},
 	},
 	prerequisites = {"surface-drilling"},
 	research_trigger = {
