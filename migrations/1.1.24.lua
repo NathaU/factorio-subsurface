@@ -1,4 +1,4 @@
-for _, s in pairs(storage.prospectors) do
+for _, s in pairs(script.active_mods["Prospector"] and {} or storage.prospectors) do
 	storage.selection_indicators[s.combinator.unit_number] = {rendering.draw_circle{
 		color = {r = 0.1, g = 0.1, b = 0, a = 0.15},
 		radius = 64 * s.combinator.quality.range_multiplier,

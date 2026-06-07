@@ -26,17 +26,6 @@ data:extend(
   
   {
 	type = "recipe",
-	name = "prospector",
-	enabled = false,
-	ingredients =
-	{
-	  {type = "item", name = "radar", amount = 5},
-	},
-	results = {{type = "item", name = "prospector", amount = 1}}
-  },
-  
-  {
-	type = "recipe",
 	name = "fluid-elevator",
 	enabled = false,
 	energy_required = 2,
@@ -139,3 +128,17 @@ data:extend(
 	results  =  {{type = "item", name = "subway", amount = 2}}
   },
 })
+
+if not mods["Prospector"] then
+	data:extend({
+	  {
+		type = "recipe",
+		name = "prospector",
+		enabled = false,
+		ingredients = {
+			{type = "item", name = "radar", amount = 5}
+		},
+		results = {{type = "item", name = "prospector", amount = 1}}
+	  }
+	})
+end

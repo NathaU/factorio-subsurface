@@ -572,7 +572,7 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
 		if text == "" then replace_surface_drill_dummy(entity)
 		else cancel_placement(event, text)
 		end
-	elseif entity.name == "prospector" then
+	elseif entity.name == "prospector" and not script.active_mods["Prospector"] then
 		local combinator = entity.surface.create_entity{name = "prospector-combinator", position = entity.position, force = entity.force, quality = entity.quality, player = event.player_index}
 		storage.prospectors[combinator.unit_number] = {energy_interface = entity, combinator = combinator, remote_render = rendering.draw_circle{
 			color = {r = 0.25, g = 0.25, b = 0, a = 0.1},
