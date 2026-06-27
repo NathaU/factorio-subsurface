@@ -802,14 +802,20 @@ script.on_event(defines.events.on_object_destroyed, function(event)
 	if storage.tunnel_links[event.useful_id] then
 		-- entrances can't be mined, but in case they are destroyed by mods we have to handle it
 		local opposite = storage.tunnel_links[event.useful_id]
-		local opposite_other = opposite.surface.find_entities_filtered{name = opposite.type == "car" and {"tunnel-entrance-cable", "tunnel-exit-cable"} or {"tunnel-entrance", "tunnel-exit"}, position = opposite.position, radius = 1}[1]
-		local other = storage.tunnel_links[opposite_other.unit_number]
-		storage.tunnel_links[opposite.unit_number] = nil
-		storage.tunnel_links[opposite_other.unit_number] = nil
-		storage.tunnel_links[other.unit_number] = nil
-		opposite.destroy()
-		opposite_other.destroy()
-		other.destroy()
+		if opposite and opposite.valid then
+			local opposite_other = opposite.surface.find_entities_filtered{name = opposite.type == "car" and {"tunnel-entrance-cable", "tunnel-exit-cable"} or {"tunnel-entrance", "tunnel-exit"}, position = opposite.position, radius = 1}[1]
+			if opposite_other and opposite_other.valid then
+				local other = storage.tunnel_links[opposite_other.unit_number]
+				if other and other.valid then
+					storage.tunnel_links[other.unit_number] = nil
+					other.destroy()
+				end
+				storage.tunnel_links[opposite_other.unit_number] = nil
+				opposite_other.destroy()
+			end
+			storage.tunnel_links[opposite.unit_number] = nil
+			opposite.destroy()
+		end
 		storage.tunnel_links[event.useful_id] = nil
 	elseif storage.support_lamps[event.useful_id] then
 		storage.support_lamps[event.useful_id].destroy()
