@@ -21,7 +21,7 @@ data:extend(
 	name = "surface-drilling-dummy",
 	hidden = true,
 	icon = "__core__/graphics/empty.png",
-	category = "venting",
+	categories = {"venting"},
   },
   
   {
@@ -89,7 +89,7 @@ data:extend(
 	name = "venting",
 	icon = "__core__/graphics/empty.png",
 	hidden = true,
-	category = "venting",
+	categories = {"venting"},
 	energy_required = 60,
   },
   {

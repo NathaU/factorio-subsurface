@@ -178,12 +178,12 @@ data:extend(
 		},
 	  }
 	},
-	braking_power = "200kW",
+	braking_force = 1,
+	friction_force = 1,
 	energy_source = {type = "void"},
 	consumption = "150kW",
 	effectivity = 0.5,
 	energy_per_hit_point = 1,
-	friction = 0.9,
 	inventory_size = 0,
 	rotation_speed = 0.00,
 	selectable_in_game = false,
@@ -258,12 +258,12 @@ data:extend(
 		},
 	  }
 	},
-	braking_power = "200kW",
+	braking_force = 1,
+	friction_force = 1,
 	energy_source = {type = "void"},
 	consumption = "150kW",
 	effectivity = 0.5,
 	energy_per_hit_point = 1,
-	friction = 0.9,
 	inventory_size = 0,
 	rotation_speed = 0.00,
 	selectable_in_game = false,
@@ -314,6 +314,7 @@ data:extend(
 	drops_full_belt_stacks = feature_flags["space_travel"],
 	vector_to_place_result = {-1, -2.6},
 	graphics_set = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].graphics_set),
+	graphics_set_flipped = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].graphics_set_flipped),
 	circuit_connector = ccd,
 	circuit_wire_max_distance = default_circuit_wire_max_distance,
 	uses_force_mining_productivity_bonus = false,
@@ -342,6 +343,7 @@ data:extend(
 	collision_box = {{-2.1, -2.2}, {2.2, 2.2}},
 	selection_box = {{-2.2, -2.2}, {2.2, 2.2}},
 	graphics_set = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].graphics_set),
+	graphics_set_flipped = table.deepcopy(data.raw["mining-drill"]["burner-mining-drill"].graphics_set_flipped),
 	energy_source = {type = "electric", usage_priority = "secondary-input", emissions_per_minute = {pollution = 5}, drain = "0W"},
 	energy_usage = "2MW",
 	surface_conditions = gravity_condition(),
@@ -396,8 +398,7 @@ data:extend(
     open_sound = data.raw["assembling-machine"]["assembling-machine-1"].open_sound,
     close_sound = data.raw["assembling-machine"]["assembling-machine-1"].close_sound,
 	working_sound = data.raw["furnace"]["electric-furnace"].working_sound,
-	energy_source =
-	{
+	energy_source = {
 	  type = "electric",
 	  usage_priority = "secondary-input",
 	  emissions = 0,
@@ -419,8 +420,7 @@ data:extend(
 	render_layer = "decorative",
 	max_health = 350,
 	order = "z",
-	pictures =
-	{
+	pictures = {
 	  {
 		filename = "__Subsurface__/graphics/entities/air_vent_11.png",
 		width = 64,
@@ -822,8 +822,8 @@ if not mods["Prospector"] then
 		corpse = "radar-remnants",
 		dying_explosion = "radar-explosion",
 		resistances = {
-		{type = "fire", percent = 70},
-		{type = "impact", percent = 30}
+		  {type = "fire", percent = 70},
+		  {type = "impact", percent = 30}
 		},
 		selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
 		activity_led_light_offsets = {{0,0}, {0,0}, {0,0}, {0,0}},
@@ -843,14 +843,14 @@ if not mods["Prospector"] then
 		collision_box = {{-1.2, -1.2}, {1.2, 1.2}},
 		selection_box = {{-1.5, -1.5}, {1.5, 1.5}},
 		energy_source = {
-		type = "electric",
-		usage_priority = "secondary-input",
-		buffer_capacity = "3333.33J",
+		  type = "electric",
+		  usage_priority = "secondary-input",
+		  buffer_capacity = "3333.33J",
 		},
 		energy_usage = "200kW",
 		working_sound = table.deepcopy(data.raw.radar.radar.working_sound),
 		animation = {layers = {
-		{
+		  {
 			filename = "__Subsurface__/graphics/entities/prospector.png",
 			priority = "high",
 			width = 196,
@@ -860,8 +860,8 @@ if not mods["Prospector"] then
 			shift = util.by_pixel(1, -16),
 			scale = 0.5,
 			animation_speed = 0.0002
-		},
-		{
+		  },
+		  {
 			filename = "__Subsurface__/graphics/entities/prospector-shadow.png",
 			priority = "low",
 			width = 343,
@@ -871,17 +871,22 @@ if not mods["Prospector"] then
 			shift = util.by_pixel(39.25, 3),
 			draw_as_shadow = true,
 			scale = 0.5
-		}
+		  }
 		}},
 	  },
-})
+	})
 end
 
 for _, o in ipairs({"north", "west", "south", "east"}) do
 	data.raw["mining-drill"]["surface-drill"].graphics_set.animation[o].layers[1].scale = 1
+	data.raw["mining-drill"]["surface-drill"].graphics_set_flipped.animation[o].layers[1].scale = 1
 	data.raw["mining-drill"]["surface-drill"].graphics_set.animation[o].layers[2].scale = 1
+	data.raw["mining-drill"]["surface-drill"].graphics_set_flipped.animation[o].layers[2].scale = 1
 	data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation[o].layers[1].scale = 1
+	data.raw["assembling-machine"]["surface-drill-placer"].graphics_set_flipped.animation[o].layers[1].scale = 1
 	data.raw["assembling-machine"]["surface-drill-placer"].graphics_set.animation[o].layers[2].scale = 1
+	data.raw["assembling-machine"]["surface-drill-placer"].graphics_set_flipped.animation[o].layers[2].scale = 1
+
 end
 
 data.raw["electric-pole"]["wooden-support"].pictures.layers[1].filename = "__Subsurface__/graphics/entities/support/wooden-support.png"
