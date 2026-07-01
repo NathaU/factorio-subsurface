@@ -118,12 +118,12 @@ function handle_subways()
 						storage.train_transport[u] = data
 					end
 					
-					if data.arriving_train then -- if the train is already arriving, then we need to move the teleport position that the trains can connect
-						while v.connection.surface.can_place_entity{name = carriage.name, position = teleport_pos, direction = carriage.direction, force = carriage.force} do
-							teleport_pos = math2d.position.add(teleport_pos, math2d.vector.from_orientation(storage.train_subways[v.connection.unit_number].stop.orientation, -0.25))
-						end
-						teleport_pos = math2d.position.add(teleport_pos, math2d.vector.from_orientation(storage.train_subways[v.connection.unit_number].stop.orientation, 0.25))
-					end
+					-- if data.arriving_train then -- if the train is already arriving, then we need to move the teleport position that the trains can connect
+					-- 	while v.connection.surface.can_place_entity{name = carriage.name, position = teleport_pos, direction = carriage.direction, force = carriage.force} do
+					-- 		teleport_pos = math2d.position.add(teleport_pos, math2d.vector.from_orientation(storage.train_subways[v.connection.unit_number].stop.orientation, -0.25))
+					-- 	end
+					-- 	teleport_pos = math2d.position.add(teleport_pos, math2d.vector.from_orientation(storage.train_subways[v.connection.unit_number].stop.orientation, 0.25))
+					-- end
 					
 					local e = v.connection.surface.create_entity{name = carriage.name, orientation = carriage.orientation, position = teleport_pos, force = carriage.force, quality = carriage.quality}
 					
@@ -185,7 +185,7 @@ function handle_subways()
 						for i = 1, #inventory do to_inventory[i].set_stack(inventory[i]) end
 					end
 					for i = 1, carriage.fluids_count do
-						e.set_fluid(i, carriage.get_fluid(i))
+						if carriage.get_fluid(i) then e.set_fluid(i, carriage.get_fluid(i)) end
 					end
 
 					e.color = carriage.color
