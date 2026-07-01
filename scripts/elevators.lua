@@ -28,7 +28,7 @@ function switch_elevator(entity) -- switch between input and output
 		if entity.name == "fluid-elevator-input" then new_name = "fluid-elevator-output" end
 		
 		local new_endpoint = entity.surface.create_entity{name = new_name, position = entity.position, direction = entity.direction, force = entity.force, player = entity.last_user, quality = entity.quality}
-		new_endpoint.fluidbox[1] = entity.fluidbox[1]
+		if entity.get_fluid(1) then new_endpoint.set_fluid(1, entity.get_fluid(1)) end
 
 		if storage.selection_indicators[entity.unit_number] then
 			storage.selection_indicators[new_endpoint.unit_number] = storage.selection_indicators[entity.unit_number]
@@ -46,7 +46,7 @@ function get_linked_entity(entity)
 	if is_item_elevator(entity.name) then
 		return entity.linked_belt_neighbour
 	elseif is_fluid_elevator(entity.name) then
-		return entity.fluidbox.get_linked_connection(1)
+		return entity.get_fluid_box_linked_connection(1)
 	elseif entity.name == "heat-elevator" then
 		for _, v in ipairs(storage.heat_elevators) do
 			if v[1] == entity then return v[2]
@@ -145,12 +145,12 @@ end
 
 function elevator_rotated(entity, previous_direction)
 	if entity.name == "fluid-elevator-input" or entity.name == "fluid-elevator-output" then
-		if entity.fluidbox.get_linked_connection(1) ~= nil then
+		if entity.get_fluid_box_linked_connection(1) ~= nil then
 			entity.direction = previous_direction
-			local endpoint, _ = entity.fluidbox.get_linked_connection(1)
+			local endpoint, _ = entity.get_fluid_box_linked_connection(1)
 			entity = switch_elevator(entity)
 			endpoint = switch_elevator(endpoint)
-			entity.fluidbox.add_linked_connection(1, endpoint, 1)
+			entity.add_fluid_box_linked_connection(1, endpoint, 1)
 		end
 	elseif is_item_elevator(entity.name == "entity-ghost" and entity.ghost_name or entity.name) and entity.linked_belt_neighbour then
 		local neighbour = entity.linked_belt_neighbour
@@ -197,7 +197,7 @@ function elevator_built(entity)
 					if e.name == "fluid-elevator-input" then
 						entity = switch_elevator(entity) -- if both are input, switch last placed one to output
 					end
-					entity.fluidbox.add_linked_connection(1, e, 1)
+					entity.add_fluid_box_linked_connection(1, e, 1)
 
 					if i == 2 then -- built entity is top
 						offs = -0.3
@@ -209,7 +209,7 @@ function elevator_built(entity)
 
 				elseif entity.name == "fluid-elevator-output" then
 					if e.name == "fluid-elevator-input" then
-						entity.fluidbox.add_linked_connection(1, e, 1)
+						entity.add_fluid_box_linked_connection(1, e, 1)
 						if i == 2 then -- built entity is top
 							offs = -0.3
 						else

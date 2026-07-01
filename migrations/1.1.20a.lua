@@ -26,10 +26,10 @@ for _, s in pairs(game.surfaces) do
 			elseif entity.name == "fluid-elevator-input" or entity.name == "fluid-elevator-output" then
 				if endpoint.surface == get_subsurface(entity.surface, false) then -- selected entity is top
 					offs = -0.3
-					if entity.fluidbox.get_pipe_connections(1)[1].flow_direction == "input" then orien = 0.5 end
+					if entity.get_fluid_box_pipe_connections(1)[1].flow_direction == "input" then orien = 0.5 end
 				else
 					offs = 0.3
-					if entity.fluidbox.get_pipe_connections(1)[1].flow_direction == "output" then orien = 0.5 end
+					if entity.get_fluid_box_pipe_connections(1)[1].flow_direction == "output" then orien = 0.5 end
 				end
 			elseif entity.name == "heat-elevator" then
 				storage.selection_indicators[entity.unit_number] = {rendering.draw_sprite{sprite = "utility/indication_arrow", surface = entity.surface, target = entity, orientation = endpoint.surface == get_subsurface(entity.surface, false) and 0.5 or 0, visible = false}}
