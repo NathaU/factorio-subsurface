@@ -119,7 +119,7 @@ function elevator_on_cursor_stack_changed(player)
 			while blueprint and blueprint.type == "blueprint-book" do
 				blueprint = blueprint.contents[blueprint.get_active_index(player)]
 			end
-			if not blueprint or blueprint.is_blueprint_preview then return end
+			if not blueprint or blueprint.is_preview then return end
 		else
 			while blueprint.is_blueprint_book do
 				blueprint = blueprint.get_inventory(defines.inventory.item_main)[blueprint.active_index]
