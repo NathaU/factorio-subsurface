@@ -528,7 +528,7 @@ function cancel_placement(event, text)
 		for _, it in ipairs(event.consumed_items.get_contents()) do
 			player.insert(it)
 		end
-		if not player.cursor_stack.valid_for_read then player.pipette_entity(entity) end
+		if not player.cursor_stack.valid_for_read then player.pipette(entity, entity.quality) end
 	elseif event.robot then
 		entity.surface.play_sound{path = "utility/cannot_build", position = entity.position}
 		entity.surface.spill_item_stack{position = entity.position, stack = event.stack, force = event.robot.force, allow_belts = false}
