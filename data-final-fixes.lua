@@ -150,6 +150,17 @@ for entity_name, type in pairs(data.subsurface_entity_restrictions) do
 	end
 end
 
+-- Planet specific music
+for _, sound in pairs(data.raw["ambient-sound"]) do
+	if sound.track_type == "main-track" or sound.track_type == "interlude" then
+		local surfaces = sound.surface_names or {}
+		for _, p in ipairs(sound.planets or {}) do
+			table.insert(surfaces, p .. "_subsurface")
+		end
+		data.raw["ambient-sound"][sound.name].surface_names = surfaces
+	end
+end
+
 -----------------------
 -- MOD COMPATIBILITY --
 -----------------------
