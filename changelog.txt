@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.29
+Date: 2026-11-10
+  Changes:
+    - Ambient sounds are now correlated to the planet
+    - Sealed entrace can now be removed by placing floor tiles
+---------------------------------------------------------------------------------------------------
 Version: 1.1.28
 Date: 2026-09-16
   Bugfixes:
