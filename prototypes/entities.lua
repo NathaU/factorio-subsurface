@@ -23,10 +23,6 @@ for i = 0, 3 do
 	sealed_entrance.hidden = true
 	sealed_entrance.selection_box = {{0, 0}, {0, 0}}
 	sealed_entrance.collision_box = {{-1.4, -0.8}, {1.4, 1}}
-	if i == 3 then
-		sealed_entrance.collision_mask = {layers = {doodad = true}}
-		sealed_entrance.render_layer = "ground-patch"
-	end
 	sealed_entrance.pictures = {
 	  sheet = {
 		filename = "__Subsurface__/graphics/entrance-sealed-"..i..".png",
@@ -34,6 +30,12 @@ for i = 0, 3 do
 		scale = 0.5
 	  }
 	}
+	if i == 3 then
+		sealed_entrance.type = "optimized-decorative"
+		sealed_entrance.pictures.sheet.shift = {-0.3, 0.45}
+		sealed_entrance.collision_mask = {layers = {doodad = true}}
+		sealed_entrance.render_layer = "ground-patch"
+	end
 	data:extend({sealed_entrance})
 end
 

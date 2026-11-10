@@ -846,9 +846,12 @@ script.on_event(defines.events.on_script_trigger_effect, function(event)
 		local entrance = surface.find_entities_filtered{name = {"tunnel-entrance", "tunnel-entrance-sealed-0", "tunnel-entrance-sealed-1", "tunnel-entrance-sealed-2"}, position = event.target_position, radius = 3}[1]
 		if entrance then
 			local next_stage = {["tunnel-entrance"] = "tunnel-entrance-sealed-0", ["tunnel-entrance-sealed-0"] = "tunnel-entrance-sealed-1", ["tunnel-entrance-sealed-1"] = "tunnel-entrance-sealed-2", ["tunnel-entrance-sealed-2"] = "tunnel-entrance-sealed-3"}
-			local new_entrance = surface.create_entity{name = next_stage[entrance.name], position = entrance.position, force = game.forces.neutral}
-			new_entrance.destructible = false
-			
+			if not pcall(function()
+				local new_entrance = surface.create_entity{name = next_stage[entrance.name], position = entrance.position, force = game.forces.neutral}
+				new_entrance.destructible = false
+			end) then
+				surface.create_decoratives{decoratives = {{name = "tunnel-entrance-sealed-3", position = entrance.position, amount = 1}}}
+			end
 			if entrance.name == "tunnel-entrance" then create_walls(get_subsurface(surface), get_area_positions(get_area(event.target_position, 0.2))) end
 			
 			entrance.destroy()
