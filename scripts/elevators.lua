@@ -167,7 +167,15 @@ function elevator_built(entity)
 	local name_filter = {}
 	local direction_filter = {defines.direction.north, defines.direction.south, defines.direction.east, defines.direction.west}
 	local offset = {0, 0}
-	if is_item_elevator(entity.name) then name_filter = get_item_elevator_names()
+	if is_item_elevator(entity.name) then
+		if entity.linked_belt_neighbour then
+			storage.selection_indicators[entity.unit_number] = {
+				rendering.draw_sprite{sprite = "utility/indication_line", surface = entity.surface, target = {entity = entity, offset = {0, -0.3}}, visible = false},
+				rendering.draw_sprite{sprite = "utility/indication_arrow", surface = entity.surface, target = entity, orientation = orien, visible = false}
+			}
+			return
+		end
+		name_filter = get_item_elevator_names()
 	elseif is_fluid_elevator(entity.name) then name_filter = {"fluid-elevator-input", "fluid-elevator-output"}
 	elseif entity.name == "heat-elevator" then name_filter = {"heat-elevator"}
 	else
